@@ -1,2 +1,2 @@
 * text=auto
-sqlite3/* linguist-vendored=false
+sqlite3/src/* linguist-vendored=false
