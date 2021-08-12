@@ -1,3 +1,19 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "tl/types/payments.h"
 
 PaymentForm::PaymentForm(long form_id_, int bot_id_, TLObject invoice_, int provider_id_, std::string url_, std::vector<TLObject> users_, std::optional<bool> can_save_credentials_, std::optional<bool> password_missing_, std::optional<std::string> native_provider_, std::optional<TLObject> native_params_, std::optional<TLObject> saved_info_, std::optional<TLObject> saved_credentials_) {}
@@ -6,47 +22,23 @@ PaymentForm PaymentForm::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> can_save_credentials_;
-
-    if (1 << 2)
-        can_save_credentials_ = true;
-    else
-        can_save_credentials_ = std::nullopt;
+    can_save_credentials_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<bool> password_missing_;
-
-    if (1 << 3)
-        password_missing_ = true;
-    else
-        password_missing_ = std::nullopt;
+    password_missing_ = (1 << 3) ? std::optional{true} : std::nullopt;
     long form_id_ = Long::read(reader);
     int bot_id_ = Int::read(reader);
-    TLObject invoice_ = TLObject::read(reader);
+    TLObject invoice_ = std::get<TLObject>(TLObject::read(reader));
     int provider_id_ = Int::read(reader);
     std::string url_ = String::read(reader);
     std::optional<std::string> native_provider_;
-
-    if (1 << 4)
-        native_provider_ = String::read(reader);
-    else
-        native_provider_ = std::nullopt;
+    native_provider_ = (1 << 4) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<TLObject> native_params_;
-
-    if (1 << 4)
-        native_params_ = TLObject::read(reader);
-    else
-        native_params_ = std::nullopt;
+    native_params_ = (1 << 4) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> saved_info_;
-
-    if (1 << 0)
-        saved_info_ = TLObject::read(reader);
-    else
-        saved_info_ = std::nullopt;
+    saved_info_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> saved_credentials_;
-
-    if (1 << 1)
-        saved_credentials_ = TLObject::read(reader);
-    else
-        saved_credentials_ = std::nullopt;
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    saved_credentials_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return PaymentForm(form_id_, bot_id_, invoice_, provider_id_, url_, users_, can_save_credentials_, password_missing_, native_provider_, native_params_, saved_info_, saved_credentials_);
 }
 
@@ -88,17 +80,9 @@ ValidatedRequestedInfo ValidatedRequestedInfo::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<std::string> id_;
-
-    if (1 << 0)
-        id_ = String::read(reader);
-    else
-        id_ = std::nullopt;
+    id_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::vector<TLObject>> shipping_options_;
-
-    if (1 << 1)
-        shipping_options_ = Vector<TLObject>::read(reader);
-    else
-        shipping_options_ = std::nullopt;
+    shipping_options_ = (1 << 1) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     return ValidatedRequestedInfo(id_, shipping_options_);
 }
 
@@ -122,7 +106,7 @@ PaymentResult::PaymentResult(TLObject updates_) {}
 
 PaymentResult PaymentResult::read(Reader reader)
 {
-    TLObject updates_ = TLObject::read(reader);
+    TLObject updates_ = std::get<TLObject>(TLObject::read(reader));
     return PaymentResult(updates_);
 }
 
@@ -161,34 +145,18 @@ PaymentReceipt PaymentReceipt::read(Reader reader)
     std::string title_ = String::read(reader);
     std::string description_ = String::read(reader);
     std::optional<TLObject> photo_;
-
-    if (1 << 2)
-        photo_ = TLObject::read(reader);
-    else
-        photo_ = std::nullopt;
-    TLObject invoice_ = TLObject::read(reader);
+    photo_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
+    TLObject invoice_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<TLObject> info_;
-
-    if (1 << 0)
-        info_ = TLObject::read(reader);
-    else
-        info_ = std::nullopt;
+    info_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> shipping_;
-
-    if (1 << 1)
-        shipping_ = TLObject::read(reader);
-    else
-        shipping_ = std::nullopt;
+    shipping_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<long> tip_amount_;
-
-    if (1 << 3)
-        tip_amount_ = Long::read(reader);
-    else
-        tip_amount_ = std::nullopt;
+    tip_amount_ = (1 << 3) ? std::optional{Long::read(reader)} : std::nullopt;
     std::string currency_ = String::read(reader);
     long total_amount_ = Long::read(reader);
     std::string credentials_title_ = String::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return PaymentReceipt(date_, bot_id_, provider_id_, title_, description_, invoice_, currency_, total_amount_, credentials_title_, users_, photo_, info_, shipping_, tip_amount_);
 }
 
@@ -232,17 +200,9 @@ SavedInfo SavedInfo::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> has_saved_credentials_;
-
-    if (1 << 1)
-        has_saved_credentials_ = true;
-    else
-        has_saved_credentials_ = std::nullopt;
+    has_saved_credentials_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<TLObject> saved_info_;
-
-    if (1 << 0)
-        saved_info_ = TLObject::read(reader);
-    else
-        saved_info_ = std::nullopt;
+    saved_info_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return SavedInfo(has_saved_credentials_, saved_info_);
 }
 
@@ -264,7 +224,7 @@ BankCardData::BankCardData(std::string title_, std::vector<TLObject> open_urls_)
 BankCardData BankCardData::read(Reader reader)
 {
     std::string title_ = String::read(reader);
-    std::vector<TLObject> open_urls_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> open_urls_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return BankCardData(title_, open_urls_);
 }
 

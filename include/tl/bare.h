@@ -1,8 +1,25 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #pragma once
 #include "util.h"
+#include "TLObject.h"
 #include <vector>
 
-class Int
+class Int : public TLObject
 {
 public:
     Int() = default;
@@ -10,7 +27,7 @@ public:
     static std::string write(int value, std::string byteorder = "little");
 };
 
-class Int128
+class Int128 : public TLObject
 {
 public:
     Int128() = default;
@@ -18,7 +35,7 @@ public:
     static std::string write(uint128_t value, std::string byteorder = "little");
 };
 
-class Int256
+class Int256 : public TLObject
 {
 public:
     Int256() = default;
@@ -26,7 +43,7 @@ public:
     static std::string write(uint256_t value, std::string byteorder = "little");
 };
 
-class Long
+class Long : public TLObject
 {
 public:
     Long() = default;
@@ -34,7 +51,7 @@ public:
     static std::string write(unsigned long value, std::string byteorder = "little");
 };
 
-class Double
+class Double : public TLObject
 {
 public:
     Double() = default;
@@ -42,7 +59,7 @@ public:
     static std::string write(double value);
 };
 
-class Bytes
+class Bytes : public TLObject
 {
 public:
     Bytes() = default;
@@ -58,7 +75,7 @@ public:
     static std::string write(std::string value);
 };
 
-class Bool
+class Bool : public TLObject
 {
 private:
     static const int Bool::__bool_false_id = 0xbc799737;
@@ -71,7 +88,7 @@ public:
 };
 
 template <class T>
-class Vector
+class Vector : public TLObject
 {
 private:
     int __id = 0x1cb5c415;

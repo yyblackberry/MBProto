@@ -1,13 +1,20 @@
-#include "Client.h"
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
-Client::Client(
-    std::string storage_name,
-    int api_id,
-    std::string api_key,
-    std::string dc[2],
-    int port,
-    bool use_ipv6,
-    Transport transport) : __session(storage_name, api_id, api_key, dc, port, use_ipv6, transport) {}
+#include "Client.h"
 
 void Client::start()
 {

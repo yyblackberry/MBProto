@@ -1,17 +1,30 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "tl/functions/photos.h"
 
-template <class X>
-UpdateProfilePhoto<X>::UpdateProfilePhoto(TLObject id_) {}
+UpdateProfilePhoto::UpdateProfilePhoto(TLObject id_) {}
 
-template <class X>
-UpdateProfilePhoto<X> UpdateProfilePhoto<X>::read(Reader reader)
+UpdateProfilePhoto UpdateProfilePhoto::read(Reader reader)
 {
-    TLObject id_ = TLObject::read(reader);
-    return UpdateProfilePhoto<X>(id_);
+    TLObject id_ = std::get<TLObject>(TLObject::read(reader));
+    return UpdateProfilePhoto(id_);
 }
 
-template <class X>
-std::string UpdateProfilePhoto<X>::write()
+std::string UpdateProfilePhoto::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -19,36 +32,21 @@ std::string UpdateProfilePhoto<X>::write()
     return buffer;
 }
 
-template <class X>
-UploadProfilePhoto<X>::UploadProfilePhoto(std::optional<TLObject> file_, std::optional<TLObject> video_, std::optional<double> video_start_ts_) {}
+UploadProfilePhoto::UploadProfilePhoto(std::optional<TLObject> file_, std::optional<TLObject> video_, std::optional<double> video_start_ts_) {}
 
-template <class X>
-UploadProfilePhoto<X> UploadProfilePhoto<X>::read(Reader reader)
+UploadProfilePhoto UploadProfilePhoto::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<TLObject> file_;
-
-    if (1 << 0)
-        file_ = TLObject::read(reader);
-    else
-        file_ = std::nullopt;
+    file_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> video_;
-
-    if (1 << 1)
-        video_ = TLObject::read(reader);
-    else
-        video_ = std::nullopt;
+    video_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<double> video_start_ts_;
-
-    if (1 << 2)
-        video_start_ts_ = Double::read(reader);
-    else
-        video_start_ts_ = std::nullopt;
-    return UploadProfilePhoto<X>(file_, video_, video_start_ts_);
+    video_start_ts_ = (1 << 2) ? std::optional{Double::read(reader)} : std::nullopt;
+    return UploadProfilePhoto(file_, video_, video_start_ts_);
 }
 
-template <class X>
-std::string UploadProfilePhoto<X>::write()
+std::string UploadProfilePhoto::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -68,18 +66,15 @@ std::string UploadProfilePhoto<X>::write()
     return buffer;
 }
 
-template <class X>
-DeletePhotos<X>::DeletePhotos(std::vector<TLObject> id_) {}
+DeletePhotos::DeletePhotos(std::vector<TLObject> id_) {}
 
-template <class X>
-DeletePhotos<X> DeletePhotos<X>::read(Reader reader)
+DeletePhotos DeletePhotos::read(Reader reader)
 {
-    std::vector<TLObject> id_ = Vector<TLObject>::read(reader);
-    return DeletePhotos<X>(id_);
+    std::vector<TLObject> id_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    return DeletePhotos(id_);
 }
 
-template <class X>
-std::string DeletePhotos<X>::write()
+std::string DeletePhotos::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -87,21 +82,18 @@ std::string DeletePhotos<X>::write()
     return buffer;
 }
 
-template <class X>
-GetUserPhotos<X>::GetUserPhotos(TLObject user_id_, int offset_, long max_id_, int limit_) {}
+GetUserPhotos::GetUserPhotos(TLObject user_id_, int offset_, long max_id_, int limit_) {}
 
-template <class X>
-GetUserPhotos<X> GetUserPhotos<X>::read(Reader reader)
+GetUserPhotos GetUserPhotos::read(Reader reader)
 {
-    TLObject user_id_ = TLObject::read(reader);
+    TLObject user_id_ = std::get<TLObject>(TLObject::read(reader));
     int offset_ = Int::read(reader);
     long max_id_ = Long::read(reader);
     int limit_ = Int::read(reader);
-    return GetUserPhotos<X>(user_id_, offset_, max_id_, limit_);
+    return GetUserPhotos(user_id_, offset_, max_id_, limit_);
 }
 
-template <class X>
-std::string GetUserPhotos<X>::write()
+std::string GetUserPhotos::write()
 {
     std::string buffer;
     buffer += Int::write(__id);

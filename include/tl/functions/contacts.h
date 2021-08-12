@@ -1,10 +1,25 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #pragma once
 #include "tl/bare.h"
 #include "tl/TLObject.h"
 #include <optional>
 
-template <class X>
-class GetContactIDs
+class GetContactIDs : public TLObject
 {
 private:
     int __id = 0x2caa4a42;
@@ -12,24 +27,22 @@ private:
 public:
     int hash;
     GetContactIDs(int hash_);
-    static GetContactIDs<X> read(Reader reader);
+    static GetContactIDs read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetStatuses
+class GetStatuses : public TLObject
 {
 private:
     int __id = 0xc4a353ee;
 
 public:
     GetStatuses() = default;
-    static GetStatuses<X> read(Reader reader);
+    static GetStatuses read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetContacts
+class GetContacts : public TLObject
 {
 private:
     int __id = 0xc023849f;
@@ -37,12 +50,11 @@ private:
 public:
     int hash;
     GetContacts(int hash_);
-    static GetContacts<X> read(Reader reader);
+    static GetContacts read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ImportContacts
+class ImportContacts : public TLObject
 {
 private:
     int __id = 0x2c800be5;
@@ -50,12 +62,11 @@ private:
 public:
     std::vector<TLObject> contacts;
     ImportContacts(std::vector<TLObject> contacts_);
-    static ImportContacts<X> read(Reader reader);
+    static ImportContacts read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class DeleteContacts
+class DeleteContacts : public TLObject
 {
 private:
     int __id = 0x96a0e00;
@@ -63,12 +74,11 @@ private:
 public:
     std::vector<TLObject> id;
     DeleteContacts(std::vector<TLObject> id_);
-    static DeleteContacts<X> read(Reader reader);
+    static DeleteContacts read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class DeleteByPhones
+class DeleteByPhones : public TLObject
 {
 private:
     int __id = 0x1013fd9e;
@@ -76,12 +86,11 @@ private:
 public:
     std::vector<std::string> phones;
     DeleteByPhones(std::vector<std::string> phones_);
-    static DeleteByPhones<X> read(Reader reader);
+    static DeleteByPhones read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class Block
+class Block : public TLObject
 {
 private:
     int __id = 0x68cc1411;
@@ -89,12 +98,11 @@ private:
 public:
     TLObject id;
     Block(TLObject id_);
-    static Block<X> read(Reader reader);
+    static Block read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class Unblock
+class Unblock : public TLObject
 {
 private:
     int __id = 0xbea65d50;
@@ -102,12 +110,11 @@ private:
 public:
     TLObject id;
     Unblock(TLObject id_);
-    static Unblock<X> read(Reader reader);
+    static Unblock read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetBlocked
+class GetBlocked : public TLObject
 {
 private:
     int __id = 0xf57c350f;
@@ -116,12 +123,11 @@ public:
     int offset;
     int limit;
     GetBlocked(int offset_, int limit_);
-    static GetBlocked<X> read(Reader reader);
+    static GetBlocked read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class Search
+class Search : public TLObject
 {
 private:
     int __id = 0x11f812d8;
@@ -130,12 +136,11 @@ public:
     std::string q;
     int limit;
     Search(std::string q_, int limit_);
-    static Search<X> read(Reader reader);
+    static Search read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ResolveUsername
+class ResolveUsername : public TLObject
 {
 private:
     int __id = 0xf93ccba3;
@@ -143,12 +148,11 @@ private:
 public:
     std::string username;
     ResolveUsername(std::string username_);
-    static ResolveUsername<X> read(Reader reader);
+    static ResolveUsername read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetTopPeers
+class GetTopPeers : public TLObject
 {
 private:
     int __id = 0xd4982db5;
@@ -166,12 +170,11 @@ public:
     int limit;
     int hash;
     GetTopPeers(int offset_, int limit_, int hash_, std::optional<bool> correspondents_ = std::nullopt, std::optional<bool> bots_pm_ = std::nullopt, std::optional<bool> bots_inline_ = std::nullopt, std::optional<bool> phone_calls_ = std::nullopt, std::optional<bool> forward_users_ = std::nullopt, std::optional<bool> forward_chats_ = std::nullopt, std::optional<bool> groups_ = std::nullopt, std::optional<bool> channels_ = std::nullopt);
-    static GetTopPeers<X> read(Reader reader);
+    static GetTopPeers read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ResetTopPeerRating
+class ResetTopPeerRating : public TLObject
 {
 private:
     int __id = 0x1ae373ac;
@@ -180,36 +183,33 @@ public:
     TLObject category;
     TLObject peer;
     ResetTopPeerRating(TLObject category_, TLObject peer_);
-    static ResetTopPeerRating<X> read(Reader reader);
+    static ResetTopPeerRating read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ResetSaved
+class ResetSaved : public TLObject
 {
 private:
     int __id = 0x879537f1;
 
 public:
     ResetSaved() = default;
-    static ResetSaved<X> read(Reader reader);
+    static ResetSaved read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetSaved
+class GetSaved : public TLObject
 {
 private:
     int __id = 0x82f1e39f;
 
 public:
     GetSaved() = default;
-    static GetSaved<X> read(Reader reader);
+    static GetSaved read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ToggleTopPeers
+class ToggleTopPeers : public TLObject
 {
 private:
     int __id = 0x8514bdda;
@@ -217,12 +217,11 @@ private:
 public:
     bool enabled;
     ToggleTopPeers(bool enabled_);
-    static ToggleTopPeers<X> read(Reader reader);
+    static ToggleTopPeers read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class AddContact
+class AddContact : public TLObject
 {
 private:
     int __id = 0xe8f463d0;
@@ -234,12 +233,11 @@ public:
     std::string last_name;
     std::string phone;
     AddContact(TLObject id_, std::string first_name_, std::string last_name_, std::string phone_, std::optional<bool> add_phone_privacy_exception_ = std::nullopt);
-    static AddContact<X> read(Reader reader);
+    static AddContact read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class AcceptContact
+class AcceptContact : public TLObject
 {
 private:
     int __id = 0xf831a20f;
@@ -247,12 +245,11 @@ private:
 public:
     TLObject id;
     AcceptContact(TLObject id_);
-    static AcceptContact<X> read(Reader reader);
+    static AcceptContact read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetLocated
+class GetLocated : public TLObject
 {
 private:
     int __id = 0xd348bc44;
@@ -262,12 +259,11 @@ public:
     TLObject geo_point;
     std::optional<int> self_expires;
     GetLocated(TLObject geo_point_, std::optional<bool> background_ = std::nullopt, std::optional<int> self_expires_ = std::nullopt);
-    static GetLocated<X> read(Reader reader);
+    static GetLocated read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class BlockFromReplies
+class BlockFromReplies : public TLObject
 {
 private:
     int __id = 0x29a8962c;
@@ -278,6 +274,6 @@ public:
     std::optional<bool> report_spam;
     int msg_id;
     BlockFromReplies(int msg_id_, std::optional<bool> delete_message_ = std::nullopt, std::optional<bool> delete_history_ = std::nullopt, std::optional<bool> report_spam_ = std::nullopt);
-    static BlockFromReplies<X> read(Reader reader);
+    static BlockFromReplies read(Reader reader);
     std::string write();
 };

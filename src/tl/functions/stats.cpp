@@ -1,24 +1,33 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "tl/functions/stats.h"
 
-template <class X>
-GetBroadcastStats<X>::GetBroadcastStats(TLObject channel_, std::optional<bool> dark_) {}
+GetBroadcastStats::GetBroadcastStats(TLObject channel_, std::optional<bool> dark_) {}
 
-template <class X>
-GetBroadcastStats<X> GetBroadcastStats<X>::read(Reader reader)
+GetBroadcastStats GetBroadcastStats::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> dark_;
-
-    if (1 << 0)
-        dark_ = true;
-    else
-        dark_ = std::nullopt;
-    TLObject channel_ = TLObject::read(reader);
-    return GetBroadcastStats<X>(channel_, dark_);
+    dark_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    return GetBroadcastStats(channel_, dark_);
 }
 
-template <class X>
-std::string GetBroadcastStats<X>::write()
+std::string GetBroadcastStats::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -28,25 +37,18 @@ std::string GetBroadcastStats<X>::write()
     return buffer;
 }
 
-template <class X>
-LoadAsyncGraph<X>::LoadAsyncGraph(std::string token_, std::optional<long> x_) {}
+LoadAsyncGraph::LoadAsyncGraph(std::string token_, std::optional<long> x_) {}
 
-template <class X>
-LoadAsyncGraph<X> LoadAsyncGraph<X>::read(Reader reader)
+LoadAsyncGraph LoadAsyncGraph::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::string token_ = String::read(reader);
     std::optional<long> x_;
-
-    if (1 << 0)
-        x_ = Long::read(reader);
-    else
-        x_ = std::nullopt;
-    return LoadAsyncGraph<X>(token_, x_);
+    x_ = (1 << 0) ? std::optional{Long::read(reader)} : std::nullopt;
+    return LoadAsyncGraph(token_, x_);
 }
 
-template <class X>
-std::string LoadAsyncGraph<X>::write()
+std::string LoadAsyncGraph::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -59,25 +61,18 @@ std::string LoadAsyncGraph<X>::write()
     return buffer;
 }
 
-template <class X>
-GetMegagroupStats<X>::GetMegagroupStats(TLObject channel_, std::optional<bool> dark_) {}
+GetMegagroupStats::GetMegagroupStats(TLObject channel_, std::optional<bool> dark_) {}
 
-template <class X>
-GetMegagroupStats<X> GetMegagroupStats<X>::read(Reader reader)
+GetMegagroupStats GetMegagroupStats::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> dark_;
-
-    if (1 << 0)
-        dark_ = true;
-    else
-        dark_ = std::nullopt;
-    TLObject channel_ = TLObject::read(reader);
-    return GetMegagroupStats<X>(channel_, dark_);
+    dark_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    return GetMegagroupStats(channel_, dark_);
 }
 
-template <class X>
-std::string GetMegagroupStats<X>::write()
+std::string GetMegagroupStats::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -87,23 +82,20 @@ std::string GetMegagroupStats<X>::write()
     return buffer;
 }
 
-template <class X>
-GetMessagePublicForwards<X>::GetMessagePublicForwards(TLObject channel_, int msg_id_, int offset_rate_, TLObject offset_peer_, int offset_id_, int limit_) {}
+GetMessagePublicForwards::GetMessagePublicForwards(TLObject channel_, int msg_id_, int offset_rate_, TLObject offset_peer_, int offset_id_, int limit_) {}
 
-template <class X>
-GetMessagePublicForwards<X> GetMessagePublicForwards<X>::read(Reader reader)
+GetMessagePublicForwards GetMessagePublicForwards::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
     int msg_id_ = Int::read(reader);
     int offset_rate_ = Int::read(reader);
-    TLObject offset_peer_ = TLObject::read(reader);
+    TLObject offset_peer_ = std::get<TLObject>(TLObject::read(reader));
     int offset_id_ = Int::read(reader);
     int limit_ = Int::read(reader);
-    return GetMessagePublicForwards<X>(channel_, msg_id_, offset_rate_, offset_peer_, offset_id_, limit_);
+    return GetMessagePublicForwards(channel_, msg_id_, offset_rate_, offset_peer_, offset_id_, limit_);
 }
 
-template <class X>
-std::string GetMessagePublicForwards<X>::write()
+std::string GetMessagePublicForwards::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -116,26 +108,19 @@ std::string GetMessagePublicForwards<X>::write()
     return buffer;
 }
 
-template <class X>
-GetMessageStats<X>::GetMessageStats(TLObject channel_, int msg_id_, std::optional<bool> dark_) {}
+GetMessageStats::GetMessageStats(TLObject channel_, int msg_id_, std::optional<bool> dark_) {}
 
-template <class X>
-GetMessageStats<X> GetMessageStats<X>::read(Reader reader)
+GetMessageStats GetMessageStats::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> dark_;
-
-    if (1 << 0)
-        dark_ = true;
-    else
-        dark_ = std::nullopt;
-    TLObject channel_ = TLObject::read(reader);
+    dark_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
     int msg_id_ = Int::read(reader);
-    return GetMessageStats<X>(channel_, msg_id_, dark_);
+    return GetMessageStats(channel_, msg_id_, dark_);
 }
 
-template <class X>
-std::string GetMessageStats<X>::write()
+std::string GetMessageStats::write()
 {
     std::string buffer;
     buffer += Int::write(__id);

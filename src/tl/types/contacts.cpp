@@ -1,3 +1,19 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "tl/types/contacts.h"
 ContactsNotModified ContactsNotModified::read(Reader reader)
 {
@@ -15,9 +31,9 @@ Contacts::Contacts(std::vector<TLObject> contacts_, int saved_count_, std::vecto
 
 Contacts Contacts::read(Reader reader)
 {
-    std::vector<TLObject> contacts_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> contacts_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     int saved_count_ = Int::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return Contacts(contacts_, saved_count_, users_);
 }
 
@@ -35,10 +51,10 @@ ImportedContacts::ImportedContacts(std::vector<TLObject> imported_, std::vector<
 
 ImportedContacts ImportedContacts::read(Reader reader)
 {
-    std::vector<TLObject> imported_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> popular_invites_ = Vector<TLObject>::read(reader);
-    std::vector<long> retry_contacts_ = Vector<long>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> imported_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> popular_invites_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<long> retry_contacts_ = std::get<std::vector<long>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return ImportedContacts(imported_, popular_invites_, retry_contacts_, users_);
 }
 
@@ -57,9 +73,9 @@ Blocked::Blocked(std::vector<TLObject> blocked_, std::vector<TLObject> chats_, s
 
 Blocked Blocked::read(Reader reader)
 {
-    std::vector<TLObject> blocked_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> blocked_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return Blocked(blocked_, chats_, users_);
 }
 
@@ -78,9 +94,9 @@ BlockedSlice::BlockedSlice(int count_, std::vector<TLObject> blocked_, std::vect
 BlockedSlice BlockedSlice::read(Reader reader)
 {
     int count_ = Int::read(reader);
-    std::vector<TLObject> blocked_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> blocked_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return BlockedSlice(count_, blocked_, chats_, users_);
 }
 
@@ -99,10 +115,10 @@ Found::Found(std::vector<TLObject> my_results_, std::vector<TLObject> results_, 
 
 Found Found::read(Reader reader)
 {
-    std::vector<TLObject> my_results_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> results_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> my_results_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> results_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return Found(my_results_, results_, chats_, users_);
 }
 
@@ -121,9 +137,9 @@ ResolvedPeer::ResolvedPeer(TLObject peer_, std::vector<TLObject> chats_, std::ve
 
 ResolvedPeer ResolvedPeer::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return ResolvedPeer(peer_, chats_, users_);
 }
 
@@ -152,9 +168,9 @@ TopPeers::TopPeers(std::vector<TLObject> categories_, std::vector<TLObject> chat
 
 TopPeers TopPeers::read(Reader reader)
 {
-    std::vector<TLObject> categories_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> categories_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return TopPeers(categories_, chats_, users_);
 }
 

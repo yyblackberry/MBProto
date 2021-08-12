@@ -1,3 +1,19 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "tl/functions/help.h"
 
 ConfigSimple::ConfigSimple(int date_, int expires_, std::vector<TLObject> rules_) {}
@@ -6,7 +22,7 @@ ConfigSimple ConfigSimple::read(Reader reader)
 {
     int date_ = Int::read(reader);
     int expires_ = Int::read(reader);
-    std::vector<TLObject> rules_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> rules_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return ConfigSimple(date_, expires_, rules_);
 }
 
@@ -19,90 +35,76 @@ std::string ConfigSimple::write()
     buffer += Vector<TLObject>::write(rules);
     return buffer;
 }
-template <class X>
-GetConfig<X> GetConfig<X>::read(Reader reader)
+GetConfig GetConfig::read(Reader reader)
 {
-    return GetConfig<X>();
+    return GetConfig();
 }
 
-template <class X>
-std::string GetConfig<X>::write()
+std::string GetConfig::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     return buffer;
 }
-template <class X>
-GetNearestDc<X> GetNearestDc<X>::read(Reader reader)
+GetNearestDc GetNearestDc::read(Reader reader)
 {
-    return GetNearestDc<X>();
+    return GetNearestDc();
 }
 
-template <class X>
-std::string GetNearestDc<X>::write()
+std::string GetNearestDc::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     return buffer;
 }
 
-template <class X>
-GetAppUpdate<X>::GetAppUpdate(std::string source_) {}
+GetAppUpdate::GetAppUpdate(std::string source_) {}
 
-template <class X>
-GetAppUpdate<X> GetAppUpdate<X>::read(Reader reader)
+GetAppUpdate GetAppUpdate::read(Reader reader)
 {
     std::string source_ = String::read(reader);
-    return GetAppUpdate<X>(source_);
+    return GetAppUpdate(source_);
 }
 
-template <class X>
-std::string GetAppUpdate<X>::write()
+std::string GetAppUpdate::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     buffer += String::write(source);
     return buffer;
 }
-template <class X>
-GetInviteText<X> GetInviteText<X>::read(Reader reader)
+GetInviteText GetInviteText::read(Reader reader)
 {
-    return GetInviteText<X>();
+    return GetInviteText();
 }
 
-template <class X>
-std::string GetInviteText<X>::write()
+std::string GetInviteText::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     return buffer;
 }
-template <class X>
-GetSupport<X> GetSupport<X>::read(Reader reader)
+GetSupport GetSupport::read(Reader reader)
 {
-    return GetSupport<X>();
+    return GetSupport();
 }
 
-template <class X>
-std::string GetSupport<X>::write()
+std::string GetSupport::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     return buffer;
 }
 
-template <class X>
-GetAppChangelog<X>::GetAppChangelog(std::string prev_app_version_) {}
+GetAppChangelog::GetAppChangelog(std::string prev_app_version_) {}
 
-template <class X>
-GetAppChangelog<X> GetAppChangelog<X>::read(Reader reader)
+GetAppChangelog GetAppChangelog::read(Reader reader)
 {
     std::string prev_app_version_ = String::read(reader);
-    return GetAppChangelog<X>(prev_app_version_);
+    return GetAppChangelog(prev_app_version_);
 }
 
-template <class X>
-std::string GetAppChangelog<X>::write()
+std::string GetAppChangelog::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -110,19 +112,16 @@ std::string GetAppChangelog<X>::write()
     return buffer;
 }
 
-template <class X>
-SetBotUpdatesStatus<X>::SetBotUpdatesStatus(int pending_updates_count_, std::string message_) {}
+SetBotUpdatesStatus::SetBotUpdatesStatus(int pending_updates_count_, std::string message_) {}
 
-template <class X>
-SetBotUpdatesStatus<X> SetBotUpdatesStatus<X>::read(Reader reader)
+SetBotUpdatesStatus SetBotUpdatesStatus::read(Reader reader)
 {
     int pending_updates_count_ = Int::read(reader);
     std::string message_ = String::read(reader);
-    return SetBotUpdatesStatus<X>(pending_updates_count_, message_);
+    return SetBotUpdatesStatus(pending_updates_count_, message_);
 }
 
-template <class X>
-std::string SetBotUpdatesStatus<X>::write()
+std::string SetBotUpdatesStatus::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -130,64 +129,54 @@ std::string SetBotUpdatesStatus<X>::write()
     buffer += String::write(message);
     return buffer;
 }
-template <class X>
-GetCdnConfig<X> GetCdnConfig<X>::read(Reader reader)
+GetCdnConfig GetCdnConfig::read(Reader reader)
 {
-    return GetCdnConfig<X>();
+    return GetCdnConfig();
 }
 
-template <class X>
-std::string GetCdnConfig<X>::write()
+std::string GetCdnConfig::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     return buffer;
 }
 
-template <class X>
-GetRecentMeUrls<X>::GetRecentMeUrls(std::string referer_) {}
+GetRecentMeUrls::GetRecentMeUrls(std::string referer_) {}
 
-template <class X>
-GetRecentMeUrls<X> GetRecentMeUrls<X>::read(Reader reader)
+GetRecentMeUrls GetRecentMeUrls::read(Reader reader)
 {
     std::string referer_ = String::read(reader);
-    return GetRecentMeUrls<X>(referer_);
+    return GetRecentMeUrls(referer_);
 }
 
-template <class X>
-std::string GetRecentMeUrls<X>::write()
+std::string GetRecentMeUrls::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     buffer += String::write(referer);
     return buffer;
 }
-template <class X>
-GetTermsOfServiceUpdate<X> GetTermsOfServiceUpdate<X>::read(Reader reader)
+GetTermsOfServiceUpdate GetTermsOfServiceUpdate::read(Reader reader)
 {
-    return GetTermsOfServiceUpdate<X>();
+    return GetTermsOfServiceUpdate();
 }
 
-template <class X>
-std::string GetTermsOfServiceUpdate<X>::write()
+std::string GetTermsOfServiceUpdate::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     return buffer;
 }
 
-template <class X>
-AcceptTermsOfService<X>::AcceptTermsOfService(TLObject id_) {}
+AcceptTermsOfService::AcceptTermsOfService(TLObject id_) {}
 
-template <class X>
-AcceptTermsOfService<X> AcceptTermsOfService<X>::read(Reader reader)
+AcceptTermsOfService AcceptTermsOfService::read(Reader reader)
 {
-    TLObject id_ = TLObject::read(reader);
-    return AcceptTermsOfService<X>(id_);
+    TLObject id_ = std::get<TLObject>(TLObject::read(reader));
+    return AcceptTermsOfService(id_);
 }
 
-template <class X>
-std::string AcceptTermsOfService<X>::write()
+std::string AcceptTermsOfService::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -195,50 +184,42 @@ std::string AcceptTermsOfService<X>::write()
     return buffer;
 }
 
-template <class X>
-GetDeepLinkInfo<X>::GetDeepLinkInfo(std::string path_) {}
+GetDeepLinkInfo::GetDeepLinkInfo(std::string path_) {}
 
-template <class X>
-GetDeepLinkInfo<X> GetDeepLinkInfo<X>::read(Reader reader)
+GetDeepLinkInfo GetDeepLinkInfo::read(Reader reader)
 {
     std::string path_ = String::read(reader);
-    return GetDeepLinkInfo<X>(path_);
+    return GetDeepLinkInfo(path_);
 }
 
-template <class X>
-std::string GetDeepLinkInfo<X>::write()
+std::string GetDeepLinkInfo::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     buffer += String::write(path);
     return buffer;
 }
-template <class X>
-GetAppConfig<X> GetAppConfig<X>::read(Reader reader)
+GetAppConfig GetAppConfig::read(Reader reader)
 {
-    return GetAppConfig<X>();
+    return GetAppConfig();
 }
 
-template <class X>
-std::string GetAppConfig<X>::write()
+std::string GetAppConfig::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     return buffer;
 }
 
-template <class X>
-SaveAppLog<X>::SaveAppLog(std::vector<TLObject> events_) {}
+SaveAppLog::SaveAppLog(std::vector<TLObject> events_) {}
 
-template <class X>
-SaveAppLog<X> SaveAppLog<X>::read(Reader reader)
+SaveAppLog SaveAppLog::read(Reader reader)
 {
-    std::vector<TLObject> events_ = Vector<TLObject>::read(reader);
-    return SaveAppLog<X>(events_);
+    std::vector<TLObject> events_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    return SaveAppLog(events_);
 }
 
-template <class X>
-std::string SaveAppLog<X>::write()
+std::string SaveAppLog::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -246,50 +227,42 @@ std::string SaveAppLog<X>::write()
     return buffer;
 }
 
-template <class X>
-GetPassportConfig<X>::GetPassportConfig(int hash_) {}
+GetPassportConfig::GetPassportConfig(int hash_) {}
 
-template <class X>
-GetPassportConfig<X> GetPassportConfig<X>::read(Reader reader)
+GetPassportConfig GetPassportConfig::read(Reader reader)
 {
     int hash_ = Int::read(reader);
-    return GetPassportConfig<X>(hash_);
+    return GetPassportConfig(hash_);
 }
 
-template <class X>
-std::string GetPassportConfig<X>::write()
+std::string GetPassportConfig::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     buffer += Int::write(hash);
     return buffer;
 }
-template <class X>
-GetSupportName<X> GetSupportName<X>::read(Reader reader)
+GetSupportName GetSupportName::read(Reader reader)
 {
-    return GetSupportName<X>();
+    return GetSupportName();
 }
 
-template <class X>
-std::string GetSupportName<X>::write()
+std::string GetSupportName::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     return buffer;
 }
 
-template <class X>
-GetUserInfo<X>::GetUserInfo(TLObject user_id_) {}
+GetUserInfo::GetUserInfo(TLObject user_id_) {}
 
-template <class X>
-GetUserInfo<X> GetUserInfo<X>::read(Reader reader)
+GetUserInfo GetUserInfo::read(Reader reader)
 {
-    TLObject user_id_ = TLObject::read(reader);
-    return GetUserInfo<X>(user_id_);
+    TLObject user_id_ = std::get<TLObject>(TLObject::read(reader));
+    return GetUserInfo(user_id_);
 }
 
-template <class X>
-std::string GetUserInfo<X>::write()
+std::string GetUserInfo::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -297,20 +270,17 @@ std::string GetUserInfo<X>::write()
     return buffer;
 }
 
-template <class X>
-EditUserInfo<X>::EditUserInfo(TLObject user_id_, std::string message_, std::vector<TLObject> entities_) {}
+EditUserInfo::EditUserInfo(TLObject user_id_, std::string message_, std::vector<TLObject> entities_) {}
 
-template <class X>
-EditUserInfo<X> EditUserInfo<X>::read(Reader reader)
+EditUserInfo EditUserInfo::read(Reader reader)
 {
-    TLObject user_id_ = TLObject::read(reader);
+    TLObject user_id_ = std::get<TLObject>(TLObject::read(reader));
     std::string message_ = String::read(reader);
-    std::vector<TLObject> entities_ = Vector<TLObject>::read(reader);
-    return EditUserInfo<X>(user_id_, message_, entities_);
+    std::vector<TLObject> entities_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    return EditUserInfo(user_id_, message_, entities_);
 }
 
-template <class X>
-std::string EditUserInfo<X>::write()
+std::string EditUserInfo::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -319,32 +289,27 @@ std::string EditUserInfo<X>::write()
     buffer += Vector<TLObject>::write(entities);
     return buffer;
 }
-template <class X>
-GetPromoData<X> GetPromoData<X>::read(Reader reader)
+GetPromoData GetPromoData::read(Reader reader)
 {
-    return GetPromoData<X>();
+    return GetPromoData();
 }
 
-template <class X>
-std::string GetPromoData<X>::write()
+std::string GetPromoData::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     return buffer;
 }
 
-template <class X>
-HidePromoData<X>::HidePromoData(TLObject peer_) {}
+HidePromoData::HidePromoData(TLObject peer_) {}
 
-template <class X>
-HidePromoData<X> HidePromoData<X>::read(Reader reader)
+HidePromoData HidePromoData::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    return HidePromoData<X>(peer_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    return HidePromoData(peer_);
 }
 
-template <class X>
-std::string HidePromoData<X>::write()
+std::string HidePromoData::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -352,19 +317,16 @@ std::string HidePromoData<X>::write()
     return buffer;
 }
 
-template <class X>
-DismissSuggestion<X>::DismissSuggestion(TLObject peer_, std::string suggestion_) {}
+DismissSuggestion::DismissSuggestion(TLObject peer_, std::string suggestion_) {}
 
-template <class X>
-DismissSuggestion<X> DismissSuggestion<X>::read(Reader reader)
+DismissSuggestion DismissSuggestion::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::string suggestion_ = String::read(reader);
-    return DismissSuggestion<X>(peer_, suggestion_);
+    return DismissSuggestion(peer_, suggestion_);
 }
 
-template <class X>
-std::string DismissSuggestion<X>::write()
+std::string DismissSuggestion::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -373,19 +335,16 @@ std::string DismissSuggestion<X>::write()
     return buffer;
 }
 
-template <class X>
-GetCountriesList<X>::GetCountriesList(std::string lang_code_, int hash_) {}
+GetCountriesList::GetCountriesList(std::string lang_code_, int hash_) {}
 
-template <class X>
-GetCountriesList<X> GetCountriesList<X>::read(Reader reader)
+GetCountriesList GetCountriesList::read(Reader reader)
 {
     std::string lang_code_ = String::read(reader);
     int hash_ = Int::read(reader);
-    return GetCountriesList<X>(lang_code_, hash_);
+    return GetCountriesList(lang_code_, hash_);
 }
 
-template <class X>
-std::string GetCountriesList<X>::write()
+std::string GetCountriesList::write()
 {
     std::string buffer;
     buffer += Int::write(__id);

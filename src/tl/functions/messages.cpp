@@ -1,17 +1,30 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "tl/functions/messages.h"
 
-template <class X>
-GetMessages<X>::GetMessages(std::vector<TLObject> id_) {}
+GetMessages::GetMessages(std::vector<TLObject> id_) {}
 
-template <class X>
-GetMessages<X> GetMessages<X>::read(Reader reader)
+GetMessages GetMessages::read(Reader reader)
 {
-    std::vector<TLObject> id_ = Vector<TLObject>::read(reader);
-    return GetMessages<X>(id_);
+    std::vector<TLObject> id_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    return GetMessages(id_);
 }
 
-template <class X>
-std::string GetMessages<X>::write()
+std::string GetMessages::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -19,35 +32,24 @@ std::string GetMessages<X>::write()
     return buffer;
 }
 
-template <class X>
-GetDialogs<X>::GetDialogs(int offset_date_, int offset_id_, TLObject offset_peer_, int limit_, int hash_, std::optional<bool> exclude_pinned_, std::optional<int> folder_id_) {}
+GetDialogs::GetDialogs(int offset_date_, int offset_id_, TLObject offset_peer_, int limit_, int hash_, std::optional<bool> exclude_pinned_, std::optional<int> folder_id_) {}
 
-template <class X>
-GetDialogs<X> GetDialogs<X>::read(Reader reader)
+GetDialogs GetDialogs::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> exclude_pinned_;
-
-    if (1 << 0)
-        exclude_pinned_ = true;
-    else
-        exclude_pinned_ = std::nullopt;
+    exclude_pinned_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<int> folder_id_;
-
-    if (1 << 1)
-        folder_id_ = Int::read(reader);
-    else
-        folder_id_ = std::nullopt;
+    folder_id_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     int offset_date_ = Int::read(reader);
     int offset_id_ = Int::read(reader);
-    TLObject offset_peer_ = TLObject::read(reader);
+    TLObject offset_peer_ = std::get<TLObject>(TLObject::read(reader));
     int limit_ = Int::read(reader);
     int hash_ = Int::read(reader);
-    return GetDialogs<X>(offset_date_, offset_id_, offset_peer_, limit_, hash_, exclude_pinned_, folder_id_);
+    return GetDialogs(offset_date_, offset_id_, offset_peer_, limit_, hash_, exclude_pinned_, folder_id_);
 }
 
-template <class X>
-std::string GetDialogs<X>::write()
+std::string GetDialogs::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -65,13 +67,11 @@ std::string GetDialogs<X>::write()
     return buffer;
 }
 
-template <class X>
-GetHistory<X>::GetHistory(TLObject peer_, int offset_id_, int offset_date_, int add_offset_, int limit_, int max_id_, int min_id_, int hash_) {}
+GetHistory::GetHistory(TLObject peer_, int offset_id_, int offset_date_, int add_offset_, int limit_, int max_id_, int min_id_, int hash_) {}
 
-template <class X>
-GetHistory<X> GetHistory<X>::read(Reader reader)
+GetHistory GetHistory::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int offset_id_ = Int::read(reader);
     int offset_date_ = Int::read(reader);
     int add_offset_ = Int::read(reader);
@@ -79,11 +79,10 @@ GetHistory<X> GetHistory<X>::read(Reader reader)
     int max_id_ = Int::read(reader);
     int min_id_ = Int::read(reader);
     int hash_ = Int::read(reader);
-    return GetHistory<X>(peer_, offset_id_, offset_date_, add_offset_, limit_, max_id_, min_id_, hash_);
+    return GetHistory(peer_, offset_id_, offset_date_, add_offset_, limit_, max_id_, min_id_, hash_);
 }
 
-template <class X>
-std::string GetHistory<X>::write()
+std::string GetHistory::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -98,28 +97,18 @@ std::string GetHistory<X>::write()
     return buffer;
 }
 
-template <class X>
-Search<X>::Search(TLObject peer_, std::string q_, TLObject filter_, int min_date_, int max_date_, int offset_id_, int add_offset_, int limit_, int max_id_, int min_id_, int hash_, std::optional<TLObject> from_id_, std::optional<int> top_msg_id_) {}
+Search::Search(TLObject peer_, std::string q_, TLObject filter_, int min_date_, int max_date_, int offset_id_, int add_offset_, int limit_, int max_id_, int min_id_, int hash_, std::optional<TLObject> from_id_, std::optional<int> top_msg_id_) {}
 
-template <class X>
-Search<X> Search<X>::read(Reader reader)
+Search Search::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::string q_ = String::read(reader);
     std::optional<TLObject> from_id_;
-
-    if (1 << 0)
-        from_id_ = TLObject::read(reader);
-    else
-        from_id_ = std::nullopt;
+    from_id_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> top_msg_id_;
-
-    if (1 << 1)
-        top_msg_id_ = Int::read(reader);
-    else
-        top_msg_id_ = std::nullopt;
-    TLObject filter_ = TLObject::read(reader);
+    top_msg_id_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
+    TLObject filter_ = std::get<TLObject>(TLObject::read(reader));
     int min_date_ = Int::read(reader);
     int max_date_ = Int::read(reader);
     int offset_id_ = Int::read(reader);
@@ -128,11 +117,10 @@ Search<X> Search<X>::read(Reader reader)
     int max_id_ = Int::read(reader);
     int min_id_ = Int::read(reader);
     int hash_ = Int::read(reader);
-    return Search<X>(peer_, q_, filter_, min_date_, max_date_, offset_id_, add_offset_, limit_, max_id_, min_id_, hash_, from_id_, top_msg_id_);
+    return Search(peer_, q_, filter_, min_date_, max_date_, offset_id_, add_offset_, limit_, max_id_, min_id_, hash_, from_id_, top_msg_id_);
 }
 
-template <class X>
-std::string Search<X>::write()
+std::string Search::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -159,19 +147,16 @@ std::string Search<X>::write()
     return buffer;
 }
 
-template <class X>
-ReadHistory<X>::ReadHistory(TLObject peer_, int max_id_) {}
+ReadHistory::ReadHistory(TLObject peer_, int max_id_) {}
 
-template <class X>
-ReadHistory<X> ReadHistory<X>::read(Reader reader)
+ReadHistory ReadHistory::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int max_id_ = Int::read(reader);
-    return ReadHistory<X>(peer_, max_id_);
+    return ReadHistory(peer_, max_id_);
 }
 
-template <class X>
-std::string ReadHistory<X>::write()
+std::string ReadHistory::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -180,32 +165,21 @@ std::string ReadHistory<X>::write()
     return buffer;
 }
 
-template <class X>
-DeleteHistory<X>::DeleteHistory(TLObject peer_, int max_id_, std::optional<bool> just_clear_, std::optional<bool> revoke_) {}
+DeleteHistory::DeleteHistory(TLObject peer_, int max_id_, std::optional<bool> just_clear_, std::optional<bool> revoke_) {}
 
-template <class X>
-DeleteHistory<X> DeleteHistory<X>::read(Reader reader)
+DeleteHistory DeleteHistory::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> just_clear_;
-
-    if (1 << 0)
-        just_clear_ = true;
-    else
-        just_clear_ = std::nullopt;
+    just_clear_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> revoke_;
-
-    if (1 << 1)
-        revoke_ = true;
-    else
-        revoke_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    revoke_ = (1 << 1) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int max_id_ = Int::read(reader);
-    return DeleteHistory<X>(peer_, max_id_, just_clear_, revoke_);
+    return DeleteHistory(peer_, max_id_, just_clear_, revoke_);
 }
 
-template <class X>
-std::string DeleteHistory<X>::write()
+std::string DeleteHistory::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -217,25 +191,18 @@ std::string DeleteHistory<X>::write()
     return buffer;
 }
 
-template <class X>
-DeleteMessages<X>::DeleteMessages(std::vector<int> id_, std::optional<bool> revoke_) {}
+DeleteMessages::DeleteMessages(std::vector<int> id_, std::optional<bool> revoke_) {}
 
-template <class X>
-DeleteMessages<X> DeleteMessages<X>::read(Reader reader)
+DeleteMessages DeleteMessages::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> revoke_;
-
-    if (1 << 0)
-        revoke_ = true;
-    else
-        revoke_ = std::nullopt;
-    std::vector<int> id_ = Vector<int>::read(reader);
-    return DeleteMessages<X>(id_, revoke_);
+    revoke_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    std::vector<int> id_ = std::get<std::vector<int>>(TLObject::read(reader));
+    return DeleteMessages(id_, revoke_);
 }
 
-template <class X>
-std::string DeleteMessages<X>::write()
+std::string DeleteMessages::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -245,18 +212,15 @@ std::string DeleteMessages<X>::write()
     return buffer;
 }
 
-template <class X>
-ReceivedMessages<X>::ReceivedMessages(int max_id_) {}
+ReceivedMessages::ReceivedMessages(int max_id_) {}
 
-template <class X>
-ReceivedMessages<X> ReceivedMessages<X>::read(Reader reader)
+ReceivedMessages ReceivedMessages::read(Reader reader)
 {
     int max_id_ = Int::read(reader);
-    return ReceivedMessages<X>(max_id_);
+    return ReceivedMessages(max_id_);
 }
 
-template <class X>
-std::string ReceivedMessages<X>::write()
+std::string ReceivedMessages::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -264,26 +228,19 @@ std::string ReceivedMessages<X>::write()
     return buffer;
 }
 
-template <class X>
-SetTyping<X>::SetTyping(TLObject peer_, TLObject action_, std::optional<int> top_msg_id_) {}
+SetTyping::SetTyping(TLObject peer_, TLObject action_, std::optional<int> top_msg_id_) {}
 
-template <class X>
-SetTyping<X> SetTyping<X>::read(Reader reader)
+SetTyping SetTyping::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<int> top_msg_id_;
-
-    if (1 << 0)
-        top_msg_id_ = Int::read(reader);
-    else
-        top_msg_id_ = std::nullopt;
-    TLObject action_ = TLObject::read(reader);
-    return SetTyping<X>(peer_, action_, top_msg_id_);
+    top_msg_id_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
+    TLObject action_ = std::get<TLObject>(TLObject::read(reader));
+    return SetTyping(peer_, action_, top_msg_id_);
 }
 
-template <class X>
-std::string SetTyping<X>::write()
+std::string SetTyping::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -297,69 +254,34 @@ std::string SetTyping<X>::write()
     return buffer;
 }
 
-template <class X>
-SendMessage<X>::SendMessage(TLObject peer_, std::string message_, long random_id_, std::optional<bool> no_webpage_, std::optional<bool> silent_, std::optional<bool> background_, std::optional<bool> clear_draft_, std::optional<int> reply_to_msg_id_, std::optional<TLObject> reply_markup_, std::optional<std::vector<TLObject>> entities_, std::optional<int> schedule_date_) {}
+SendMessage::SendMessage(TLObject peer_, std::string message_, long random_id_, std::optional<bool> no_webpage_, std::optional<bool> silent_, std::optional<bool> background_, std::optional<bool> clear_draft_, std::optional<int> reply_to_msg_id_, std::optional<TLObject> reply_markup_, std::optional<std::vector<TLObject>> entities_, std::optional<int> schedule_date_) {}
 
-template <class X>
-SendMessage<X> SendMessage<X>::read(Reader reader)
+SendMessage SendMessage::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> no_webpage_;
-
-    if (1 << 1)
-        no_webpage_ = true;
-    else
-        no_webpage_ = std::nullopt;
+    no_webpage_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> silent_;
-
-    if (1 << 5)
-        silent_ = true;
-    else
-        silent_ = std::nullopt;
+    silent_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> background_;
-
-    if (1 << 6)
-        background_ = true;
-    else
-        background_ = std::nullopt;
+    background_ = (1 << 6) ? std::optional{true} : std::nullopt;
     std::optional<bool> clear_draft_;
-
-    if (1 << 7)
-        clear_draft_ = true;
-    else
-        clear_draft_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    clear_draft_ = (1 << 7) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<int> reply_to_msg_id_;
-
-    if (1 << 0)
-        reply_to_msg_id_ = Int::read(reader);
-    else
-        reply_to_msg_id_ = std::nullopt;
+    reply_to_msg_id_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     std::string message_ = String::read(reader);
     long random_id_ = Long::read(reader);
     std::optional<TLObject> reply_markup_;
-
-    if (1 << 2)
-        reply_markup_ = TLObject::read(reader);
-    else
-        reply_markup_ = std::nullopt;
+    reply_markup_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::vector<TLObject>> entities_;
-
-    if (1 << 3)
-        entities_ = Vector<TLObject>::read(reader);
-    else
-        entities_ = std::nullopt;
+    entities_ = (1 << 3) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> schedule_date_;
-
-    if (1 << 10)
-        schedule_date_ = Int::read(reader);
-    else
-        schedule_date_ = std::nullopt;
-    return SendMessage<X>(peer_, message_, random_id_, no_webpage_, silent_, background_, clear_draft_, reply_to_msg_id_, reply_markup_, entities_, schedule_date_);
+    schedule_date_ = (1 << 10) ? std::optional{Int::read(reader)} : std::nullopt;
+    return SendMessage(peer_, message_, random_id_, no_webpage_, silent_, background_, clear_draft_, reply_to_msg_id_, reply_markup_, entities_, schedule_date_);
 }
 
-template <class X>
-std::string SendMessage<X>::write()
+std::string SendMessage::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -390,64 +312,33 @@ std::string SendMessage<X>::write()
     return buffer;
 }
 
-template <class X>
-SendMedia<X>::SendMedia(TLObject peer_, TLObject media_, std::string message_, long random_id_, std::optional<bool> silent_, std::optional<bool> background_, std::optional<bool> clear_draft_, std::optional<int> reply_to_msg_id_, std::optional<TLObject> reply_markup_, std::optional<std::vector<TLObject>> entities_, std::optional<int> schedule_date_) {}
+SendMedia::SendMedia(TLObject peer_, TLObject media_, std::string message_, long random_id_, std::optional<bool> silent_, std::optional<bool> background_, std::optional<bool> clear_draft_, std::optional<int> reply_to_msg_id_, std::optional<TLObject> reply_markup_, std::optional<std::vector<TLObject>> entities_, std::optional<int> schedule_date_) {}
 
-template <class X>
-SendMedia<X> SendMedia<X>::read(Reader reader)
+SendMedia SendMedia::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> silent_;
-
-    if (1 << 5)
-        silent_ = true;
-    else
-        silent_ = std::nullopt;
+    silent_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> background_;
-
-    if (1 << 6)
-        background_ = true;
-    else
-        background_ = std::nullopt;
+    background_ = (1 << 6) ? std::optional{true} : std::nullopt;
     std::optional<bool> clear_draft_;
-
-    if (1 << 7)
-        clear_draft_ = true;
-    else
-        clear_draft_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    clear_draft_ = (1 << 7) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<int> reply_to_msg_id_;
-
-    if (1 << 0)
-        reply_to_msg_id_ = Int::read(reader);
-    else
-        reply_to_msg_id_ = std::nullopt;
-    TLObject media_ = TLObject::read(reader);
+    reply_to_msg_id_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
+    TLObject media_ = std::get<TLObject>(TLObject::read(reader));
     std::string message_ = String::read(reader);
     long random_id_ = Long::read(reader);
     std::optional<TLObject> reply_markup_;
-
-    if (1 << 2)
-        reply_markup_ = TLObject::read(reader);
-    else
-        reply_markup_ = std::nullopt;
+    reply_markup_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::vector<TLObject>> entities_;
-
-    if (1 << 3)
-        entities_ = Vector<TLObject>::read(reader);
-    else
-        entities_ = std::nullopt;
+    entities_ = (1 << 3) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> schedule_date_;
-
-    if (1 << 10)
-        schedule_date_ = Int::read(reader);
-    else
-        schedule_date_ = std::nullopt;
-    return SendMedia<X>(peer_, media_, message_, random_id_, silent_, background_, clear_draft_, reply_to_msg_id_, reply_markup_, entities_, schedule_date_);
+    schedule_date_ = (1 << 10) ? std::optional{Int::read(reader)} : std::nullopt;
+    return SendMedia(peer_, media_, message_, random_id_, silent_, background_, clear_draft_, reply_to_msg_id_, reply_markup_, entities_, schedule_date_);
 }
 
-template <class X>
-std::string SendMedia<X>::write()
+std::string SendMedia::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -478,46 +369,27 @@ std::string SendMedia<X>::write()
     return buffer;
 }
 
-template <class X>
-ForwardMessages<X>::ForwardMessages(TLObject from_peer_, std::vector<int> id_, std::vector<long> random_id_, TLObject to_peer_, std::optional<bool> silent_, std::optional<bool> background_, std::optional<bool> with_my_score_, std::optional<int> schedule_date_) {}
+ForwardMessages::ForwardMessages(TLObject from_peer_, std::vector<int> id_, std::vector<long> random_id_, TLObject to_peer_, std::optional<bool> silent_, std::optional<bool> background_, std::optional<bool> with_my_score_, std::optional<int> schedule_date_) {}
 
-template <class X>
-ForwardMessages<X> ForwardMessages<X>::read(Reader reader)
+ForwardMessages ForwardMessages::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> silent_;
-
-    if (1 << 5)
-        silent_ = true;
-    else
-        silent_ = std::nullopt;
+    silent_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> background_;
-
-    if (1 << 6)
-        background_ = true;
-    else
-        background_ = std::nullopt;
+    background_ = (1 << 6) ? std::optional{true} : std::nullopt;
     std::optional<bool> with_my_score_;
-
-    if (1 << 8)
-        with_my_score_ = true;
-    else
-        with_my_score_ = std::nullopt;
-    TLObject from_peer_ = TLObject::read(reader);
-    std::vector<int> id_ = Vector<int>::read(reader);
-    std::vector<long> random_id_ = Vector<long>::read(reader);
-    TLObject to_peer_ = TLObject::read(reader);
+    with_my_score_ = (1 << 8) ? std::optional{true} : std::nullopt;
+    TLObject from_peer_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<int> id_ = std::get<std::vector<int>>(TLObject::read(reader));
+    std::vector<long> random_id_ = std::get<std::vector<long>>(TLObject::read(reader));
+    TLObject to_peer_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<int> schedule_date_;
-
-    if (1 << 10)
-        schedule_date_ = Int::read(reader);
-    else
-        schedule_date_ = std::nullopt;
-    return ForwardMessages<X>(from_peer_, id_, random_id_, to_peer_, silent_, background_, with_my_score_, schedule_date_);
+    schedule_date_ = (1 << 10) ? std::optional{Int::read(reader)} : std::nullopt;
+    return ForwardMessages(from_peer_, id_, random_id_, to_peer_, silent_, background_, with_my_score_, schedule_date_);
 }
 
-template <class X>
-std::string ForwardMessages<X>::write()
+std::string ForwardMessages::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -536,18 +408,15 @@ std::string ForwardMessages<X>::write()
     return buffer;
 }
 
-template <class X>
-ReportSpam<X>::ReportSpam(TLObject peer_) {}
+ReportSpam::ReportSpam(TLObject peer_) {}
 
-template <class X>
-ReportSpam<X> ReportSpam<X>::read(Reader reader)
+ReportSpam ReportSpam::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    return ReportSpam<X>(peer_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    return ReportSpam(peer_);
 }
 
-template <class X>
-std::string ReportSpam<X>::write()
+std::string ReportSpam::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -555,18 +424,15 @@ std::string ReportSpam<X>::write()
     return buffer;
 }
 
-template <class X>
-GetPeerSettings<X>::GetPeerSettings(TLObject peer_) {}
+GetPeerSettings::GetPeerSettings(TLObject peer_) {}
 
-template <class X>
-GetPeerSettings<X> GetPeerSettings<X>::read(Reader reader)
+GetPeerSettings GetPeerSettings::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    return GetPeerSettings<X>(peer_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    return GetPeerSettings(peer_);
 }
 
-template <class X>
-std::string GetPeerSettings<X>::write()
+std::string GetPeerSettings::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -574,21 +440,18 @@ std::string GetPeerSettings<X>::write()
     return buffer;
 }
 
-template <class X>
-Report<X>::Report(TLObject peer_, std::vector<int> id_, TLObject reason_, std::string message_) {}
+Report::Report(TLObject peer_, std::vector<int> id_, TLObject reason_, std::string message_) {}
 
-template <class X>
-Report<X> Report<X>::read(Reader reader)
+Report Report::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    std::vector<int> id_ = Vector<int>::read(reader);
-    TLObject reason_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<int> id_ = std::get<std::vector<int>>(TLObject::read(reader));
+    TLObject reason_ = std::get<TLObject>(TLObject::read(reader));
     std::string message_ = String::read(reader);
-    return Report<X>(peer_, id_, reason_, message_);
+    return Report(peer_, id_, reason_, message_);
 }
 
-template <class X>
-std::string Report<X>::write()
+std::string Report::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -599,18 +462,15 @@ std::string Report<X>::write()
     return buffer;
 }
 
-template <class X>
-GetChats<X>::GetChats(std::vector<int> id_) {}
+GetChats::GetChats(std::vector<int> id_) {}
 
-template <class X>
-GetChats<X> GetChats<X>::read(Reader reader)
+GetChats GetChats::read(Reader reader)
 {
-    std::vector<int> id_ = Vector<int>::read(reader);
-    return GetChats<X>(id_);
+    std::vector<int> id_ = std::get<std::vector<int>>(TLObject::read(reader));
+    return GetChats(id_);
 }
 
-template <class X>
-std::string GetChats<X>::write()
+std::string GetChats::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -618,18 +478,15 @@ std::string GetChats<X>::write()
     return buffer;
 }
 
-template <class X>
-GetFullChat<X>::GetFullChat(int chat_id_) {}
+GetFullChat::GetFullChat(int chat_id_) {}
 
-template <class X>
-GetFullChat<X> GetFullChat<X>::read(Reader reader)
+GetFullChat GetFullChat::read(Reader reader)
 {
     int chat_id_ = Int::read(reader);
-    return GetFullChat<X>(chat_id_);
+    return GetFullChat(chat_id_);
 }
 
-template <class X>
-std::string GetFullChat<X>::write()
+std::string GetFullChat::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -637,19 +494,16 @@ std::string GetFullChat<X>::write()
     return buffer;
 }
 
-template <class X>
-EditChatTitle<X>::EditChatTitle(int chat_id_, std::string title_) {}
+EditChatTitle::EditChatTitle(int chat_id_, std::string title_) {}
 
-template <class X>
-EditChatTitle<X> EditChatTitle<X>::read(Reader reader)
+EditChatTitle EditChatTitle::read(Reader reader)
 {
     int chat_id_ = Int::read(reader);
     std::string title_ = String::read(reader);
-    return EditChatTitle<X>(chat_id_, title_);
+    return EditChatTitle(chat_id_, title_);
 }
 
-template <class X>
-std::string EditChatTitle<X>::write()
+std::string EditChatTitle::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -658,19 +512,16 @@ std::string EditChatTitle<X>::write()
     return buffer;
 }
 
-template <class X>
-EditChatPhoto<X>::EditChatPhoto(int chat_id_, TLObject photo_) {}
+EditChatPhoto::EditChatPhoto(int chat_id_, TLObject photo_) {}
 
-template <class X>
-EditChatPhoto<X> EditChatPhoto<X>::read(Reader reader)
+EditChatPhoto EditChatPhoto::read(Reader reader)
 {
     int chat_id_ = Int::read(reader);
-    TLObject photo_ = TLObject::read(reader);
-    return EditChatPhoto<X>(chat_id_, photo_);
+    TLObject photo_ = std::get<TLObject>(TLObject::read(reader));
+    return EditChatPhoto(chat_id_, photo_);
 }
 
-template <class X>
-std::string EditChatPhoto<X>::write()
+std::string EditChatPhoto::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -679,20 +530,17 @@ std::string EditChatPhoto<X>::write()
     return buffer;
 }
 
-template <class X>
-AddChatUser<X>::AddChatUser(int chat_id_, TLObject user_id_, int fwd_limit_) {}
+AddChatUser::AddChatUser(int chat_id_, TLObject user_id_, int fwd_limit_) {}
 
-template <class X>
-AddChatUser<X> AddChatUser<X>::read(Reader reader)
+AddChatUser AddChatUser::read(Reader reader)
 {
     int chat_id_ = Int::read(reader);
-    TLObject user_id_ = TLObject::read(reader);
+    TLObject user_id_ = std::get<TLObject>(TLObject::read(reader));
     int fwd_limit_ = Int::read(reader);
-    return AddChatUser<X>(chat_id_, user_id_, fwd_limit_);
+    return AddChatUser(chat_id_, user_id_, fwd_limit_);
 }
 
-template <class X>
-std::string AddChatUser<X>::write()
+std::string AddChatUser::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -702,26 +550,19 @@ std::string AddChatUser<X>::write()
     return buffer;
 }
 
-template <class X>
-DeleteChatUser<X>::DeleteChatUser(int chat_id_, TLObject user_id_, std::optional<bool> revoke_history_) {}
+DeleteChatUser::DeleteChatUser(int chat_id_, TLObject user_id_, std::optional<bool> revoke_history_) {}
 
-template <class X>
-DeleteChatUser<X> DeleteChatUser<X>::read(Reader reader)
+DeleteChatUser DeleteChatUser::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> revoke_history_;
-
-    if (1 << 0)
-        revoke_history_ = true;
-    else
-        revoke_history_ = std::nullopt;
+    revoke_history_ = (1 << 0) ? std::optional{true} : std::nullopt;
     int chat_id_ = Int::read(reader);
-    TLObject user_id_ = TLObject::read(reader);
-    return DeleteChatUser<X>(chat_id_, user_id_, revoke_history_);
+    TLObject user_id_ = std::get<TLObject>(TLObject::read(reader));
+    return DeleteChatUser(chat_id_, user_id_, revoke_history_);
 }
 
-template <class X>
-std::string DeleteChatUser<X>::write()
+std::string DeleteChatUser::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -732,19 +573,16 @@ std::string DeleteChatUser<X>::write()
     return buffer;
 }
 
-template <class X>
-CreateChat<X>::CreateChat(std::vector<TLObject> users_, std::string title_) {}
+CreateChat::CreateChat(std::vector<TLObject> users_, std::string title_) {}
 
-template <class X>
-CreateChat<X> CreateChat<X>::read(Reader reader)
+CreateChat CreateChat::read(Reader reader)
 {
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     std::string title_ = String::read(reader);
-    return CreateChat<X>(users_, title_);
+    return CreateChat(users_, title_);
 }
 
-template <class X>
-std::string CreateChat<X>::write()
+std::string CreateChat::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -753,19 +591,16 @@ std::string CreateChat<X>::write()
     return buffer;
 }
 
-template <class X>
-GetDhConfig<X>::GetDhConfig(int version_, int random_length_) {}
+GetDhConfig::GetDhConfig(int version_, int random_length_) {}
 
-template <class X>
-GetDhConfig<X> GetDhConfig<X>::read(Reader reader)
+GetDhConfig GetDhConfig::read(Reader reader)
 {
     int version_ = Int::read(reader);
     int random_length_ = Int::read(reader);
-    return GetDhConfig<X>(version_, random_length_);
+    return GetDhConfig(version_, random_length_);
 }
 
-template <class X>
-std::string GetDhConfig<X>::write()
+std::string GetDhConfig::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -774,20 +609,17 @@ std::string GetDhConfig<X>::write()
     return buffer;
 }
 
-template <class X>
-RequestEncryption<X>::RequestEncryption(TLObject user_id_, int random_id_, std::string g_a_) {}
+RequestEncryption::RequestEncryption(TLObject user_id_, int random_id_, std::string g_a_) {}
 
-template <class X>
-RequestEncryption<X> RequestEncryption<X>::read(Reader reader)
+RequestEncryption RequestEncryption::read(Reader reader)
 {
-    TLObject user_id_ = TLObject::read(reader);
+    TLObject user_id_ = std::get<TLObject>(TLObject::read(reader));
     int random_id_ = Int::read(reader);
     std::string g_a_ = Bytes::read(reader);
-    return RequestEncryption<X>(user_id_, random_id_, g_a_);
+    return RequestEncryption(user_id_, random_id_, g_a_);
 }
 
-template <class X>
-std::string RequestEncryption<X>::write()
+std::string RequestEncryption::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -797,20 +629,17 @@ std::string RequestEncryption<X>::write()
     return buffer;
 }
 
-template <class X>
-AcceptEncryption<X>::AcceptEncryption(TLObject peer_, std::string g_b_, long key_fingerprint_) {}
+AcceptEncryption::AcceptEncryption(TLObject peer_, std::string g_b_, long key_fingerprint_) {}
 
-template <class X>
-AcceptEncryption<X> AcceptEncryption<X>::read(Reader reader)
+AcceptEncryption AcceptEncryption::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::string g_b_ = Bytes::read(reader);
     long key_fingerprint_ = Long::read(reader);
-    return AcceptEncryption<X>(peer_, g_b_, key_fingerprint_);
+    return AcceptEncryption(peer_, g_b_, key_fingerprint_);
 }
 
-template <class X>
-std::string AcceptEncryption<X>::write()
+std::string AcceptEncryption::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -820,25 +649,18 @@ std::string AcceptEncryption<X>::write()
     return buffer;
 }
 
-template <class X>
-DiscardEncryption<X>::DiscardEncryption(int chat_id_, std::optional<bool> delete_history_) {}
+DiscardEncryption::DiscardEncryption(int chat_id_, std::optional<bool> delete_history_) {}
 
-template <class X>
-DiscardEncryption<X> DiscardEncryption<X>::read(Reader reader)
+DiscardEncryption DiscardEncryption::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> delete_history_;
-
-    if (1 << 0)
-        delete_history_ = true;
-    else
-        delete_history_ = std::nullopt;
+    delete_history_ = (1 << 0) ? std::optional{true} : std::nullopt;
     int chat_id_ = Int::read(reader);
-    return DiscardEncryption<X>(chat_id_, delete_history_);
+    return DiscardEncryption(chat_id_, delete_history_);
 }
 
-template <class X>
-std::string DiscardEncryption<X>::write()
+std::string DiscardEncryption::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -848,19 +670,16 @@ std::string DiscardEncryption<X>::write()
     return buffer;
 }
 
-template <class X>
-SetEncryptedTyping<X>::SetEncryptedTyping(TLObject peer_, bool typing_) {}
+SetEncryptedTyping::SetEncryptedTyping(TLObject peer_, bool typing_) {}
 
-template <class X>
-SetEncryptedTyping<X> SetEncryptedTyping<X>::read(Reader reader)
+SetEncryptedTyping SetEncryptedTyping::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     bool typing_ = Bool::read(reader);
-    return SetEncryptedTyping<X>(peer_, typing_);
+    return SetEncryptedTyping(peer_, typing_);
 }
 
-template <class X>
-std::string SetEncryptedTyping<X>::write()
+std::string SetEncryptedTyping::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -869,19 +688,16 @@ std::string SetEncryptedTyping<X>::write()
     return buffer;
 }
 
-template <class X>
-ReadEncryptedHistory<X>::ReadEncryptedHistory(TLObject peer_, int max_date_) {}
+ReadEncryptedHistory::ReadEncryptedHistory(TLObject peer_, int max_date_) {}
 
-template <class X>
-ReadEncryptedHistory<X> ReadEncryptedHistory<X>::read(Reader reader)
+ReadEncryptedHistory ReadEncryptedHistory::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int max_date_ = Int::read(reader);
-    return ReadEncryptedHistory<X>(peer_, max_date_);
+    return ReadEncryptedHistory(peer_, max_date_);
 }
 
-template <class X>
-std::string ReadEncryptedHistory<X>::write()
+std::string ReadEncryptedHistory::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -890,27 +706,20 @@ std::string ReadEncryptedHistory<X>::write()
     return buffer;
 }
 
-template <class X>
-SendEncrypted<X>::SendEncrypted(TLObject peer_, long random_id_, std::string data_, std::optional<bool> silent_) {}
+SendEncrypted::SendEncrypted(TLObject peer_, long random_id_, std::string data_, std::optional<bool> silent_) {}
 
-template <class X>
-SendEncrypted<X> SendEncrypted<X>::read(Reader reader)
+SendEncrypted SendEncrypted::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> silent_;
-
-    if (1 << 0)
-        silent_ = true;
-    else
-        silent_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    silent_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     long random_id_ = Long::read(reader);
     std::string data_ = Bytes::read(reader);
-    return SendEncrypted<X>(peer_, random_id_, data_, silent_);
+    return SendEncrypted(peer_, random_id_, data_, silent_);
 }
 
-template <class X>
-std::string SendEncrypted<X>::write()
+std::string SendEncrypted::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -922,28 +731,21 @@ std::string SendEncrypted<X>::write()
     return buffer;
 }
 
-template <class X>
-SendEncryptedFile<X>::SendEncryptedFile(TLObject peer_, long random_id_, std::string data_, TLObject file_, std::optional<bool> silent_) {}
+SendEncryptedFile::SendEncryptedFile(TLObject peer_, long random_id_, std::string data_, TLObject file_, std::optional<bool> silent_) {}
 
-template <class X>
-SendEncryptedFile<X> SendEncryptedFile<X>::read(Reader reader)
+SendEncryptedFile SendEncryptedFile::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> silent_;
-
-    if (1 << 0)
-        silent_ = true;
-    else
-        silent_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    silent_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     long random_id_ = Long::read(reader);
     std::string data_ = Bytes::read(reader);
-    TLObject file_ = TLObject::read(reader);
-    return SendEncryptedFile<X>(peer_, random_id_, data_, file_, silent_);
+    TLObject file_ = std::get<TLObject>(TLObject::read(reader));
+    return SendEncryptedFile(peer_, random_id_, data_, file_, silent_);
 }
 
-template <class X>
-std::string SendEncryptedFile<X>::write()
+std::string SendEncryptedFile::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -956,20 +758,17 @@ std::string SendEncryptedFile<X>::write()
     return buffer;
 }
 
-template <class X>
-SendEncryptedService<X>::SendEncryptedService(TLObject peer_, long random_id_, std::string data_) {}
+SendEncryptedService::SendEncryptedService(TLObject peer_, long random_id_, std::string data_) {}
 
-template <class X>
-SendEncryptedService<X> SendEncryptedService<X>::read(Reader reader)
+SendEncryptedService SendEncryptedService::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     long random_id_ = Long::read(reader);
     std::string data_ = Bytes::read(reader);
-    return SendEncryptedService<X>(peer_, random_id_, data_);
+    return SendEncryptedService(peer_, random_id_, data_);
 }
 
-template <class X>
-std::string SendEncryptedService<X>::write()
+std::string SendEncryptedService::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -979,18 +778,15 @@ std::string SendEncryptedService<X>::write()
     return buffer;
 }
 
-template <class X>
-ReceivedQueue<X>::ReceivedQueue(int max_qts_) {}
+ReceivedQueue::ReceivedQueue(int max_qts_) {}
 
-template <class X>
-ReceivedQueue<X> ReceivedQueue<X>::read(Reader reader)
+ReceivedQueue ReceivedQueue::read(Reader reader)
 {
     int max_qts_ = Int::read(reader);
-    return ReceivedQueue<X>(max_qts_);
+    return ReceivedQueue(max_qts_);
 }
 
-template <class X>
-std::string ReceivedQueue<X>::write()
+std::string ReceivedQueue::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -998,18 +794,15 @@ std::string ReceivedQueue<X>::write()
     return buffer;
 }
 
-template <class X>
-ReportEncryptedSpam<X>::ReportEncryptedSpam(TLObject peer_) {}
+ReportEncryptedSpam::ReportEncryptedSpam(TLObject peer_) {}
 
-template <class X>
-ReportEncryptedSpam<X> ReportEncryptedSpam<X>::read(Reader reader)
+ReportEncryptedSpam ReportEncryptedSpam::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    return ReportEncryptedSpam<X>(peer_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    return ReportEncryptedSpam(peer_);
 }
 
-template <class X>
-std::string ReportEncryptedSpam<X>::write()
+std::string ReportEncryptedSpam::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1017,18 +810,15 @@ std::string ReportEncryptedSpam<X>::write()
     return buffer;
 }
 
-template <class X>
-ReadMessageContents<X>::ReadMessageContents(std::vector<int> id_) {}
+ReadMessageContents::ReadMessageContents(std::vector<int> id_) {}
 
-template <class X>
-ReadMessageContents<X> ReadMessageContents<X>::read(Reader reader)
+ReadMessageContents ReadMessageContents::read(Reader reader)
 {
-    std::vector<int> id_ = Vector<int>::read(reader);
-    return ReadMessageContents<X>(id_);
+    std::vector<int> id_ = std::get<std::vector<int>>(TLObject::read(reader));
+    return ReadMessageContents(id_);
 }
 
-template <class X>
-std::string ReadMessageContents<X>::write()
+std::string ReadMessageContents::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1036,19 +826,16 @@ std::string ReadMessageContents<X>::write()
     return buffer;
 }
 
-template <class X>
-GetStickers<X>::GetStickers(std::string emoticon_, int hash_) {}
+GetStickers::GetStickers(std::string emoticon_, int hash_) {}
 
-template <class X>
-GetStickers<X> GetStickers<X>::read(Reader reader)
+GetStickers GetStickers::read(Reader reader)
 {
     std::string emoticon_ = String::read(reader);
     int hash_ = Int::read(reader);
-    return GetStickers<X>(emoticon_, hash_);
+    return GetStickers(emoticon_, hash_);
 }
 
-template <class X>
-std::string GetStickers<X>::write()
+std::string GetStickers::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1057,18 +844,15 @@ std::string GetStickers<X>::write()
     return buffer;
 }
 
-template <class X>
-GetAllStickers<X>::GetAllStickers(int hash_) {}
+GetAllStickers::GetAllStickers(int hash_) {}
 
-template <class X>
-GetAllStickers<X> GetAllStickers<X>::read(Reader reader)
+GetAllStickers GetAllStickers::read(Reader reader)
 {
     int hash_ = Int::read(reader);
-    return GetAllStickers<X>(hash_);
+    return GetAllStickers(hash_);
 }
 
-template <class X>
-std::string GetAllStickers<X>::write()
+std::string GetAllStickers::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1076,25 +860,18 @@ std::string GetAllStickers<X>::write()
     return buffer;
 }
 
-template <class X>
-GetWebPagePreview<X>::GetWebPagePreview(std::string message_, std::optional<std::vector<TLObject>> entities_) {}
+GetWebPagePreview::GetWebPagePreview(std::string message_, std::optional<std::vector<TLObject>> entities_) {}
 
-template <class X>
-GetWebPagePreview<X> GetWebPagePreview<X>::read(Reader reader)
+GetWebPagePreview GetWebPagePreview::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::string message_ = String::read(reader);
     std::optional<std::vector<TLObject>> entities_;
-
-    if (1 << 3)
-        entities_ = Vector<TLObject>::read(reader);
-    else
-        entities_ = std::nullopt;
-    return GetWebPagePreview<X>(message_, entities_);
+    entities_ = (1 << 3) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
+    return GetWebPagePreview(message_, entities_);
 }
 
-template <class X>
-std::string GetWebPagePreview<X>::write()
+std::string GetWebPagePreview::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1107,37 +884,22 @@ std::string GetWebPagePreview<X>::write()
     return buffer;
 }
 
-template <class X>
-ExportChatInvite<X>::ExportChatInvite(TLObject peer_, std::optional<bool> legacy_revoke_permanent_, std::optional<int> expire_date_, std::optional<int> usage_limit_) {}
+ExportChatInvite::ExportChatInvite(TLObject peer_, std::optional<bool> legacy_revoke_permanent_, std::optional<int> expire_date_, std::optional<int> usage_limit_) {}
 
-template <class X>
-ExportChatInvite<X> ExportChatInvite<X>::read(Reader reader)
+ExportChatInvite ExportChatInvite::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> legacy_revoke_permanent_;
-
-    if (1 << 2)
-        legacy_revoke_permanent_ = true;
-    else
-        legacy_revoke_permanent_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    legacy_revoke_permanent_ = (1 << 2) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<int> expire_date_;
-
-    if (1 << 0)
-        expire_date_ = Int::read(reader);
-    else
-        expire_date_ = std::nullopt;
+    expire_date_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> usage_limit_;
-
-    if (1 << 1)
-        usage_limit_ = Int::read(reader);
-    else
-        usage_limit_ = std::nullopt;
-    return ExportChatInvite<X>(peer_, legacy_revoke_permanent_, expire_date_, usage_limit_);
+    usage_limit_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
+    return ExportChatInvite(peer_, legacy_revoke_permanent_, expire_date_, usage_limit_);
 }
 
-template <class X>
-std::string ExportChatInvite<X>::write()
+std::string ExportChatInvite::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1155,18 +917,15 @@ std::string ExportChatInvite<X>::write()
     return buffer;
 }
 
-template <class X>
-CheckChatInvite<X>::CheckChatInvite(std::string hash_) {}
+CheckChatInvite::CheckChatInvite(std::string hash_) {}
 
-template <class X>
-CheckChatInvite<X> CheckChatInvite<X>::read(Reader reader)
+CheckChatInvite CheckChatInvite::read(Reader reader)
 {
     std::string hash_ = String::read(reader);
-    return CheckChatInvite<X>(hash_);
+    return CheckChatInvite(hash_);
 }
 
-template <class X>
-std::string CheckChatInvite<X>::write()
+std::string CheckChatInvite::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1174,18 +933,15 @@ std::string CheckChatInvite<X>::write()
     return buffer;
 }
 
-template <class X>
-ImportChatInvite<X>::ImportChatInvite(std::string hash_) {}
+ImportChatInvite::ImportChatInvite(std::string hash_) {}
 
-template <class X>
-ImportChatInvite<X> ImportChatInvite<X>::read(Reader reader)
+ImportChatInvite ImportChatInvite::read(Reader reader)
 {
     std::string hash_ = String::read(reader);
-    return ImportChatInvite<X>(hash_);
+    return ImportChatInvite(hash_);
 }
 
-template <class X>
-std::string ImportChatInvite<X>::write()
+std::string ImportChatInvite::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1193,18 +949,15 @@ std::string ImportChatInvite<X>::write()
     return buffer;
 }
 
-template <class X>
-GetStickerSet<X>::GetStickerSet(TLObject stickerset_) {}
+GetStickerSet::GetStickerSet(TLObject stickerset_) {}
 
-template <class X>
-GetStickerSet<X> GetStickerSet<X>::read(Reader reader)
+GetStickerSet GetStickerSet::read(Reader reader)
 {
-    TLObject stickerset_ = TLObject::read(reader);
-    return GetStickerSet<X>(stickerset_);
+    TLObject stickerset_ = std::get<TLObject>(TLObject::read(reader));
+    return GetStickerSet(stickerset_);
 }
 
-template <class X>
-std::string GetStickerSet<X>::write()
+std::string GetStickerSet::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1212,19 +965,16 @@ std::string GetStickerSet<X>::write()
     return buffer;
 }
 
-template <class X>
-InstallStickerSet<X>::InstallStickerSet(TLObject stickerset_, bool archived_) {}
+InstallStickerSet::InstallStickerSet(TLObject stickerset_, bool archived_) {}
 
-template <class X>
-InstallStickerSet<X> InstallStickerSet<X>::read(Reader reader)
+InstallStickerSet InstallStickerSet::read(Reader reader)
 {
-    TLObject stickerset_ = TLObject::read(reader);
+    TLObject stickerset_ = std::get<TLObject>(TLObject::read(reader));
     bool archived_ = Bool::read(reader);
-    return InstallStickerSet<X>(stickerset_, archived_);
+    return InstallStickerSet(stickerset_, archived_);
 }
 
-template <class X>
-std::string InstallStickerSet<X>::write()
+std::string InstallStickerSet::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1233,18 +983,15 @@ std::string InstallStickerSet<X>::write()
     return buffer;
 }
 
-template <class X>
-UninstallStickerSet<X>::UninstallStickerSet(TLObject stickerset_) {}
+UninstallStickerSet::UninstallStickerSet(TLObject stickerset_) {}
 
-template <class X>
-UninstallStickerSet<X> UninstallStickerSet<X>::read(Reader reader)
+UninstallStickerSet UninstallStickerSet::read(Reader reader)
 {
-    TLObject stickerset_ = TLObject::read(reader);
-    return UninstallStickerSet<X>(stickerset_);
+    TLObject stickerset_ = std::get<TLObject>(TLObject::read(reader));
+    return UninstallStickerSet(stickerset_);
 }
 
-template <class X>
-std::string UninstallStickerSet<X>::write()
+std::string UninstallStickerSet::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1252,21 +999,18 @@ std::string UninstallStickerSet<X>::write()
     return buffer;
 }
 
-template <class X>
-StartBot<X>::StartBot(TLObject bot_, TLObject peer_, long random_id_, std::string start_param_) {}
+StartBot::StartBot(TLObject bot_, TLObject peer_, long random_id_, std::string start_param_) {}
 
-template <class X>
-StartBot<X> StartBot<X>::read(Reader reader)
+StartBot StartBot::read(Reader reader)
 {
-    TLObject bot_ = TLObject::read(reader);
-    TLObject peer_ = TLObject::read(reader);
+    TLObject bot_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     long random_id_ = Long::read(reader);
     std::string start_param_ = String::read(reader);
-    return StartBot<X>(bot_, peer_, random_id_, start_param_);
+    return StartBot(bot_, peer_, random_id_, start_param_);
 }
 
-template <class X>
-std::string StartBot<X>::write()
+std::string StartBot::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1277,20 +1021,17 @@ std::string StartBot<X>::write()
     return buffer;
 }
 
-template <class X>
-GetMessagesViews<X>::GetMessagesViews(TLObject peer_, std::vector<int> id_, bool increment_) {}
+GetMessagesViews::GetMessagesViews(TLObject peer_, std::vector<int> id_, bool increment_) {}
 
-template <class X>
-GetMessagesViews<X> GetMessagesViews<X>::read(Reader reader)
+GetMessagesViews GetMessagesViews::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    std::vector<int> id_ = Vector<int>::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<int> id_ = std::get<std::vector<int>>(TLObject::read(reader));
     bool increment_ = Bool::read(reader);
-    return GetMessagesViews<X>(peer_, id_, increment_);
+    return GetMessagesViews(peer_, id_, increment_);
 }
 
-template <class X>
-std::string GetMessagesViews<X>::write()
+std::string GetMessagesViews::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1300,20 +1041,17 @@ std::string GetMessagesViews<X>::write()
     return buffer;
 }
 
-template <class X>
-EditChatAdmin<X>::EditChatAdmin(int chat_id_, TLObject user_id_, bool is_admin_) {}
+EditChatAdmin::EditChatAdmin(int chat_id_, TLObject user_id_, bool is_admin_) {}
 
-template <class X>
-EditChatAdmin<X> EditChatAdmin<X>::read(Reader reader)
+EditChatAdmin EditChatAdmin::read(Reader reader)
 {
     int chat_id_ = Int::read(reader);
-    TLObject user_id_ = TLObject::read(reader);
+    TLObject user_id_ = std::get<TLObject>(TLObject::read(reader));
     bool is_admin_ = Bool::read(reader);
-    return EditChatAdmin<X>(chat_id_, user_id_, is_admin_);
+    return EditChatAdmin(chat_id_, user_id_, is_admin_);
 }
 
-template <class X>
-std::string EditChatAdmin<X>::write()
+std::string EditChatAdmin::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1323,18 +1061,15 @@ std::string EditChatAdmin<X>::write()
     return buffer;
 }
 
-template <class X>
-MigrateChat<X>::MigrateChat(int chat_id_) {}
+MigrateChat::MigrateChat(int chat_id_) {}
 
-template <class X>
-MigrateChat<X> MigrateChat<X>::read(Reader reader)
+MigrateChat MigrateChat::read(Reader reader)
 {
     int chat_id_ = Int::read(reader);
-    return MigrateChat<X>(chat_id_);
+    return MigrateChat(chat_id_);
 }
 
-template <class X>
-std::string MigrateChat<X>::write()
+std::string MigrateChat::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1342,32 +1077,25 @@ std::string MigrateChat<X>::write()
     return buffer;
 }
 
-template <class X>
-SearchGlobal<X>::SearchGlobal(std::string q_, TLObject filter_, int min_date_, int max_date_, int offset_rate_, TLObject offset_peer_, int offset_id_, int limit_, std::optional<int> folder_id_) {}
+SearchGlobal::SearchGlobal(std::string q_, TLObject filter_, int min_date_, int max_date_, int offset_rate_, TLObject offset_peer_, int offset_id_, int limit_, std::optional<int> folder_id_) {}
 
-template <class X>
-SearchGlobal<X> SearchGlobal<X>::read(Reader reader)
+SearchGlobal SearchGlobal::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<int> folder_id_;
-
-    if (1 << 0)
-        folder_id_ = Int::read(reader);
-    else
-        folder_id_ = std::nullopt;
+    folder_id_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     std::string q_ = String::read(reader);
-    TLObject filter_ = TLObject::read(reader);
+    TLObject filter_ = std::get<TLObject>(TLObject::read(reader));
     int min_date_ = Int::read(reader);
     int max_date_ = Int::read(reader);
     int offset_rate_ = Int::read(reader);
-    TLObject offset_peer_ = TLObject::read(reader);
+    TLObject offset_peer_ = std::get<TLObject>(TLObject::read(reader));
     int offset_id_ = Int::read(reader);
     int limit_ = Int::read(reader);
-    return SearchGlobal<X>(q_, filter_, min_date_, max_date_, offset_rate_, offset_peer_, offset_id_, limit_, folder_id_);
+    return SearchGlobal(q_, filter_, min_date_, max_date_, offset_rate_, offset_peer_, offset_id_, limit_, folder_id_);
 }
 
-template <class X>
-std::string SearchGlobal<X>::write()
+std::string SearchGlobal::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1387,25 +1115,18 @@ std::string SearchGlobal<X>::write()
     return buffer;
 }
 
-template <class X>
-ReorderStickerSets<X>::ReorderStickerSets(std::vector<long> order_, std::optional<bool> masks_) {}
+ReorderStickerSets::ReorderStickerSets(std::vector<long> order_, std::optional<bool> masks_) {}
 
-template <class X>
-ReorderStickerSets<X> ReorderStickerSets<X>::read(Reader reader)
+ReorderStickerSets ReorderStickerSets::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> masks_;
-
-    if (1 << 0)
-        masks_ = true;
-    else
-        masks_ = std::nullopt;
-    std::vector<long> order_ = Vector<long>::read(reader);
-    return ReorderStickerSets<X>(order_, masks_);
+    masks_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    std::vector<long> order_ = std::get<std::vector<long>>(TLObject::read(reader));
+    return ReorderStickerSets(order_, masks_);
 }
 
-template <class X>
-std::string ReorderStickerSets<X>::write()
+std::string ReorderStickerSets::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1415,20 +1136,17 @@ std::string ReorderStickerSets<X>::write()
     return buffer;
 }
 
-template <class X>
-GetDocumentByHash<X>::GetDocumentByHash(std::string sha256_, int size_, std::string mime_type_) {}
+GetDocumentByHash::GetDocumentByHash(std::string sha256_, int size_, std::string mime_type_) {}
 
-template <class X>
-GetDocumentByHash<X> GetDocumentByHash<X>::read(Reader reader)
+GetDocumentByHash GetDocumentByHash::read(Reader reader)
 {
     std::string sha256_ = Bytes::read(reader);
     int size_ = Int::read(reader);
     std::string mime_type_ = String::read(reader);
-    return GetDocumentByHash<X>(sha256_, size_, mime_type_);
+    return GetDocumentByHash(sha256_, size_, mime_type_);
 }
 
-template <class X>
-std::string GetDocumentByHash<X>::write()
+std::string GetDocumentByHash::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1438,18 +1156,15 @@ std::string GetDocumentByHash<X>::write()
     return buffer;
 }
 
-template <class X>
-GetSavedGifs<X>::GetSavedGifs(int hash_) {}
+GetSavedGifs::GetSavedGifs(int hash_) {}
 
-template <class X>
-GetSavedGifs<X> GetSavedGifs<X>::read(Reader reader)
+GetSavedGifs GetSavedGifs::read(Reader reader)
 {
     int hash_ = Int::read(reader);
-    return GetSavedGifs<X>(hash_);
+    return GetSavedGifs(hash_);
 }
 
-template <class X>
-std::string GetSavedGifs<X>::write()
+std::string GetSavedGifs::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1457,19 +1172,16 @@ std::string GetSavedGifs<X>::write()
     return buffer;
 }
 
-template <class X>
-SaveGif<X>::SaveGif(TLObject id_, bool unsave_) {}
+SaveGif::SaveGif(TLObject id_, bool unsave_) {}
 
-template <class X>
-SaveGif<X> SaveGif<X>::read(Reader reader)
+SaveGif SaveGif::read(Reader reader)
 {
-    TLObject id_ = TLObject::read(reader);
+    TLObject id_ = std::get<TLObject>(TLObject::read(reader));
     bool unsave_ = Bool::read(reader);
-    return SaveGif<X>(id_, unsave_);
+    return SaveGif(id_, unsave_);
 }
 
-template <class X>
-std::string SaveGif<X>::write()
+std::string SaveGif::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1478,28 +1190,21 @@ std::string SaveGif<X>::write()
     return buffer;
 }
 
-template <class X>
-GetInlineBotResults<X>::GetInlineBotResults(TLObject bot_, TLObject peer_, std::string query_, std::string offset_, std::optional<TLObject> geo_point_) {}
+GetInlineBotResults::GetInlineBotResults(TLObject bot_, TLObject peer_, std::string query_, std::string offset_, std::optional<TLObject> geo_point_) {}
 
-template <class X>
-GetInlineBotResults<X> GetInlineBotResults<X>::read(Reader reader)
+GetInlineBotResults GetInlineBotResults::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject bot_ = TLObject::read(reader);
-    TLObject peer_ = TLObject::read(reader);
+    TLObject bot_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<TLObject> geo_point_;
-
-    if (1 << 0)
-        geo_point_ = TLObject::read(reader);
-    else
-        geo_point_ = std::nullopt;
+    geo_point_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::string query_ = String::read(reader);
     std::string offset_ = String::read(reader);
-    return GetInlineBotResults<X>(bot_, peer_, query_, offset_, geo_point_);
+    return GetInlineBotResults(bot_, peer_, query_, offset_, geo_point_);
 }
 
-template <class X>
-std::string GetInlineBotResults<X>::write()
+std::string GetInlineBotResults::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1515,45 +1220,26 @@ std::string GetInlineBotResults<X>::write()
     return buffer;
 }
 
-template <class X>
-SetInlineBotResults<X>::SetInlineBotResults(long query_id_, std::vector<TLObject> results_, int cache_time_, std::optional<bool> gallery_, std::optional<bool> private_, std::optional<std::string> next_offset_, std::optional<TLObject> switch_pm_) {}
+SetInlineBotResults::SetInlineBotResults(long query_id_, std::vector<TLObject> results_, int cache_time_, std::optional<bool> gallery_, std::optional<bool> private_, std::optional<std::string> next_offset_, std::optional<TLObject> switch_pm_) {}
 
-template <class X>
-SetInlineBotResults<X> SetInlineBotResults<X>::read(Reader reader)
+SetInlineBotResults SetInlineBotResults::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> gallery_;
-
-    if (1 << 0)
-        gallery_ = true;
-    else
-        gallery_ = std::nullopt;
+    gallery_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> private_;
-
-    if (1 << 1)
-        private_ = true;
-    else
-        private_ = std::nullopt;
+    private_ = (1 << 1) ? std::optional{true} : std::nullopt;
     long query_id_ = Long::read(reader);
-    std::vector<TLObject> results_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> results_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     int cache_time_ = Int::read(reader);
     std::optional<std::string> next_offset_;
-
-    if (1 << 2)
-        next_offset_ = String::read(reader);
-    else
-        next_offset_ = std::nullopt;
+    next_offset_ = (1 << 2) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<TLObject> switch_pm_;
-
-    if (1 << 3)
-        switch_pm_ = TLObject::read(reader);
-    else
-        switch_pm_ = std::nullopt;
-    return SetInlineBotResults<X>(query_id_, results_, cache_time_, gallery_, private_, next_offset_, switch_pm_);
+    switch_pm_ = (1 << 3) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
+    return SetInlineBotResults(query_id_, results_, cache_time_, gallery_, private_, next_offset_, switch_pm_);
 }
 
-template <class X>
-std::string SetInlineBotResults<X>::write()
+std::string SetInlineBotResults::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1574,58 +1260,31 @@ std::string SetInlineBotResults<X>::write()
     return buffer;
 }
 
-template <class X>
-SendInlineBotResult<X>::SendInlineBotResult(TLObject peer_, long random_id_, long query_id_, std::string id_, std::optional<bool> silent_, std::optional<bool> background_, std::optional<bool> clear_draft_, std::optional<bool> hide_via_, std::optional<int> reply_to_msg_id_, std::optional<int> schedule_date_) {}
+SendInlineBotResult::SendInlineBotResult(TLObject peer_, long random_id_, long query_id_, std::string id_, std::optional<bool> silent_, std::optional<bool> background_, std::optional<bool> clear_draft_, std::optional<bool> hide_via_, std::optional<int> reply_to_msg_id_, std::optional<int> schedule_date_) {}
 
-template <class X>
-SendInlineBotResult<X> SendInlineBotResult<X>::read(Reader reader)
+SendInlineBotResult SendInlineBotResult::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> silent_;
-
-    if (1 << 5)
-        silent_ = true;
-    else
-        silent_ = std::nullopt;
+    silent_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> background_;
-
-    if (1 << 6)
-        background_ = true;
-    else
-        background_ = std::nullopt;
+    background_ = (1 << 6) ? std::optional{true} : std::nullopt;
     std::optional<bool> clear_draft_;
-
-    if (1 << 7)
-        clear_draft_ = true;
-    else
-        clear_draft_ = std::nullopt;
+    clear_draft_ = (1 << 7) ? std::optional{true} : std::nullopt;
     std::optional<bool> hide_via_;
-
-    if (1 << 11)
-        hide_via_ = true;
-    else
-        hide_via_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    hide_via_ = (1 << 11) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<int> reply_to_msg_id_;
-
-    if (1 << 0)
-        reply_to_msg_id_ = Int::read(reader);
-    else
-        reply_to_msg_id_ = std::nullopt;
+    reply_to_msg_id_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     long random_id_ = Long::read(reader);
     long query_id_ = Long::read(reader);
     std::string id_ = String::read(reader);
     std::optional<int> schedule_date_;
-
-    if (1 << 10)
-        schedule_date_ = Int::read(reader);
-    else
-        schedule_date_ = std::nullopt;
-    return SendInlineBotResult<X>(peer_, random_id_, query_id_, id_, silent_, background_, clear_draft_, hide_via_, reply_to_msg_id_, schedule_date_);
+    schedule_date_ = (1 << 10) ? std::optional{Int::read(reader)} : std::nullopt;
+    return SendInlineBotResult(peer_, random_id_, query_id_, id_, silent_, background_, clear_draft_, hide_via_, reply_to_msg_id_, schedule_date_);
 }
 
-template <class X>
-std::string SendInlineBotResult<X>::write()
+std::string SendInlineBotResult::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1649,19 +1308,16 @@ std::string SendInlineBotResult<X>::write()
     return buffer;
 }
 
-template <class X>
-GetMessageEditData<X>::GetMessageEditData(TLObject peer_, int id_) {}
+GetMessageEditData::GetMessageEditData(TLObject peer_, int id_) {}
 
-template <class X>
-GetMessageEditData<X> GetMessageEditData<X>::read(Reader reader)
+GetMessageEditData GetMessageEditData::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int id_ = Int::read(reader);
-    return GetMessageEditData<X>(peer_, id_);
+    return GetMessageEditData(peer_, id_);
 }
 
-template <class X>
-std::string GetMessageEditData<X>::write()
+std::string GetMessageEditData::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1670,56 +1326,29 @@ std::string GetMessageEditData<X>::write()
     return buffer;
 }
 
-template <class X>
-EditMessage<X>::EditMessage(TLObject peer_, int id_, std::optional<bool> no_webpage_, std::optional<std::string> message_, std::optional<TLObject> media_, std::optional<TLObject> reply_markup_, std::optional<std::vector<TLObject>> entities_, std::optional<int> schedule_date_) {}
+EditMessage::EditMessage(TLObject peer_, int id_, std::optional<bool> no_webpage_, std::optional<std::string> message_, std::optional<TLObject> media_, std::optional<TLObject> reply_markup_, std::optional<std::vector<TLObject>> entities_, std::optional<int> schedule_date_) {}
 
-template <class X>
-EditMessage<X> EditMessage<X>::read(Reader reader)
+EditMessage EditMessage::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> no_webpage_;
-
-    if (1 << 1)
-        no_webpage_ = true;
-    else
-        no_webpage_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    no_webpage_ = (1 << 1) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int id_ = Int::read(reader);
     std::optional<std::string> message_;
-
-    if (1 << 11)
-        message_ = String::read(reader);
-    else
-        message_ = std::nullopt;
+    message_ = (1 << 11) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<TLObject> media_;
-
-    if (1 << 14)
-        media_ = TLObject::read(reader);
-    else
-        media_ = std::nullopt;
+    media_ = (1 << 14) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> reply_markup_;
-
-    if (1 << 2)
-        reply_markup_ = TLObject::read(reader);
-    else
-        reply_markup_ = std::nullopt;
+    reply_markup_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::vector<TLObject>> entities_;
-
-    if (1 << 3)
-        entities_ = Vector<TLObject>::read(reader);
-    else
-        entities_ = std::nullopt;
+    entities_ = (1 << 3) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> schedule_date_;
-
-    if (1 << 15)
-        schedule_date_ = Int::read(reader);
-    else
-        schedule_date_ = std::nullopt;
-    return EditMessage<X>(peer_, id_, no_webpage_, message_, media_, reply_markup_, entities_, schedule_date_);
+    schedule_date_ = (1 << 15) ? std::optional{Int::read(reader)} : std::nullopt;
+    return EditMessage(peer_, id_, no_webpage_, message_, media_, reply_markup_, entities_, schedule_date_);
 }
 
-template <class X>
-std::string EditMessage<X>::write()
+std::string EditMessage::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1750,49 +1379,26 @@ std::string EditMessage<X>::write()
     return buffer;
 }
 
-template <class X>
-EditInlineBotMessage<X>::EditInlineBotMessage(TLObject id_, std::optional<bool> no_webpage_, std::optional<std::string> message_, std::optional<TLObject> media_, std::optional<TLObject> reply_markup_, std::optional<std::vector<TLObject>> entities_) {}
+EditInlineBotMessage::EditInlineBotMessage(TLObject id_, std::optional<bool> no_webpage_, std::optional<std::string> message_, std::optional<TLObject> media_, std::optional<TLObject> reply_markup_, std::optional<std::vector<TLObject>> entities_) {}
 
-template <class X>
-EditInlineBotMessage<X> EditInlineBotMessage<X>::read(Reader reader)
+EditInlineBotMessage EditInlineBotMessage::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> no_webpage_;
-
-    if (1 << 1)
-        no_webpage_ = true;
-    else
-        no_webpage_ = std::nullopt;
-    TLObject id_ = TLObject::read(reader);
+    no_webpage_ = (1 << 1) ? std::optional{true} : std::nullopt;
+    TLObject id_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<std::string> message_;
-
-    if (1 << 11)
-        message_ = String::read(reader);
-    else
-        message_ = std::nullopt;
+    message_ = (1 << 11) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<TLObject> media_;
-
-    if (1 << 14)
-        media_ = TLObject::read(reader);
-    else
-        media_ = std::nullopt;
+    media_ = (1 << 14) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> reply_markup_;
-
-    if (1 << 2)
-        reply_markup_ = TLObject::read(reader);
-    else
-        reply_markup_ = std::nullopt;
+    reply_markup_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::vector<TLObject>> entities_;
-
-    if (1 << 3)
-        entities_ = Vector<TLObject>::read(reader);
-    else
-        entities_ = std::nullopt;
-    return EditInlineBotMessage<X>(id_, no_webpage_, message_, media_, reply_markup_, entities_);
+    entities_ = (1 << 3) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
+    return EditInlineBotMessage(id_, no_webpage_, message_, media_, reply_markup_, entities_);
 }
 
-template <class X>
-std::string EditInlineBotMessage<X>::write()
+std::string EditInlineBotMessage::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1818,38 +1424,23 @@ std::string EditInlineBotMessage<X>::write()
     return buffer;
 }
 
-template <class X>
-GetBotCallbackAnswer<X>::GetBotCallbackAnswer(TLObject peer_, int msg_id_, std::optional<bool> game_, std::optional<std::string> data_, std::optional<TLObject> password_) {}
+GetBotCallbackAnswer::GetBotCallbackAnswer(TLObject peer_, int msg_id_, std::optional<bool> game_, std::optional<std::string> data_, std::optional<TLObject> password_) {}
 
-template <class X>
-GetBotCallbackAnswer<X> GetBotCallbackAnswer<X>::read(Reader reader)
+GetBotCallbackAnswer GetBotCallbackAnswer::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> game_;
-
-    if (1 << 1)
-        game_ = true;
-    else
-        game_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    game_ = (1 << 1) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int msg_id_ = Int::read(reader);
     std::optional<std::string> data_;
-
-    if (1 << 0)
-        data_ = Bytes::read(reader);
-    else
-        data_ = std::nullopt;
+    data_ = (1 << 0) ? std::optional{Bytes::read(reader)} : std::nullopt;
     std::optional<TLObject> password_;
-
-    if (1 << 2)
-        password_ = TLObject::read(reader);
-    else
-        password_ = std::nullopt;
-    return GetBotCallbackAnswer<X>(peer_, msg_id_, game_, data_, password_);
+    password_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
+    return GetBotCallbackAnswer(peer_, msg_id_, game_, data_, password_);
 }
 
-template <class X>
-std::string GetBotCallbackAnswer<X>::write()
+std::string GetBotCallbackAnswer::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1868,38 +1459,23 @@ std::string GetBotCallbackAnswer<X>::write()
     return buffer;
 }
 
-template <class X>
-SetBotCallbackAnswer<X>::SetBotCallbackAnswer(long query_id_, int cache_time_, std::optional<bool> alert_, std::optional<std::string> message_, std::optional<std::string> url_) {}
+SetBotCallbackAnswer::SetBotCallbackAnswer(long query_id_, int cache_time_, std::optional<bool> alert_, std::optional<std::string> message_, std::optional<std::string> url_) {}
 
-template <class X>
-SetBotCallbackAnswer<X> SetBotCallbackAnswer<X>::read(Reader reader)
+SetBotCallbackAnswer SetBotCallbackAnswer::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> alert_;
-
-    if (1 << 1)
-        alert_ = true;
-    else
-        alert_ = std::nullopt;
+    alert_ = (1 << 1) ? std::optional{true} : std::nullopt;
     long query_id_ = Long::read(reader);
     std::optional<std::string> message_;
-
-    if (1 << 0)
-        message_ = String::read(reader);
-    else
-        message_ = std::nullopt;
+    message_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> url_;
-
-    if (1 << 2)
-        url_ = String::read(reader);
-    else
-        url_ = std::nullopt;
+    url_ = (1 << 2) ? std::optional{String::read(reader)} : std::nullopt;
     int cache_time_ = Int::read(reader);
-    return SetBotCallbackAnswer<X>(query_id_, cache_time_, alert_, message_, url_);
+    return SetBotCallbackAnswer(query_id_, cache_time_, alert_, message_, url_);
 }
 
-template <class X>
-std::string SetBotCallbackAnswer<X>::write()
+std::string SetBotCallbackAnswer::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1918,18 +1494,15 @@ std::string SetBotCallbackAnswer<X>::write()
     return buffer;
 }
 
-template <class X>
-GetPeerDialogs<X>::GetPeerDialogs(std::vector<TLObject> peers_) {}
+GetPeerDialogs::GetPeerDialogs(std::vector<TLObject> peers_) {}
 
-template <class X>
-GetPeerDialogs<X> GetPeerDialogs<X>::read(Reader reader)
+GetPeerDialogs GetPeerDialogs::read(Reader reader)
 {
-    std::vector<TLObject> peers_ = Vector<TLObject>::read(reader);
-    return GetPeerDialogs<X>(peers_);
+    std::vector<TLObject> peers_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    return GetPeerDialogs(peers_);
 }
 
-template <class X>
-std::string GetPeerDialogs<X>::write()
+std::string GetPeerDialogs::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1937,38 +1510,23 @@ std::string GetPeerDialogs<X>::write()
     return buffer;
 }
 
-template <class X>
-SaveDraft<X>::SaveDraft(TLObject peer_, std::string message_, std::optional<bool> no_webpage_, std::optional<int> reply_to_msg_id_, std::optional<std::vector<TLObject>> entities_) {}
+SaveDraft::SaveDraft(TLObject peer_, std::string message_, std::optional<bool> no_webpage_, std::optional<int> reply_to_msg_id_, std::optional<std::vector<TLObject>> entities_) {}
 
-template <class X>
-SaveDraft<X> SaveDraft<X>::read(Reader reader)
+SaveDraft SaveDraft::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> no_webpage_;
-
-    if (1 << 1)
-        no_webpage_ = true;
-    else
-        no_webpage_ = std::nullopt;
+    no_webpage_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<int> reply_to_msg_id_;
-
-    if (1 << 0)
-        reply_to_msg_id_ = Int::read(reader);
-    else
-        reply_to_msg_id_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    reply_to_msg_id_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::string message_ = String::read(reader);
     std::optional<std::vector<TLObject>> entities_;
-
-    if (1 << 3)
-        entities_ = Vector<TLObject>::read(reader);
-    else
-        entities_ = std::nullopt;
-    return SaveDraft<X>(peer_, message_, no_webpage_, reply_to_msg_id_, entities_);
+    entities_ = (1 << 3) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
+    return SaveDraft(peer_, message_, no_webpage_, reply_to_msg_id_, entities_);
 }
 
-template <class X>
-std::string SaveDraft<X>::write()
+std::string SaveDraft::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -1986,32 +1544,27 @@ std::string SaveDraft<X>::write()
         buffer += Vector<TLObject>::write(entities.value());
     return buffer;
 }
-template <class X>
-GetAllDrafts<X> GetAllDrafts<X>::read(Reader reader)
+GetAllDrafts GetAllDrafts::read(Reader reader)
 {
-    return GetAllDrafts<X>();
+    return GetAllDrafts();
 }
 
-template <class X>
-std::string GetAllDrafts<X>::write()
+std::string GetAllDrafts::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     return buffer;
 }
 
-template <class X>
-GetFeaturedStickers<X>::GetFeaturedStickers(int hash_) {}
+GetFeaturedStickers::GetFeaturedStickers(int hash_) {}
 
-template <class X>
-GetFeaturedStickers<X> GetFeaturedStickers<X>::read(Reader reader)
+GetFeaturedStickers GetFeaturedStickers::read(Reader reader)
 {
     int hash_ = Int::read(reader);
-    return GetFeaturedStickers<X>(hash_);
+    return GetFeaturedStickers(hash_);
 }
 
-template <class X>
-std::string GetFeaturedStickers<X>::write()
+std::string GetFeaturedStickers::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2019,18 +1572,15 @@ std::string GetFeaturedStickers<X>::write()
     return buffer;
 }
 
-template <class X>
-ReadFeaturedStickers<X>::ReadFeaturedStickers(std::vector<long> id_) {}
+ReadFeaturedStickers::ReadFeaturedStickers(std::vector<long> id_) {}
 
-template <class X>
-ReadFeaturedStickers<X> ReadFeaturedStickers<X>::read(Reader reader)
+ReadFeaturedStickers ReadFeaturedStickers::read(Reader reader)
 {
-    std::vector<long> id_ = Vector<long>::read(reader);
-    return ReadFeaturedStickers<X>(id_);
+    std::vector<long> id_ = std::get<std::vector<long>>(TLObject::read(reader));
+    return ReadFeaturedStickers(id_);
 }
 
-template <class X>
-std::string ReadFeaturedStickers<X>::write()
+std::string ReadFeaturedStickers::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2038,25 +1588,18 @@ std::string ReadFeaturedStickers<X>::write()
     return buffer;
 }
 
-template <class X>
-GetRecentStickers<X>::GetRecentStickers(int hash_, std::optional<bool> attached_) {}
+GetRecentStickers::GetRecentStickers(int hash_, std::optional<bool> attached_) {}
 
-template <class X>
-GetRecentStickers<X> GetRecentStickers<X>::read(Reader reader)
+GetRecentStickers GetRecentStickers::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> attached_;
-
-    if (1 << 0)
-        attached_ = true;
-    else
-        attached_ = std::nullopt;
+    attached_ = (1 << 0) ? std::optional{true} : std::nullopt;
     int hash_ = Int::read(reader);
-    return GetRecentStickers<X>(hash_, attached_);
+    return GetRecentStickers(hash_, attached_);
 }
 
-template <class X>
-std::string GetRecentStickers<X>::write()
+std::string GetRecentStickers::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2066,26 +1609,19 @@ std::string GetRecentStickers<X>::write()
     return buffer;
 }
 
-template <class X>
-SaveRecentSticker<X>::SaveRecentSticker(TLObject id_, bool unsave_, std::optional<bool> attached_) {}
+SaveRecentSticker::SaveRecentSticker(TLObject id_, bool unsave_, std::optional<bool> attached_) {}
 
-template <class X>
-SaveRecentSticker<X> SaveRecentSticker<X>::read(Reader reader)
+SaveRecentSticker SaveRecentSticker::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> attached_;
-
-    if (1 << 0)
-        attached_ = true;
-    else
-        attached_ = std::nullopt;
-    TLObject id_ = TLObject::read(reader);
+    attached_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject id_ = std::get<TLObject>(TLObject::read(reader));
     bool unsave_ = Bool::read(reader);
-    return SaveRecentSticker<X>(id_, unsave_, attached_);
+    return SaveRecentSticker(id_, unsave_, attached_);
 }
 
-template <class X>
-std::string SaveRecentSticker<X>::write()
+std::string SaveRecentSticker::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2096,24 +1632,17 @@ std::string SaveRecentSticker<X>::write()
     return buffer;
 }
 
-template <class X>
-ClearRecentStickers<X>::ClearRecentStickers(std::optional<bool> attached_) {}
+ClearRecentStickers::ClearRecentStickers(std::optional<bool> attached_) {}
 
-template <class X>
-ClearRecentStickers<X> ClearRecentStickers<X>::read(Reader reader)
+ClearRecentStickers ClearRecentStickers::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> attached_;
-
-    if (1 << 0)
-        attached_ = true;
-    else
-        attached_ = std::nullopt;
-    return ClearRecentStickers<X>(attached_);
+    attached_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    return ClearRecentStickers(attached_);
 }
 
-template <class X>
-std::string ClearRecentStickers<X>::write()
+std::string ClearRecentStickers::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2122,26 +1651,19 @@ std::string ClearRecentStickers<X>::write()
     return buffer;
 }
 
-template <class X>
-GetArchivedStickers<X>::GetArchivedStickers(long offset_id_, int limit_, std::optional<bool> masks_) {}
+GetArchivedStickers::GetArchivedStickers(long offset_id_, int limit_, std::optional<bool> masks_) {}
 
-template <class X>
-GetArchivedStickers<X> GetArchivedStickers<X>::read(Reader reader)
+GetArchivedStickers GetArchivedStickers::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> masks_;
-
-    if (1 << 0)
-        masks_ = true;
-    else
-        masks_ = std::nullopt;
+    masks_ = (1 << 0) ? std::optional{true} : std::nullopt;
     long offset_id_ = Long::read(reader);
     int limit_ = Int::read(reader);
-    return GetArchivedStickers<X>(offset_id_, limit_, masks_);
+    return GetArchivedStickers(offset_id_, limit_, masks_);
 }
 
-template <class X>
-std::string GetArchivedStickers<X>::write()
+std::string GetArchivedStickers::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2152,18 +1674,15 @@ std::string GetArchivedStickers<X>::write()
     return buffer;
 }
 
-template <class X>
-GetMaskStickers<X>::GetMaskStickers(int hash_) {}
+GetMaskStickers::GetMaskStickers(int hash_) {}
 
-template <class X>
-GetMaskStickers<X> GetMaskStickers<X>::read(Reader reader)
+GetMaskStickers GetMaskStickers::read(Reader reader)
 {
     int hash_ = Int::read(reader);
-    return GetMaskStickers<X>(hash_);
+    return GetMaskStickers(hash_);
 }
 
-template <class X>
-std::string GetMaskStickers<X>::write()
+std::string GetMaskStickers::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2171,18 +1690,15 @@ std::string GetMaskStickers<X>::write()
     return buffer;
 }
 
-template <class X>
-GetAttachedStickers<X>::GetAttachedStickers(TLObject media_) {}
+GetAttachedStickers::GetAttachedStickers(TLObject media_) {}
 
-template <class X>
-GetAttachedStickers<X> GetAttachedStickers<X>::read(Reader reader)
+GetAttachedStickers GetAttachedStickers::read(Reader reader)
 {
-    TLObject media_ = TLObject::read(reader);
-    return GetAttachedStickers<X>(media_);
+    TLObject media_ = std::get<TLObject>(TLObject::read(reader));
+    return GetAttachedStickers(media_);
 }
 
-template <class X>
-std::string GetAttachedStickers<X>::write()
+std::string GetAttachedStickers::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2190,34 +1706,23 @@ std::string GetAttachedStickers<X>::write()
     return buffer;
 }
 
-template <class X>
-SetGameScore<X>::SetGameScore(TLObject peer_, int id_, TLObject user_id_, int score_, std::optional<bool> edit_message_, std::optional<bool> force_) {}
+SetGameScore::SetGameScore(TLObject peer_, int id_, TLObject user_id_, int score_, std::optional<bool> edit_message_, std::optional<bool> force_) {}
 
-template <class X>
-SetGameScore<X> SetGameScore<X>::read(Reader reader)
+SetGameScore SetGameScore::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> edit_message_;
-
-    if (1 << 0)
-        edit_message_ = true;
-    else
-        edit_message_ = std::nullopt;
+    edit_message_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> force_;
-
-    if (1 << 1)
-        force_ = true;
-    else
-        force_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    force_ = (1 << 1) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int id_ = Int::read(reader);
-    TLObject user_id_ = TLObject::read(reader);
+    TLObject user_id_ = std::get<TLObject>(TLObject::read(reader));
     int score_ = Int::read(reader);
-    return SetGameScore<X>(peer_, id_, user_id_, score_, edit_message_, force_);
+    return SetGameScore(peer_, id_, user_id_, score_, edit_message_, force_);
 }
 
-template <class X>
-std::string SetGameScore<X>::write()
+std::string SetGameScore::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2231,33 +1736,22 @@ std::string SetGameScore<X>::write()
     return buffer;
 }
 
-template <class X>
-SetInlineGameScore<X>::SetInlineGameScore(TLObject id_, TLObject user_id_, int score_, std::optional<bool> edit_message_, std::optional<bool> force_) {}
+SetInlineGameScore::SetInlineGameScore(TLObject id_, TLObject user_id_, int score_, std::optional<bool> edit_message_, std::optional<bool> force_) {}
 
-template <class X>
-SetInlineGameScore<X> SetInlineGameScore<X>::read(Reader reader)
+SetInlineGameScore SetInlineGameScore::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> edit_message_;
-
-    if (1 << 0)
-        edit_message_ = true;
-    else
-        edit_message_ = std::nullopt;
+    edit_message_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> force_;
-
-    if (1 << 1)
-        force_ = true;
-    else
-        force_ = std::nullopt;
-    TLObject id_ = TLObject::read(reader);
-    TLObject user_id_ = TLObject::read(reader);
+    force_ = (1 << 1) ? std::optional{true} : std::nullopt;
+    TLObject id_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject user_id_ = std::get<TLObject>(TLObject::read(reader));
     int score_ = Int::read(reader);
-    return SetInlineGameScore<X>(id_, user_id_, score_, edit_message_, force_);
+    return SetInlineGameScore(id_, user_id_, score_, edit_message_, force_);
 }
 
-template <class X>
-std::string SetInlineGameScore<X>::write()
+std::string SetInlineGameScore::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2270,20 +1764,17 @@ std::string SetInlineGameScore<X>::write()
     return buffer;
 }
 
-template <class X>
-GetGameHighScores<X>::GetGameHighScores(TLObject peer_, int id_, TLObject user_id_) {}
+GetGameHighScores::GetGameHighScores(TLObject peer_, int id_, TLObject user_id_) {}
 
-template <class X>
-GetGameHighScores<X> GetGameHighScores<X>::read(Reader reader)
+GetGameHighScores GetGameHighScores::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int id_ = Int::read(reader);
-    TLObject user_id_ = TLObject::read(reader);
-    return GetGameHighScores<X>(peer_, id_, user_id_);
+    TLObject user_id_ = std::get<TLObject>(TLObject::read(reader));
+    return GetGameHighScores(peer_, id_, user_id_);
 }
 
-template <class X>
-std::string GetGameHighScores<X>::write()
+std::string GetGameHighScores::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2293,19 +1784,16 @@ std::string GetGameHighScores<X>::write()
     return buffer;
 }
 
-template <class X>
-GetInlineGameHighScores<X>::GetInlineGameHighScores(TLObject id_, TLObject user_id_) {}
+GetInlineGameHighScores::GetInlineGameHighScores(TLObject id_, TLObject user_id_) {}
 
-template <class X>
-GetInlineGameHighScores<X> GetInlineGameHighScores<X>::read(Reader reader)
+GetInlineGameHighScores GetInlineGameHighScores::read(Reader reader)
 {
-    TLObject id_ = TLObject::read(reader);
-    TLObject user_id_ = TLObject::read(reader);
-    return GetInlineGameHighScores<X>(id_, user_id_);
+    TLObject id_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject user_id_ = std::get<TLObject>(TLObject::read(reader));
+    return GetInlineGameHighScores(id_, user_id_);
 }
 
-template <class X>
-std::string GetInlineGameHighScores<X>::write()
+std::string GetInlineGameHighScores::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2314,20 +1802,17 @@ std::string GetInlineGameHighScores<X>::write()
     return buffer;
 }
 
-template <class X>
-GetCommonChats<X>::GetCommonChats(TLObject user_id_, int max_id_, int limit_) {}
+GetCommonChats::GetCommonChats(TLObject user_id_, int max_id_, int limit_) {}
 
-template <class X>
-GetCommonChats<X> GetCommonChats<X>::read(Reader reader)
+GetCommonChats GetCommonChats::read(Reader reader)
 {
-    TLObject user_id_ = TLObject::read(reader);
+    TLObject user_id_ = std::get<TLObject>(TLObject::read(reader));
     int max_id_ = Int::read(reader);
     int limit_ = Int::read(reader);
-    return GetCommonChats<X>(user_id_, max_id_, limit_);
+    return GetCommonChats(user_id_, max_id_, limit_);
 }
 
-template <class X>
-std::string GetCommonChats<X>::write()
+std::string GetCommonChats::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2337,18 +1822,15 @@ std::string GetCommonChats<X>::write()
     return buffer;
 }
 
-template <class X>
-GetAllChats<X>::GetAllChats(std::vector<int> except_ids_) {}
+GetAllChats::GetAllChats(std::vector<int> except_ids_) {}
 
-template <class X>
-GetAllChats<X> GetAllChats<X>::read(Reader reader)
+GetAllChats GetAllChats::read(Reader reader)
 {
-    std::vector<int> except_ids_ = Vector<int>::read(reader);
-    return GetAllChats<X>(except_ids_);
+    std::vector<int> except_ids_ = std::get<std::vector<int>>(TLObject::read(reader));
+    return GetAllChats(except_ids_);
 }
 
-template <class X>
-std::string GetAllChats<X>::write()
+std::string GetAllChats::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2356,19 +1838,16 @@ std::string GetAllChats<X>::write()
     return buffer;
 }
 
-template <class X>
-GetWebPage<X>::GetWebPage(std::string url_, int hash_) {}
+GetWebPage::GetWebPage(std::string url_, int hash_) {}
 
-template <class X>
-GetWebPage<X> GetWebPage<X>::read(Reader reader)
+GetWebPage GetWebPage::read(Reader reader)
 {
     std::string url_ = String::read(reader);
     int hash_ = Int::read(reader);
-    return GetWebPage<X>(url_, hash_);
+    return GetWebPage(url_, hash_);
 }
 
-template <class X>
-std::string GetWebPage<X>::write()
+std::string GetWebPage::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2377,25 +1856,18 @@ std::string GetWebPage<X>::write()
     return buffer;
 }
 
-template <class X>
-ToggleDialogPin<X>::ToggleDialogPin(TLObject peer_, std::optional<bool> pinned_) {}
+ToggleDialogPin::ToggleDialogPin(TLObject peer_, std::optional<bool> pinned_) {}
 
-template <class X>
-ToggleDialogPin<X> ToggleDialogPin<X>::read(Reader reader)
+ToggleDialogPin ToggleDialogPin::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> pinned_;
-
-    if (1 << 0)
-        pinned_ = true;
-    else
-        pinned_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
-    return ToggleDialogPin<X>(peer_, pinned_);
+    pinned_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    return ToggleDialogPin(peer_, pinned_);
 }
 
-template <class X>
-std::string ToggleDialogPin<X>::write()
+std::string ToggleDialogPin::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2405,26 +1877,19 @@ std::string ToggleDialogPin<X>::write()
     return buffer;
 }
 
-template <class X>
-ReorderPinnedDialogs<X>::ReorderPinnedDialogs(int folder_id_, std::vector<TLObject> order_, std::optional<bool> force_) {}
+ReorderPinnedDialogs::ReorderPinnedDialogs(int folder_id_, std::vector<TLObject> order_, std::optional<bool> force_) {}
 
-template <class X>
-ReorderPinnedDialogs<X> ReorderPinnedDialogs<X>::read(Reader reader)
+ReorderPinnedDialogs ReorderPinnedDialogs::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> force_;
-
-    if (1 << 0)
-        force_ = true;
-    else
-        force_ = std::nullopt;
+    force_ = (1 << 0) ? std::optional{true} : std::nullopt;
     int folder_id_ = Int::read(reader);
-    std::vector<TLObject> order_ = Vector<TLObject>::read(reader);
-    return ReorderPinnedDialogs<X>(folder_id_, order_, force_);
+    std::vector<TLObject> order_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    return ReorderPinnedDialogs(folder_id_, order_, force_);
 }
 
-template <class X>
-std::string ReorderPinnedDialogs<X>::write()
+std::string ReorderPinnedDialogs::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2435,18 +1900,15 @@ std::string ReorderPinnedDialogs<X>::write()
     return buffer;
 }
 
-template <class X>
-GetPinnedDialogs<X>::GetPinnedDialogs(int folder_id_) {}
+GetPinnedDialogs::GetPinnedDialogs(int folder_id_) {}
 
-template <class X>
-GetPinnedDialogs<X> GetPinnedDialogs<X>::read(Reader reader)
+GetPinnedDialogs GetPinnedDialogs::read(Reader reader)
 {
     int folder_id_ = Int::read(reader);
-    return GetPinnedDialogs<X>(folder_id_);
+    return GetPinnedDialogs(folder_id_);
 }
 
-template <class X>
-std::string GetPinnedDialogs<X>::write()
+std::string GetPinnedDialogs::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2454,31 +1916,20 @@ std::string GetPinnedDialogs<X>::write()
     return buffer;
 }
 
-template <class X>
-SetBotShippingResults<X>::SetBotShippingResults(long query_id_, std::optional<std::string> error_, std::optional<std::vector<TLObject>> shipping_options_) {}
+SetBotShippingResults::SetBotShippingResults(long query_id_, std::optional<std::string> error_, std::optional<std::vector<TLObject>> shipping_options_) {}
 
-template <class X>
-SetBotShippingResults<X> SetBotShippingResults<X>::read(Reader reader)
+SetBotShippingResults SetBotShippingResults::read(Reader reader)
 {
     int flags = Int::read(reader);
     long query_id_ = Long::read(reader);
     std::optional<std::string> error_;
-
-    if (1 << 0)
-        error_ = String::read(reader);
-    else
-        error_ = std::nullopt;
+    error_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::vector<TLObject>> shipping_options_;
-
-    if (1 << 1)
-        shipping_options_ = Vector<TLObject>::read(reader);
-    else
-        shipping_options_ = std::nullopt;
-    return SetBotShippingResults<X>(query_id_, error_, shipping_options_);
+    shipping_options_ = (1 << 1) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
+    return SetBotShippingResults(query_id_, error_, shipping_options_);
 }
 
-template <class X>
-std::string SetBotShippingResults<X>::write()
+std::string SetBotShippingResults::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2495,31 +1946,20 @@ std::string SetBotShippingResults<X>::write()
     return buffer;
 }
 
-template <class X>
-SetBotPrecheckoutResults<X>::SetBotPrecheckoutResults(long query_id_, std::optional<bool> success_, std::optional<std::string> error_) {}
+SetBotPrecheckoutResults::SetBotPrecheckoutResults(long query_id_, std::optional<bool> success_, std::optional<std::string> error_) {}
 
-template <class X>
-SetBotPrecheckoutResults<X> SetBotPrecheckoutResults<X>::read(Reader reader)
+SetBotPrecheckoutResults SetBotPrecheckoutResults::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> success_;
-
-    if (1 << 1)
-        success_ = true;
-    else
-        success_ = std::nullopt;
+    success_ = (1 << 1) ? std::optional{true} : std::nullopt;
     long query_id_ = Long::read(reader);
     std::optional<std::string> error_;
-
-    if (1 << 0)
-        error_ = String::read(reader);
-    else
-        error_ = std::nullopt;
-    return SetBotPrecheckoutResults<X>(query_id_, success_, error_);
+    error_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
+    return SetBotPrecheckoutResults(query_id_, success_, error_);
 }
 
-template <class X>
-std::string SetBotPrecheckoutResults<X>::write()
+std::string SetBotPrecheckoutResults::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2533,19 +1973,16 @@ std::string SetBotPrecheckoutResults<X>::write()
     return buffer;
 }
 
-template <class X>
-UploadMedia<X>::UploadMedia(TLObject peer_, TLObject media_) {}
+UploadMedia::UploadMedia(TLObject peer_, TLObject media_) {}
 
-template <class X>
-UploadMedia<X> UploadMedia<X>::read(Reader reader)
+UploadMedia UploadMedia::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    TLObject media_ = TLObject::read(reader);
-    return UploadMedia<X>(peer_, media_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject media_ = std::get<TLObject>(TLObject::read(reader));
+    return UploadMedia(peer_, media_);
 }
 
-template <class X>
-std::string UploadMedia<X>::write()
+std::string UploadMedia::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2554,20 +1991,17 @@ std::string UploadMedia<X>::write()
     return buffer;
 }
 
-template <class X>
-SendScreenshotNotification<X>::SendScreenshotNotification(TLObject peer_, int reply_to_msg_id_, long random_id_) {}
+SendScreenshotNotification::SendScreenshotNotification(TLObject peer_, int reply_to_msg_id_, long random_id_) {}
 
-template <class X>
-SendScreenshotNotification<X> SendScreenshotNotification<X>::read(Reader reader)
+SendScreenshotNotification SendScreenshotNotification::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int reply_to_msg_id_ = Int::read(reader);
     long random_id_ = Long::read(reader);
-    return SendScreenshotNotification<X>(peer_, reply_to_msg_id_, random_id_);
+    return SendScreenshotNotification(peer_, reply_to_msg_id_, random_id_);
 }
 
-template <class X>
-std::string SendScreenshotNotification<X>::write()
+std::string SendScreenshotNotification::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2577,18 +2011,15 @@ std::string SendScreenshotNotification<X>::write()
     return buffer;
 }
 
-template <class X>
-GetFavedStickers<X>::GetFavedStickers(int hash_) {}
+GetFavedStickers::GetFavedStickers(int hash_) {}
 
-template <class X>
-GetFavedStickers<X> GetFavedStickers<X>::read(Reader reader)
+GetFavedStickers GetFavedStickers::read(Reader reader)
 {
     int hash_ = Int::read(reader);
-    return GetFavedStickers<X>(hash_);
+    return GetFavedStickers(hash_);
 }
 
-template <class X>
-std::string GetFavedStickers<X>::write()
+std::string GetFavedStickers::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2596,19 +2027,16 @@ std::string GetFavedStickers<X>::write()
     return buffer;
 }
 
-template <class X>
-FaveSticker<X>::FaveSticker(TLObject id_, bool unfave_) {}
+FaveSticker::FaveSticker(TLObject id_, bool unfave_) {}
 
-template <class X>
-FaveSticker<X> FaveSticker<X>::read(Reader reader)
+FaveSticker FaveSticker::read(Reader reader)
 {
-    TLObject id_ = TLObject::read(reader);
+    TLObject id_ = std::get<TLObject>(TLObject::read(reader));
     bool unfave_ = Bool::read(reader);
-    return FaveSticker<X>(id_, unfave_);
+    return FaveSticker(id_, unfave_);
 }
 
-template <class X>
-std::string FaveSticker<X>::write()
+std::string FaveSticker::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2617,23 +2045,20 @@ std::string FaveSticker<X>::write()
     return buffer;
 }
 
-template <class X>
-GetUnreadMentions<X>::GetUnreadMentions(TLObject peer_, int offset_id_, int add_offset_, int limit_, int max_id_, int min_id_) {}
+GetUnreadMentions::GetUnreadMentions(TLObject peer_, int offset_id_, int add_offset_, int limit_, int max_id_, int min_id_) {}
 
-template <class X>
-GetUnreadMentions<X> GetUnreadMentions<X>::read(Reader reader)
+GetUnreadMentions GetUnreadMentions::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int offset_id_ = Int::read(reader);
     int add_offset_ = Int::read(reader);
     int limit_ = Int::read(reader);
     int max_id_ = Int::read(reader);
     int min_id_ = Int::read(reader);
-    return GetUnreadMentions<X>(peer_, offset_id_, add_offset_, limit_, max_id_, min_id_);
+    return GetUnreadMentions(peer_, offset_id_, add_offset_, limit_, max_id_, min_id_);
 }
 
-template <class X>
-std::string GetUnreadMentions<X>::write()
+std::string GetUnreadMentions::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2646,18 +2071,15 @@ std::string GetUnreadMentions<X>::write()
     return buffer;
 }
 
-template <class X>
-ReadMentions<X>::ReadMentions(TLObject peer_) {}
+ReadMentions::ReadMentions(TLObject peer_) {}
 
-template <class X>
-ReadMentions<X> ReadMentions<X>::read(Reader reader)
+ReadMentions ReadMentions::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    return ReadMentions<X>(peer_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    return ReadMentions(peer_);
 }
 
-template <class X>
-std::string ReadMentions<X>::write()
+std::string ReadMentions::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2665,20 +2087,17 @@ std::string ReadMentions<X>::write()
     return buffer;
 }
 
-template <class X>
-GetRecentLocations<X>::GetRecentLocations(TLObject peer_, int limit_, int hash_) {}
+GetRecentLocations::GetRecentLocations(TLObject peer_, int limit_, int hash_) {}
 
-template <class X>
-GetRecentLocations<X> GetRecentLocations<X>::read(Reader reader)
+GetRecentLocations GetRecentLocations::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int limit_ = Int::read(reader);
     int hash_ = Int::read(reader);
-    return GetRecentLocations<X>(peer_, limit_, hash_);
+    return GetRecentLocations(peer_, limit_, hash_);
 }
 
-template <class X>
-std::string GetRecentLocations<X>::write()
+std::string GetRecentLocations::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2688,50 +2107,27 @@ std::string GetRecentLocations<X>::write()
     return buffer;
 }
 
-template <class X>
-SendMultiMedia<X>::SendMultiMedia(TLObject peer_, std::vector<TLObject> multi_media_, std::optional<bool> silent_, std::optional<bool> background_, std::optional<bool> clear_draft_, std::optional<int> reply_to_msg_id_, std::optional<int> schedule_date_) {}
+SendMultiMedia::SendMultiMedia(TLObject peer_, std::vector<TLObject> multi_media_, std::optional<bool> silent_, std::optional<bool> background_, std::optional<bool> clear_draft_, std::optional<int> reply_to_msg_id_, std::optional<int> schedule_date_) {}
 
-template <class X>
-SendMultiMedia<X> SendMultiMedia<X>::read(Reader reader)
+SendMultiMedia SendMultiMedia::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> silent_;
-
-    if (1 << 5)
-        silent_ = true;
-    else
-        silent_ = std::nullopt;
+    silent_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> background_;
-
-    if (1 << 6)
-        background_ = true;
-    else
-        background_ = std::nullopt;
+    background_ = (1 << 6) ? std::optional{true} : std::nullopt;
     std::optional<bool> clear_draft_;
-
-    if (1 << 7)
-        clear_draft_ = true;
-    else
-        clear_draft_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    clear_draft_ = (1 << 7) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<int> reply_to_msg_id_;
-
-    if (1 << 0)
-        reply_to_msg_id_ = Int::read(reader);
-    else
-        reply_to_msg_id_ = std::nullopt;
-    std::vector<TLObject> multi_media_ = Vector<TLObject>::read(reader);
+    reply_to_msg_id_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
+    std::vector<TLObject> multi_media_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     std::optional<int> schedule_date_;
-
-    if (1 << 10)
-        schedule_date_ = Int::read(reader);
-    else
-        schedule_date_ = std::nullopt;
-    return SendMultiMedia<X>(peer_, multi_media_, silent_, background_, clear_draft_, reply_to_msg_id_, schedule_date_);
+    schedule_date_ = (1 << 10) ? std::optional{Int::read(reader)} : std::nullopt;
+    return SendMultiMedia(peer_, multi_media_, silent_, background_, clear_draft_, reply_to_msg_id_, schedule_date_);
 }
 
-template <class X>
-std::string SendMultiMedia<X>::write()
+std::string SendMultiMedia::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2752,19 +2148,16 @@ std::string SendMultiMedia<X>::write()
     return buffer;
 }
 
-template <class X>
-UploadEncryptedFile<X>::UploadEncryptedFile(TLObject peer_, TLObject file_) {}
+UploadEncryptedFile::UploadEncryptedFile(TLObject peer_, TLObject file_) {}
 
-template <class X>
-UploadEncryptedFile<X> UploadEncryptedFile<X>::read(Reader reader)
+UploadEncryptedFile UploadEncryptedFile::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    TLObject file_ = TLObject::read(reader);
-    return UploadEncryptedFile<X>(peer_, file_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject file_ = std::get<TLObject>(TLObject::read(reader));
+    return UploadEncryptedFile(peer_, file_);
 }
 
-template <class X>
-std::string UploadEncryptedFile<X>::write()
+std::string UploadEncryptedFile::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2773,26 +2166,19 @@ std::string UploadEncryptedFile<X>::write()
     return buffer;
 }
 
-template <class X>
-SearchStickerSets<X>::SearchStickerSets(std::string q_, int hash_, std::optional<bool> exclude_featured_) {}
+SearchStickerSets::SearchStickerSets(std::string q_, int hash_, std::optional<bool> exclude_featured_) {}
 
-template <class X>
-SearchStickerSets<X> SearchStickerSets<X>::read(Reader reader)
+SearchStickerSets SearchStickerSets::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> exclude_featured_;
-
-    if (1 << 0)
-        exclude_featured_ = true;
-    else
-        exclude_featured_ = std::nullopt;
+    exclude_featured_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::string q_ = String::read(reader);
     int hash_ = Int::read(reader);
-    return SearchStickerSets<X>(q_, hash_, exclude_featured_);
+    return SearchStickerSets(q_, hash_, exclude_featured_);
 }
 
-template <class X>
-std::string SearchStickerSets<X>::write()
+std::string SearchStickerSets::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2802,39 +2188,30 @@ std::string SearchStickerSets<X>::write()
     buffer += Int::write(hash);
     return buffer;
 }
-template <class X>
-GetSplitRanges<X> GetSplitRanges<X>::read(Reader reader)
+GetSplitRanges GetSplitRanges::read(Reader reader)
 {
-    return GetSplitRanges<X>();
+    return GetSplitRanges();
 }
 
-template <class X>
-std::string GetSplitRanges<X>::write()
+std::string GetSplitRanges::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     return buffer;
 }
 
-template <class X>
-MarkDialogUnread<X>::MarkDialogUnread(TLObject peer_, std::optional<bool> unread_) {}
+MarkDialogUnread::MarkDialogUnread(TLObject peer_, std::optional<bool> unread_) {}
 
-template <class X>
-MarkDialogUnread<X> MarkDialogUnread<X>::read(Reader reader)
+MarkDialogUnread MarkDialogUnread::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> unread_;
-
-    if (1 << 0)
-        unread_ = true;
-    else
-        unread_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
-    return MarkDialogUnread<X>(peer_, unread_);
+    unread_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    return MarkDialogUnread(peer_, unread_);
 }
 
-template <class X>
-std::string MarkDialogUnread<X>::write()
+std::string MarkDialogUnread::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2843,65 +2220,46 @@ std::string MarkDialogUnread<X>::write()
     buffer += peer.write();
     return buffer;
 }
-template <class X>
-GetDialogUnreadMarks<X> GetDialogUnreadMarks<X>::read(Reader reader)
+GetDialogUnreadMarks GetDialogUnreadMarks::read(Reader reader)
 {
-    return GetDialogUnreadMarks<X>();
+    return GetDialogUnreadMarks();
 }
 
-template <class X>
-std::string GetDialogUnreadMarks<X>::write()
+std::string GetDialogUnreadMarks::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     return buffer;
 }
-template <class X>
-ClearAllDrafts<X> ClearAllDrafts<X>::read(Reader reader)
+ClearAllDrafts ClearAllDrafts::read(Reader reader)
 {
-    return ClearAllDrafts<X>();
+    return ClearAllDrafts();
 }
 
-template <class X>
-std::string ClearAllDrafts<X>::write()
+std::string ClearAllDrafts::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     return buffer;
 }
 
-template <class X>
-UpdatePinnedMessage<X>::UpdatePinnedMessage(TLObject peer_, int id_, std::optional<bool> silent_, std::optional<bool> unpin_, std::optional<bool> pm_oneside_) {}
+UpdatePinnedMessage::UpdatePinnedMessage(TLObject peer_, int id_, std::optional<bool> silent_, std::optional<bool> unpin_, std::optional<bool> pm_oneside_) {}
 
-template <class X>
-UpdatePinnedMessage<X> UpdatePinnedMessage<X>::read(Reader reader)
+UpdatePinnedMessage UpdatePinnedMessage::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> silent_;
-
-    if (1 << 0)
-        silent_ = true;
-    else
-        silent_ = std::nullopt;
+    silent_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> unpin_;
-
-    if (1 << 1)
-        unpin_ = true;
-    else
-        unpin_ = std::nullopt;
+    unpin_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> pm_oneside_;
-
-    if (1 << 2)
-        pm_oneside_ = true;
-    else
-        pm_oneside_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    pm_oneside_ = (1 << 2) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int id_ = Int::read(reader);
-    return UpdatePinnedMessage<X>(peer_, id_, silent_, unpin_, pm_oneside_);
+    return UpdatePinnedMessage(peer_, id_, silent_, unpin_, pm_oneside_);
 }
 
-template <class X>
-std::string UpdatePinnedMessage<X>::write()
+std::string UpdatePinnedMessage::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2914,20 +2272,17 @@ std::string UpdatePinnedMessage<X>::write()
     return buffer;
 }
 
-template <class X>
-SendVote<X>::SendVote(TLObject peer_, int msg_id_, std::vector<std::string> options_) {}
+SendVote::SendVote(TLObject peer_, int msg_id_, std::vector<std::string> options_) {}
 
-template <class X>
-SendVote<X> SendVote<X>::read(Reader reader)
+SendVote SendVote::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int msg_id_ = Int::read(reader);
-    std::vector<std::string> options_ = Vector<std::string>::read(reader);
-    return SendVote<X>(peer_, msg_id_, options_);
+    std::vector<std::string> options_ = std::get<std::vector<std::string>>(TLObject::read(reader));
+    return SendVote(peer_, msg_id_, options_);
 }
 
-template <class X>
-std::string SendVote<X>::write()
+std::string SendVote::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2937,19 +2292,16 @@ std::string SendVote<X>::write()
     return buffer;
 }
 
-template <class X>
-GetPollResults<X>::GetPollResults(TLObject peer_, int msg_id_) {}
+GetPollResults::GetPollResults(TLObject peer_, int msg_id_) {}
 
-template <class X>
-GetPollResults<X> GetPollResults<X>::read(Reader reader)
+GetPollResults GetPollResults::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int msg_id_ = Int::read(reader);
-    return GetPollResults<X>(peer_, msg_id_);
+    return GetPollResults(peer_, msg_id_);
 }
 
-template <class X>
-std::string GetPollResults<X>::write()
+std::string GetPollResults::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2958,18 +2310,15 @@ std::string GetPollResults<X>::write()
     return buffer;
 }
 
-template <class X>
-GetOnlines<X>::GetOnlines(TLObject peer_) {}
+GetOnlines::GetOnlines(TLObject peer_) {}
 
-template <class X>
-GetOnlines<X> GetOnlines<X>::read(Reader reader)
+GetOnlines GetOnlines::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    return GetOnlines<X>(peer_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    return GetOnlines(peer_);
 }
 
-template <class X>
-std::string GetOnlines<X>::write()
+std::string GetOnlines::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -2977,26 +2326,19 @@ std::string GetOnlines<X>::write()
     return buffer;
 }
 
-template <class X>
-GetStatsURL<X>::GetStatsURL(TLObject peer_, std::string params_, std::optional<bool> dark_) {}
+GetStatsURL::GetStatsURL(TLObject peer_, std::string params_, std::optional<bool> dark_) {}
 
-template <class X>
-GetStatsURL<X> GetStatsURL<X>::read(Reader reader)
+GetStatsURL GetStatsURL::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> dark_;
-
-    if (1 << 0)
-        dark_ = true;
-    else
-        dark_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    dark_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::string params_ = String::read(reader);
-    return GetStatsURL<X>(peer_, params_, dark_);
+    return GetStatsURL(peer_, params_, dark_);
 }
 
-template <class X>
-std::string GetStatsURL<X>::write()
+std::string GetStatsURL::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3007,19 +2349,16 @@ std::string GetStatsURL<X>::write()
     return buffer;
 }
 
-template <class X>
-EditChatAbout<X>::EditChatAbout(TLObject peer_, std::string about_) {}
+EditChatAbout::EditChatAbout(TLObject peer_, std::string about_) {}
 
-template <class X>
-EditChatAbout<X> EditChatAbout<X>::read(Reader reader)
+EditChatAbout EditChatAbout::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::string about_ = String::read(reader);
-    return EditChatAbout<X>(peer_, about_);
+    return EditChatAbout(peer_, about_);
 }
 
-template <class X>
-std::string EditChatAbout<X>::write()
+std::string EditChatAbout::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3028,19 +2367,16 @@ std::string EditChatAbout<X>::write()
     return buffer;
 }
 
-template <class X>
-EditChatDefaultBannedRights<X>::EditChatDefaultBannedRights(TLObject peer_, TLObject banned_rights_) {}
+EditChatDefaultBannedRights::EditChatDefaultBannedRights(TLObject peer_, TLObject banned_rights_) {}
 
-template <class X>
-EditChatDefaultBannedRights<X> EditChatDefaultBannedRights<X>::read(Reader reader)
+EditChatDefaultBannedRights EditChatDefaultBannedRights::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    TLObject banned_rights_ = TLObject::read(reader);
-    return EditChatDefaultBannedRights<X>(peer_, banned_rights_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject banned_rights_ = std::get<TLObject>(TLObject::read(reader));
+    return EditChatDefaultBannedRights(peer_, banned_rights_);
 }
 
-template <class X>
-std::string EditChatDefaultBannedRights<X>::write()
+std::string EditChatDefaultBannedRights::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3049,18 +2385,15 @@ std::string EditChatDefaultBannedRights<X>::write()
     return buffer;
 }
 
-template <class X>
-GetEmojiKeywords<X>::GetEmojiKeywords(std::string lang_code_) {}
+GetEmojiKeywords::GetEmojiKeywords(std::string lang_code_) {}
 
-template <class X>
-GetEmojiKeywords<X> GetEmojiKeywords<X>::read(Reader reader)
+GetEmojiKeywords GetEmojiKeywords::read(Reader reader)
 {
     std::string lang_code_ = String::read(reader);
-    return GetEmojiKeywords<X>(lang_code_);
+    return GetEmojiKeywords(lang_code_);
 }
 
-template <class X>
-std::string GetEmojiKeywords<X>::write()
+std::string GetEmojiKeywords::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3068,19 +2401,16 @@ std::string GetEmojiKeywords<X>::write()
     return buffer;
 }
 
-template <class X>
-GetEmojiKeywordsDifference<X>::GetEmojiKeywordsDifference(std::string lang_code_, int from_version_) {}
+GetEmojiKeywordsDifference::GetEmojiKeywordsDifference(std::string lang_code_, int from_version_) {}
 
-template <class X>
-GetEmojiKeywordsDifference<X> GetEmojiKeywordsDifference<X>::read(Reader reader)
+GetEmojiKeywordsDifference GetEmojiKeywordsDifference::read(Reader reader)
 {
     std::string lang_code_ = String::read(reader);
     int from_version_ = Int::read(reader);
-    return GetEmojiKeywordsDifference<X>(lang_code_, from_version_);
+    return GetEmojiKeywordsDifference(lang_code_, from_version_);
 }
 
-template <class X>
-std::string GetEmojiKeywordsDifference<X>::write()
+std::string GetEmojiKeywordsDifference::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3089,18 +2419,15 @@ std::string GetEmojiKeywordsDifference<X>::write()
     return buffer;
 }
 
-template <class X>
-GetEmojiKeywordsLanguages<X>::GetEmojiKeywordsLanguages(std::vector<std::string> lang_codes_) {}
+GetEmojiKeywordsLanguages::GetEmojiKeywordsLanguages(std::vector<std::string> lang_codes_) {}
 
-template <class X>
-GetEmojiKeywordsLanguages<X> GetEmojiKeywordsLanguages<X>::read(Reader reader)
+GetEmojiKeywordsLanguages GetEmojiKeywordsLanguages::read(Reader reader)
 {
-    std::vector<std::string> lang_codes_ = Vector<std::string>::read(reader);
-    return GetEmojiKeywordsLanguages<X>(lang_codes_);
+    std::vector<std::string> lang_codes_ = std::get<std::vector<std::string>>(TLObject::read(reader));
+    return GetEmojiKeywordsLanguages(lang_codes_);
 }
 
-template <class X>
-std::string GetEmojiKeywordsLanguages<X>::write()
+std::string GetEmojiKeywordsLanguages::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3108,18 +2435,15 @@ std::string GetEmojiKeywordsLanguages<X>::write()
     return buffer;
 }
 
-template <class X>
-GetEmojiURL<X>::GetEmojiURL(std::string lang_code_) {}
+GetEmojiURL::GetEmojiURL(std::string lang_code_) {}
 
-template <class X>
-GetEmojiURL<X> GetEmojiURL<X>::read(Reader reader)
+GetEmojiURL GetEmojiURL::read(Reader reader)
 {
     std::string lang_code_ = String::read(reader);
-    return GetEmojiURL<X>(lang_code_);
+    return GetEmojiURL(lang_code_);
 }
 
-template <class X>
-std::string GetEmojiURL<X>::write()
+std::string GetEmojiURL::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3127,19 +2451,16 @@ std::string GetEmojiURL<X>::write()
     return buffer;
 }
 
-template <class X>
-GetSearchCounters<X>::GetSearchCounters(TLObject peer_, std::vector<TLObject> filters_) {}
+GetSearchCounters::GetSearchCounters(TLObject peer_, std::vector<TLObject> filters_) {}
 
-template <class X>
-GetSearchCounters<X> GetSearchCounters<X>::read(Reader reader)
+GetSearchCounters GetSearchCounters::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    std::vector<TLObject> filters_ = Vector<TLObject>::read(reader);
-    return GetSearchCounters<X>(peer_, filters_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<TLObject> filters_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    return GetSearchCounters(peer_, filters_);
 }
 
-template <class X>
-std::string GetSearchCounters<X>::write()
+std::string GetSearchCounters::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3148,42 +2469,23 @@ std::string GetSearchCounters<X>::write()
     return buffer;
 }
 
-template <class X>
-RequestUrlAuth<X>::RequestUrlAuth(std::optional<TLObject> peer_, std::optional<int> msg_id_, std::optional<int> button_id_, std::optional<std::string> url_) {}
+RequestUrlAuth::RequestUrlAuth(std::optional<TLObject> peer_, std::optional<int> msg_id_, std::optional<int> button_id_, std::optional<std::string> url_) {}
 
-template <class X>
-RequestUrlAuth<X> RequestUrlAuth<X>::read(Reader reader)
+RequestUrlAuth RequestUrlAuth::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<TLObject> peer_;
-
-    if (1 << 1)
-        peer_ = TLObject::read(reader);
-    else
-        peer_ = std::nullopt;
+    peer_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> msg_id_;
-
-    if (1 << 1)
-        msg_id_ = Int::read(reader);
-    else
-        msg_id_ = std::nullopt;
+    msg_id_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> button_id_;
-
-    if (1 << 1)
-        button_id_ = Int::read(reader);
-    else
-        button_id_ = std::nullopt;
+    button_id_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<std::string> url_;
-
-    if (1 << 2)
-        url_ = String::read(reader);
-    else
-        url_ = std::nullopt;
-    return RequestUrlAuth<X>(peer_, msg_id_, button_id_, url_);
+    url_ = (1 << 2) ? std::optional{String::read(reader)} : std::nullopt;
+    return RequestUrlAuth(peer_, msg_id_, button_id_, url_);
 }
 
-template <class X>
-std::string RequestUrlAuth<X>::write()
+std::string RequestUrlAuth::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3207,48 +2509,25 @@ std::string RequestUrlAuth<X>::write()
     return buffer;
 }
 
-template <class X>
-AcceptUrlAuth<X>::AcceptUrlAuth(std::optional<bool> write_allowed_, std::optional<TLObject> peer_, std::optional<int> msg_id_, std::optional<int> button_id_, std::optional<std::string> url_) {}
+AcceptUrlAuth::AcceptUrlAuth(std::optional<bool> write_allowed_, std::optional<TLObject> peer_, std::optional<int> msg_id_, std::optional<int> button_id_, std::optional<std::string> url_) {}
 
-template <class X>
-AcceptUrlAuth<X> AcceptUrlAuth<X>::read(Reader reader)
+AcceptUrlAuth AcceptUrlAuth::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> write_allowed_;
-
-    if (1 << 0)
-        write_allowed_ = true;
-    else
-        write_allowed_ = std::nullopt;
+    write_allowed_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<TLObject> peer_;
-
-    if (1 << 1)
-        peer_ = TLObject::read(reader);
-    else
-        peer_ = std::nullopt;
+    peer_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> msg_id_;
-
-    if (1 << 1)
-        msg_id_ = Int::read(reader);
-    else
-        msg_id_ = std::nullopt;
+    msg_id_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> button_id_;
-
-    if (1 << 1)
-        button_id_ = Int::read(reader);
-    else
-        button_id_ = std::nullopt;
+    button_id_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<std::string> url_;
-
-    if (1 << 2)
-        url_ = String::read(reader);
-    else
-        url_ = std::nullopt;
-    return AcceptUrlAuth<X>(write_allowed_, peer_, msg_id_, button_id_, url_);
+    url_ = (1 << 2) ? std::optional{String::read(reader)} : std::nullopt;
+    return AcceptUrlAuth(write_allowed_, peer_, msg_id_, button_id_, url_);
 }
 
-template <class X>
-std::string AcceptUrlAuth<X>::write()
+std::string AcceptUrlAuth::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3273,18 +2552,15 @@ std::string AcceptUrlAuth<X>::write()
     return buffer;
 }
 
-template <class X>
-HidePeerSettingsBar<X>::HidePeerSettingsBar(TLObject peer_) {}
+HidePeerSettingsBar::HidePeerSettingsBar(TLObject peer_) {}
 
-template <class X>
-HidePeerSettingsBar<X> HidePeerSettingsBar<X>::read(Reader reader)
+HidePeerSettingsBar HidePeerSettingsBar::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    return HidePeerSettingsBar<X>(peer_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    return HidePeerSettingsBar(peer_);
 }
 
-template <class X>
-std::string HidePeerSettingsBar<X>::write()
+std::string HidePeerSettingsBar::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3292,19 +2568,16 @@ std::string HidePeerSettingsBar<X>::write()
     return buffer;
 }
 
-template <class X>
-GetScheduledHistory<X>::GetScheduledHistory(TLObject peer_, int hash_) {}
+GetScheduledHistory::GetScheduledHistory(TLObject peer_, int hash_) {}
 
-template <class X>
-GetScheduledHistory<X> GetScheduledHistory<X>::read(Reader reader)
+GetScheduledHistory GetScheduledHistory::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int hash_ = Int::read(reader);
-    return GetScheduledHistory<X>(peer_, hash_);
+    return GetScheduledHistory(peer_, hash_);
 }
 
-template <class X>
-std::string GetScheduledHistory<X>::write()
+std::string GetScheduledHistory::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3313,19 +2586,16 @@ std::string GetScheduledHistory<X>::write()
     return buffer;
 }
 
-template <class X>
-GetScheduledMessages<X>::GetScheduledMessages(TLObject peer_, std::vector<int> id_) {}
+GetScheduledMessages::GetScheduledMessages(TLObject peer_, std::vector<int> id_) {}
 
-template <class X>
-GetScheduledMessages<X> GetScheduledMessages<X>::read(Reader reader)
+GetScheduledMessages GetScheduledMessages::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    std::vector<int> id_ = Vector<int>::read(reader);
-    return GetScheduledMessages<X>(peer_, id_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<int> id_ = std::get<std::vector<int>>(TLObject::read(reader));
+    return GetScheduledMessages(peer_, id_);
 }
 
-template <class X>
-std::string GetScheduledMessages<X>::write()
+std::string GetScheduledMessages::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3334,19 +2604,16 @@ std::string GetScheduledMessages<X>::write()
     return buffer;
 }
 
-template <class X>
-SendScheduledMessages<X>::SendScheduledMessages(TLObject peer_, std::vector<int> id_) {}
+SendScheduledMessages::SendScheduledMessages(TLObject peer_, std::vector<int> id_) {}
 
-template <class X>
-SendScheduledMessages<X> SendScheduledMessages<X>::read(Reader reader)
+SendScheduledMessages SendScheduledMessages::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    std::vector<int> id_ = Vector<int>::read(reader);
-    return SendScheduledMessages<X>(peer_, id_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<int> id_ = std::get<std::vector<int>>(TLObject::read(reader));
+    return SendScheduledMessages(peer_, id_);
 }
 
-template <class X>
-std::string SendScheduledMessages<X>::write()
+std::string SendScheduledMessages::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3355,19 +2622,16 @@ std::string SendScheduledMessages<X>::write()
     return buffer;
 }
 
-template <class X>
-DeleteScheduledMessages<X>::DeleteScheduledMessages(TLObject peer_, std::vector<int> id_) {}
+DeleteScheduledMessages::DeleteScheduledMessages(TLObject peer_, std::vector<int> id_) {}
 
-template <class X>
-DeleteScheduledMessages<X> DeleteScheduledMessages<X>::read(Reader reader)
+DeleteScheduledMessages DeleteScheduledMessages::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    std::vector<int> id_ = Vector<int>::read(reader);
-    return DeleteScheduledMessages<X>(peer_, id_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<int> id_ = std::get<std::vector<int>>(TLObject::read(reader));
+    return DeleteScheduledMessages(peer_, id_);
 }
 
-template <class X>
-std::string DeleteScheduledMessages<X>::write()
+std::string DeleteScheduledMessages::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3376,33 +2640,22 @@ std::string DeleteScheduledMessages<X>::write()
     return buffer;
 }
 
-template <class X>
-GetPollVotes<X>::GetPollVotes(TLObject peer_, int id_, int limit_, std::optional<std::string> option_, std::optional<std::string> offset_) {}
+GetPollVotes::GetPollVotes(TLObject peer_, int id_, int limit_, std::optional<std::string> option_, std::optional<std::string> offset_) {}
 
-template <class X>
-GetPollVotes<X> GetPollVotes<X>::read(Reader reader)
+GetPollVotes GetPollVotes::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int id_ = Int::read(reader);
     std::optional<std::string> option_;
-
-    if (1 << 0)
-        option_ = Bytes::read(reader);
-    else
-        option_ = std::nullopt;
+    option_ = (1 << 0) ? std::optional{Bytes::read(reader)} : std::nullopt;
     std::optional<std::string> offset_;
-
-    if (1 << 1)
-        offset_ = String::read(reader);
-    else
-        offset_ = std::nullopt;
+    offset_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     int limit_ = Int::read(reader);
-    return GetPollVotes<X>(peer_, id_, limit_, option_, offset_);
+    return GetPollVotes(peer_, id_, limit_, option_, offset_);
 }
 
-template <class X>
-std::string GetPollVotes<X>::write()
+std::string GetPollVotes::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3421,37 +2674,22 @@ std::string GetPollVotes<X>::write()
     return buffer;
 }
 
-template <class X>
-ToggleStickerSets<X>::ToggleStickerSets(std::vector<TLObject> stickersets_, std::optional<bool> uninstall_, std::optional<bool> archive_, std::optional<bool> unarchive_) {}
+ToggleStickerSets::ToggleStickerSets(std::vector<TLObject> stickersets_, std::optional<bool> uninstall_, std::optional<bool> archive_, std::optional<bool> unarchive_) {}
 
-template <class X>
-ToggleStickerSets<X> ToggleStickerSets<X>::read(Reader reader)
+ToggleStickerSets ToggleStickerSets::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> uninstall_;
-
-    if (1 << 0)
-        uninstall_ = true;
-    else
-        uninstall_ = std::nullopt;
+    uninstall_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> archive_;
-
-    if (1 << 1)
-        archive_ = true;
-    else
-        archive_ = std::nullopt;
+    archive_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> unarchive_;
-
-    if (1 << 2)
-        unarchive_ = true;
-    else
-        unarchive_ = std::nullopt;
-    std::vector<TLObject> stickersets_ = Vector<TLObject>::read(reader);
-    return ToggleStickerSets<X>(stickersets_, uninstall_, archive_, unarchive_);
+    unarchive_ = (1 << 2) ? std::optional{true} : std::nullopt;
+    std::vector<TLObject> stickersets_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    return ToggleStickerSets(stickersets_, uninstall_, archive_, unarchive_);
 }
 
-template <class X>
-std::string ToggleStickerSets<X>::write()
+std::string ToggleStickerSets::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3462,52 +2700,41 @@ std::string ToggleStickerSets<X>::write()
     buffer += Vector<TLObject>::write(stickersets);
     return buffer;
 }
-template <class X>
-GetDialogFilters<X> GetDialogFilters<X>::read(Reader reader)
+GetDialogFilters GetDialogFilters::read(Reader reader)
 {
-    return GetDialogFilters<X>();
+    return GetDialogFilters();
 }
 
-template <class X>
-std::string GetDialogFilters<X>::write()
+std::string GetDialogFilters::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     return buffer;
 }
-template <class X>
-GetSuggestedDialogFilters<X> GetSuggestedDialogFilters<X>::read(Reader reader)
+GetSuggestedDialogFilters GetSuggestedDialogFilters::read(Reader reader)
 {
-    return GetSuggestedDialogFilters<X>();
+    return GetSuggestedDialogFilters();
 }
 
-template <class X>
-std::string GetSuggestedDialogFilters<X>::write()
+std::string GetSuggestedDialogFilters::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     return buffer;
 }
 
-template <class X>
-UpdateDialogFilter<X>::UpdateDialogFilter(int id_, std::optional<TLObject> filter_) {}
+UpdateDialogFilter::UpdateDialogFilter(int id_, std::optional<TLObject> filter_) {}
 
-template <class X>
-UpdateDialogFilter<X> UpdateDialogFilter<X>::read(Reader reader)
+UpdateDialogFilter UpdateDialogFilter::read(Reader reader)
 {
     int flags = Int::read(reader);
     int id_ = Int::read(reader);
     std::optional<TLObject> filter_;
-
-    if (1 << 0)
-        filter_ = TLObject::read(reader);
-    else
-        filter_ = std::nullopt;
-    return UpdateDialogFilter<X>(id_, filter_);
+    filter_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
+    return UpdateDialogFilter(id_, filter_);
 }
 
-template <class X>
-std::string UpdateDialogFilter<X>::write()
+std::string UpdateDialogFilter::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3520,18 +2747,15 @@ std::string UpdateDialogFilter<X>::write()
     return buffer;
 }
 
-template <class X>
-UpdateDialogFiltersOrder<X>::UpdateDialogFiltersOrder(std::vector<int> order_) {}
+UpdateDialogFiltersOrder::UpdateDialogFiltersOrder(std::vector<int> order_) {}
 
-template <class X>
-UpdateDialogFiltersOrder<X> UpdateDialogFiltersOrder<X>::read(Reader reader)
+UpdateDialogFiltersOrder UpdateDialogFiltersOrder::read(Reader reader)
 {
-    std::vector<int> order_ = Vector<int>::read(reader);
-    return UpdateDialogFiltersOrder<X>(order_);
+    std::vector<int> order_ = std::get<std::vector<int>>(TLObject::read(reader));
+    return UpdateDialogFiltersOrder(order_);
 }
 
-template <class X>
-std::string UpdateDialogFiltersOrder<X>::write()
+std::string UpdateDialogFiltersOrder::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3539,20 +2763,17 @@ std::string UpdateDialogFiltersOrder<X>::write()
     return buffer;
 }
 
-template <class X>
-GetOldFeaturedStickers<X>::GetOldFeaturedStickers(int offset_, int limit_, int hash_) {}
+GetOldFeaturedStickers::GetOldFeaturedStickers(int offset_, int limit_, int hash_) {}
 
-template <class X>
-GetOldFeaturedStickers<X> GetOldFeaturedStickers<X>::read(Reader reader)
+GetOldFeaturedStickers GetOldFeaturedStickers::read(Reader reader)
 {
     int offset_ = Int::read(reader);
     int limit_ = Int::read(reader);
     int hash_ = Int::read(reader);
-    return GetOldFeaturedStickers<X>(offset_, limit_, hash_);
+    return GetOldFeaturedStickers(offset_, limit_, hash_);
 }
 
-template <class X>
-std::string GetOldFeaturedStickers<X>::write()
+std::string GetOldFeaturedStickers::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3562,13 +2783,11 @@ std::string GetOldFeaturedStickers<X>::write()
     return buffer;
 }
 
-template <class X>
-GetReplies<X>::GetReplies(TLObject peer_, int msg_id_, int offset_id_, int offset_date_, int add_offset_, int limit_, int max_id_, int min_id_, int hash_) {}
+GetReplies::GetReplies(TLObject peer_, int msg_id_, int offset_id_, int offset_date_, int add_offset_, int limit_, int max_id_, int min_id_, int hash_) {}
 
-template <class X>
-GetReplies<X> GetReplies<X>::read(Reader reader)
+GetReplies GetReplies::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int msg_id_ = Int::read(reader);
     int offset_id_ = Int::read(reader);
     int offset_date_ = Int::read(reader);
@@ -3577,11 +2796,10 @@ GetReplies<X> GetReplies<X>::read(Reader reader)
     int max_id_ = Int::read(reader);
     int min_id_ = Int::read(reader);
     int hash_ = Int::read(reader);
-    return GetReplies<X>(peer_, msg_id_, offset_id_, offset_date_, add_offset_, limit_, max_id_, min_id_, hash_);
+    return GetReplies(peer_, msg_id_, offset_id_, offset_date_, add_offset_, limit_, max_id_, min_id_, hash_);
 }
 
-template <class X>
-std::string GetReplies<X>::write()
+std::string GetReplies::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3597,19 +2815,16 @@ std::string GetReplies<X>::write()
     return buffer;
 }
 
-template <class X>
-GetDiscussionMessage<X>::GetDiscussionMessage(TLObject peer_, int msg_id_) {}
+GetDiscussionMessage::GetDiscussionMessage(TLObject peer_, int msg_id_) {}
 
-template <class X>
-GetDiscussionMessage<X> GetDiscussionMessage<X>::read(Reader reader)
+GetDiscussionMessage GetDiscussionMessage::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int msg_id_ = Int::read(reader);
-    return GetDiscussionMessage<X>(peer_, msg_id_);
+    return GetDiscussionMessage(peer_, msg_id_);
 }
 
-template <class X>
-std::string GetDiscussionMessage<X>::write()
+std::string GetDiscussionMessage::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3618,20 +2833,17 @@ std::string GetDiscussionMessage<X>::write()
     return buffer;
 }
 
-template <class X>
-ReadDiscussion<X>::ReadDiscussion(TLObject peer_, int msg_id_, int read_max_id_) {}
+ReadDiscussion::ReadDiscussion(TLObject peer_, int msg_id_, int read_max_id_) {}
 
-template <class X>
-ReadDiscussion<X> ReadDiscussion<X>::read(Reader reader)
+ReadDiscussion ReadDiscussion::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int msg_id_ = Int::read(reader);
     int read_max_id_ = Int::read(reader);
-    return ReadDiscussion<X>(peer_, msg_id_, read_max_id_);
+    return ReadDiscussion(peer_, msg_id_, read_max_id_);
 }
 
-template <class X>
-std::string ReadDiscussion<X>::write()
+std::string ReadDiscussion::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3641,18 +2853,15 @@ std::string ReadDiscussion<X>::write()
     return buffer;
 }
 
-template <class X>
-UnpinAllMessages<X>::UnpinAllMessages(TLObject peer_) {}
+UnpinAllMessages::UnpinAllMessages(TLObject peer_) {}
 
-template <class X>
-UnpinAllMessages<X> UnpinAllMessages<X>::read(Reader reader)
+UnpinAllMessages UnpinAllMessages::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    return UnpinAllMessages<X>(peer_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    return UnpinAllMessages(peer_);
 }
 
-template <class X>
-std::string UnpinAllMessages<X>::write()
+std::string UnpinAllMessages::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3660,18 +2869,15 @@ std::string UnpinAllMessages<X>::write()
     return buffer;
 }
 
-template <class X>
-DeleteChat<X>::DeleteChat(int chat_id_) {}
+DeleteChat::DeleteChat(int chat_id_) {}
 
-template <class X>
-DeleteChat<X> DeleteChat<X>::read(Reader reader)
+DeleteChat DeleteChat::read(Reader reader)
 {
     int chat_id_ = Int::read(reader);
-    return DeleteChat<X>(chat_id_);
+    return DeleteChat(chat_id_);
 }
 
-template <class X>
-std::string DeleteChat<X>::write()
+std::string DeleteChat::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3679,24 +2885,17 @@ std::string DeleteChat<X>::write()
     return buffer;
 }
 
-template <class X>
-DeletePhoneCallHistory<X>::DeletePhoneCallHistory(std::optional<bool> revoke_) {}
+DeletePhoneCallHistory::DeletePhoneCallHistory(std::optional<bool> revoke_) {}
 
-template <class X>
-DeletePhoneCallHistory<X> DeletePhoneCallHistory<X>::read(Reader reader)
+DeletePhoneCallHistory DeletePhoneCallHistory::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> revoke_;
-
-    if (1 << 0)
-        revoke_ = true;
-    else
-        revoke_ = std::nullopt;
-    return DeletePhoneCallHistory<X>(revoke_);
+    revoke_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    return DeletePhoneCallHistory(revoke_);
 }
 
-template <class X>
-std::string DeletePhoneCallHistory<X>::write()
+std::string DeletePhoneCallHistory::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3705,18 +2904,15 @@ std::string DeletePhoneCallHistory<X>::write()
     return buffer;
 }
 
-template <class X>
-CheckHistoryImport<X>::CheckHistoryImport(std::string import_head_) {}
+CheckHistoryImport::CheckHistoryImport(std::string import_head_) {}
 
-template <class X>
-CheckHistoryImport<X> CheckHistoryImport<X>::read(Reader reader)
+CheckHistoryImport CheckHistoryImport::read(Reader reader)
 {
     std::string import_head_ = String::read(reader);
-    return CheckHistoryImport<X>(import_head_);
+    return CheckHistoryImport(import_head_);
 }
 
-template <class X>
-std::string CheckHistoryImport<X>::write()
+std::string CheckHistoryImport::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3724,20 +2920,17 @@ std::string CheckHistoryImport<X>::write()
     return buffer;
 }
 
-template <class X>
-InitHistoryImport<X>::InitHistoryImport(TLObject peer_, TLObject file_, int media_count_) {}
+InitHistoryImport::InitHistoryImport(TLObject peer_, TLObject file_, int media_count_) {}
 
-template <class X>
-InitHistoryImport<X> InitHistoryImport<X>::read(Reader reader)
+InitHistoryImport InitHistoryImport::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    TLObject file_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject file_ = std::get<TLObject>(TLObject::read(reader));
     int media_count_ = Int::read(reader);
-    return InitHistoryImport<X>(peer_, file_, media_count_);
+    return InitHistoryImport(peer_, file_, media_count_);
 }
 
-template <class X>
-std::string InitHistoryImport<X>::write()
+std::string InitHistoryImport::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3747,21 +2940,18 @@ std::string InitHistoryImport<X>::write()
     return buffer;
 }
 
-template <class X>
-UploadImportedMedia<X>::UploadImportedMedia(TLObject peer_, long import_id_, std::string file_name_, TLObject media_) {}
+UploadImportedMedia::UploadImportedMedia(TLObject peer_, long import_id_, std::string file_name_, TLObject media_) {}
 
-template <class X>
-UploadImportedMedia<X> UploadImportedMedia<X>::read(Reader reader)
+UploadImportedMedia UploadImportedMedia::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     long import_id_ = Long::read(reader);
     std::string file_name_ = String::read(reader);
-    TLObject media_ = TLObject::read(reader);
-    return UploadImportedMedia<X>(peer_, import_id_, file_name_, media_);
+    TLObject media_ = std::get<TLObject>(TLObject::read(reader));
+    return UploadImportedMedia(peer_, import_id_, file_name_, media_);
 }
 
-template <class X>
-std::string UploadImportedMedia<X>::write()
+std::string UploadImportedMedia::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3772,19 +2962,16 @@ std::string UploadImportedMedia<X>::write()
     return buffer;
 }
 
-template <class X>
-StartHistoryImport<X>::StartHistoryImport(TLObject peer_, long import_id_) {}
+StartHistoryImport::StartHistoryImport(TLObject peer_, long import_id_) {}
 
-template <class X>
-StartHistoryImport<X> StartHistoryImport<X>::read(Reader reader)
+StartHistoryImport StartHistoryImport::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     long import_id_ = Long::read(reader);
-    return StartHistoryImport<X>(peer_, import_id_);
+    return StartHistoryImport(peer_, import_id_);
 }
 
-template <class X>
-std::string StartHistoryImport<X>::write()
+std::string StartHistoryImport::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3793,39 +2980,24 @@ std::string StartHistoryImport<X>::write()
     return buffer;
 }
 
-template <class X>
-GetExportedChatInvites<X>::GetExportedChatInvites(TLObject peer_, TLObject admin_id_, int limit_, std::optional<bool> revoked_, std::optional<int> offset_date_, std::optional<std::string> offset_link_) {}
+GetExportedChatInvites::GetExportedChatInvites(TLObject peer_, TLObject admin_id_, int limit_, std::optional<bool> revoked_, std::optional<int> offset_date_, std::optional<std::string> offset_link_) {}
 
-template <class X>
-GetExportedChatInvites<X> GetExportedChatInvites<X>::read(Reader reader)
+GetExportedChatInvites GetExportedChatInvites::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> revoked_;
-
-    if (1 << 3)
-        revoked_ = true;
-    else
-        revoked_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
-    TLObject admin_id_ = TLObject::read(reader);
+    revoked_ = (1 << 3) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject admin_id_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<int> offset_date_;
-
-    if (1 << 2)
-        offset_date_ = Int::read(reader);
-    else
-        offset_date_ = std::nullopt;
+    offset_date_ = (1 << 2) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<std::string> offset_link_;
-
-    if (1 << 2)
-        offset_link_ = String::read(reader);
-    else
-        offset_link_ = std::nullopt;
+    offset_link_ = (1 << 2) ? std::optional{String::read(reader)} : std::nullopt;
     int limit_ = Int::read(reader);
-    return GetExportedChatInvites<X>(peer_, admin_id_, limit_, revoked_, offset_date_, offset_link_);
+    return GetExportedChatInvites(peer_, admin_id_, limit_, revoked_, offset_date_, offset_link_);
 }
 
-template <class X>
-std::string GetExportedChatInvites<X>::write()
+std::string GetExportedChatInvites::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3845,19 +3017,16 @@ std::string GetExportedChatInvites<X>::write()
     return buffer;
 }
 
-template <class X>
-GetExportedChatInvite<X>::GetExportedChatInvite(TLObject peer_, std::string link_) {}
+GetExportedChatInvite::GetExportedChatInvite(TLObject peer_, std::string link_) {}
 
-template <class X>
-GetExportedChatInvite<X> GetExportedChatInvite<X>::read(Reader reader)
+GetExportedChatInvite GetExportedChatInvite::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::string link_ = String::read(reader);
-    return GetExportedChatInvite<X>(peer_, link_);
+    return GetExportedChatInvite(peer_, link_);
 }
 
-template <class X>
-std::string GetExportedChatInvite<X>::write()
+std::string GetExportedChatInvite::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3866,38 +3035,23 @@ std::string GetExportedChatInvite<X>::write()
     return buffer;
 }
 
-template <class X>
-EditExportedChatInvite<X>::EditExportedChatInvite(TLObject peer_, std::string link_, std::optional<bool> revoked_, std::optional<int> expire_date_, std::optional<int> usage_limit_) {}
+EditExportedChatInvite::EditExportedChatInvite(TLObject peer_, std::string link_, std::optional<bool> revoked_, std::optional<int> expire_date_, std::optional<int> usage_limit_) {}
 
-template <class X>
-EditExportedChatInvite<X> EditExportedChatInvite<X>::read(Reader reader)
+EditExportedChatInvite EditExportedChatInvite::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> revoked_;
-
-    if (1 << 2)
-        revoked_ = true;
-    else
-        revoked_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    revoked_ = (1 << 2) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::string link_ = String::read(reader);
     std::optional<int> expire_date_;
-
-    if (1 << 0)
-        expire_date_ = Int::read(reader);
-    else
-        expire_date_ = std::nullopt;
+    expire_date_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> usage_limit_;
-
-    if (1 << 1)
-        usage_limit_ = Int::read(reader);
-    else
-        usage_limit_ = std::nullopt;
-    return EditExportedChatInvite<X>(peer_, link_, revoked_, expire_date_, usage_limit_);
+    usage_limit_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
+    return EditExportedChatInvite(peer_, link_, revoked_, expire_date_, usage_limit_);
 }
 
-template <class X>
-std::string EditExportedChatInvite<X>::write()
+std::string EditExportedChatInvite::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3916,19 +3070,16 @@ std::string EditExportedChatInvite<X>::write()
     return buffer;
 }
 
-template <class X>
-DeleteRevokedExportedChatInvites<X>::DeleteRevokedExportedChatInvites(TLObject peer_, TLObject admin_id_) {}
+DeleteRevokedExportedChatInvites::DeleteRevokedExportedChatInvites(TLObject peer_, TLObject admin_id_) {}
 
-template <class X>
-DeleteRevokedExportedChatInvites<X> DeleteRevokedExportedChatInvites<X>::read(Reader reader)
+DeleteRevokedExportedChatInvites DeleteRevokedExportedChatInvites::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    TLObject admin_id_ = TLObject::read(reader);
-    return DeleteRevokedExportedChatInvites<X>(peer_, admin_id_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject admin_id_ = std::get<TLObject>(TLObject::read(reader));
+    return DeleteRevokedExportedChatInvites(peer_, admin_id_);
 }
 
-template <class X>
-std::string DeleteRevokedExportedChatInvites<X>::write()
+std::string DeleteRevokedExportedChatInvites::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3937,19 +3088,16 @@ std::string DeleteRevokedExportedChatInvites<X>::write()
     return buffer;
 }
 
-template <class X>
-DeleteExportedChatInvite<X>::DeleteExportedChatInvite(TLObject peer_, std::string link_) {}
+DeleteExportedChatInvite::DeleteExportedChatInvite(TLObject peer_, std::string link_) {}
 
-template <class X>
-DeleteExportedChatInvite<X> DeleteExportedChatInvite<X>::read(Reader reader)
+DeleteExportedChatInvite DeleteExportedChatInvite::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::string link_ = String::read(reader);
-    return DeleteExportedChatInvite<X>(peer_, link_);
+    return DeleteExportedChatInvite(peer_, link_);
 }
 
-template <class X>
-std::string DeleteExportedChatInvite<X>::write()
+std::string DeleteExportedChatInvite::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3958,18 +3106,15 @@ std::string DeleteExportedChatInvite<X>::write()
     return buffer;
 }
 
-template <class X>
-GetAdminsWithInvites<X>::GetAdminsWithInvites(TLObject peer_) {}
+GetAdminsWithInvites::GetAdminsWithInvites(TLObject peer_) {}
 
-template <class X>
-GetAdminsWithInvites<X> GetAdminsWithInvites<X>::read(Reader reader)
+GetAdminsWithInvites GetAdminsWithInvites::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    return GetAdminsWithInvites<X>(peer_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    return GetAdminsWithInvites(peer_);
 }
 
-template <class X>
-std::string GetAdminsWithInvites<X>::write()
+std::string GetAdminsWithInvites::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -3977,22 +3122,19 @@ std::string GetAdminsWithInvites<X>::write()
     return buffer;
 }
 
-template <class X>
-GetChatInviteImporters<X>::GetChatInviteImporters(TLObject peer_, std::string link_, int offset_date_, TLObject offset_user_, int limit_) {}
+GetChatInviteImporters::GetChatInviteImporters(TLObject peer_, std::string link_, int offset_date_, TLObject offset_user_, int limit_) {}
 
-template <class X>
-GetChatInviteImporters<X> GetChatInviteImporters<X>::read(Reader reader)
+GetChatInviteImporters GetChatInviteImporters::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::string link_ = String::read(reader);
     int offset_date_ = Int::read(reader);
-    TLObject offset_user_ = TLObject::read(reader);
+    TLObject offset_user_ = std::get<TLObject>(TLObject::read(reader));
     int limit_ = Int::read(reader);
-    return GetChatInviteImporters<X>(peer_, link_, offset_date_, offset_user_, limit_);
+    return GetChatInviteImporters(peer_, link_, offset_date_, offset_user_, limit_);
 }
 
-template <class X>
-std::string GetChatInviteImporters<X>::write()
+std::string GetChatInviteImporters::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -4004,19 +3146,16 @@ std::string GetChatInviteImporters<X>::write()
     return buffer;
 }
 
-template <class X>
-SetHistoryTTL<X>::SetHistoryTTL(TLObject peer_, int period_) {}
+SetHistoryTTL::SetHistoryTTL(TLObject peer_, int period_) {}
 
-template <class X>
-SetHistoryTTL<X> SetHistoryTTL<X>::read(Reader reader)
+SetHistoryTTL SetHistoryTTL::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int period_ = Int::read(reader);
-    return SetHistoryTTL<X>(peer_, period_);
+    return SetHistoryTTL(peer_, period_);
 }
 
-template <class X>
-std::string SetHistoryTTL<X>::write()
+std::string SetHistoryTTL::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -4025,18 +3164,15 @@ std::string SetHistoryTTL<X>::write()
     return buffer;
 }
 
-template <class X>
-CheckHistoryImportPeer<X>::CheckHistoryImportPeer(TLObject peer_) {}
+CheckHistoryImportPeer::CheckHistoryImportPeer(TLObject peer_) {}
 
-template <class X>
-CheckHistoryImportPeer<X> CheckHistoryImportPeer<X>::read(Reader reader)
+CheckHistoryImportPeer CheckHistoryImportPeer::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    return CheckHistoryImportPeer<X>(peer_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    return CheckHistoryImportPeer(peer_);
 }
 
-template <class X>
-std::string CheckHistoryImportPeer<X>::write()
+std::string CheckHistoryImportPeer::write()
 {
     std::string buffer;
     buffer += Int::write(__id);

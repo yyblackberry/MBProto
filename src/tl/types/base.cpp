@@ -1,3 +1,19 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "tl/types/base.h"
 
 ResPQ::ResPQ(uint128_t nonce_, uint128_t server_nonce_, std::string pq_, std::vector<long> server_public_key_fingerprints_) {}
@@ -7,7 +23,7 @@ ResPQ ResPQ::read(Reader reader)
     uint128_t nonce_ = Int128::read(reader);
     uint128_t server_nonce_ = Int128::read(reader);
     std::string pq_ = String::read(reader);
-    std::vector<long> server_public_key_fingerprints_ = Vector<long>::read(reader);
+    std::vector<long> server_public_key_fingerprints_ = std::get<std::vector<long>>(TLObject::read(reader));
     return ResPQ(nonce_, server_nonce_, pq_, server_public_key_fingerprints_);
 }
 
@@ -314,7 +330,7 @@ FutureSalts FutureSalts::read(Reader reader)
 {
     long req_msg_id_ = Long::read(reader);
     int now_ = Int::read(reader);
-    std::vector<TLObject> salts_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> salts_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return FutureSalts(req_msg_id_, now_, salts_);
 }
 
@@ -418,7 +434,7 @@ MsgsAck::MsgsAck(std::vector<long> msg_ids_) {}
 
 MsgsAck MsgsAck::read(Reader reader)
 {
-    std::vector<long> msg_ids_ = Vector<long>::read(reader);
+    std::vector<long> msg_ids_ = std::get<std::vector<long>>(TLObject::read(reader));
     return MsgsAck(msg_ids_);
 }
 
@@ -476,7 +492,7 @@ MsgResendReq::MsgResendReq(std::vector<long> msg_ids_) {}
 
 MsgResendReq MsgResendReq::read(Reader reader)
 {
-    std::vector<long> msg_ids_ = Vector<long>::read(reader);
+    std::vector<long> msg_ids_ = std::get<std::vector<long>>(TLObject::read(reader));
     return MsgResendReq(msg_ids_);
 }
 
@@ -492,7 +508,7 @@ MsgsStateReq::MsgsStateReq(std::vector<long> msg_ids_) {}
 
 MsgsStateReq MsgsStateReq::read(Reader reader)
 {
-    std::vector<long> msg_ids_ = Vector<long>::read(reader);
+    std::vector<long> msg_ids_ = std::get<std::vector<long>>(TLObject::read(reader));
     return MsgsStateReq(msg_ids_);
 }
 
@@ -526,7 +542,7 @@ MsgsAllInfo::MsgsAllInfo(std::vector<long> msg_ids_, std::string info_) {}
 
 MsgsAllInfo MsgsAllInfo::read(Reader reader)
 {
-    std::vector<long> msg_ids_ = Vector<long>::read(reader);
+    std::vector<long> msg_ids_ = std::get<std::vector<long>>(TLObject::read(reader));
     std::string info_ = String::read(reader);
     return MsgsAllInfo(msg_ids_, info_);
 }
@@ -693,7 +709,7 @@ InputPeerUserFromMessage::InputPeerUserFromMessage(TLObject peer_, int msg_id_, 
 
 InputPeerUserFromMessage InputPeerUserFromMessage::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int msg_id_ = Int::read(reader);
     int user_id_ = Int::read(reader);
     return InputPeerUserFromMessage(peer_, msg_id_, user_id_);
@@ -713,7 +729,7 @@ InputPeerChannelFromMessage::InputPeerChannelFromMessage(TLObject peer_, int msg
 
 InputPeerChannelFromMessage InputPeerChannelFromMessage::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int msg_id_ = Int::read(reader);
     int channel_id_ = Int::read(reader);
     return InputPeerChannelFromMessage(peer_, msg_id_, channel_id_);
@@ -773,7 +789,7 @@ InputUserFromMessage::InputUserFromMessage(TLObject peer_, int msg_id_, int user
 
 InputUserFromMessage InputUserFromMessage::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int msg_id_ = Int::read(reader);
     int user_id_ = Int::read(reader);
     return InputUserFromMessage(peer_, msg_id_, user_id_);
@@ -869,19 +885,11 @@ InputMediaUploadedPhoto::InputMediaUploadedPhoto(TLObject file_, std::optional<s
 InputMediaUploadedPhoto InputMediaUploadedPhoto::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject file_ = TLObject::read(reader);
+    TLObject file_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<std::vector<TLObject>> stickers_;
-
-    if (1 << 0)
-        stickers_ = Vector<TLObject>::read(reader);
-    else
-        stickers_ = std::nullopt;
+    stickers_ = (1 << 0) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> ttl_seconds_;
-
-    if (1 << 1)
-        ttl_seconds_ = Int::read(reader);
-    else
-        ttl_seconds_ = std::nullopt;
+    ttl_seconds_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     return InputMediaUploadedPhoto(file_, stickers_, ttl_seconds_);
 }
 
@@ -907,13 +915,9 @@ InputMediaPhoto::InputMediaPhoto(TLObject id_, std::optional<int> ttl_seconds_) 
 InputMediaPhoto InputMediaPhoto::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject id_ = TLObject::read(reader);
+    TLObject id_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<int> ttl_seconds_;
-
-    if (1 << 0)
-        ttl_seconds_ = Int::read(reader);
-    else
-        ttl_seconds_ = std::nullopt;
+    ttl_seconds_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     return InputMediaPhoto(id_, ttl_seconds_);
 }
 
@@ -934,7 +938,7 @@ InputMediaGeoPoint::InputMediaGeoPoint(TLObject geo_point_) {}
 
 InputMediaGeoPoint InputMediaGeoPoint::read(Reader reader)
 {
-    TLObject geo_point_ = TLObject::read(reader);
+    TLObject geo_point_ = std::get<TLObject>(TLObject::read(reader));
     return InputMediaGeoPoint(geo_point_);
 }
 
@@ -974,38 +978,18 @@ InputMediaUploadedDocument InputMediaUploadedDocument::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> nosound_video_;
-
-    if (1 << 3)
-        nosound_video_ = true;
-    else
-        nosound_video_ = std::nullopt;
+    nosound_video_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::optional<bool> force_file_;
-
-    if (1 << 4)
-        force_file_ = true;
-    else
-        force_file_ = std::nullopt;
-    TLObject file_ = TLObject::read(reader);
+    force_file_ = (1 << 4) ? std::optional{true} : std::nullopt;
+    TLObject file_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<TLObject> thumb_;
-
-    if (1 << 2)
-        thumb_ = TLObject::read(reader);
-    else
-        thumb_ = std::nullopt;
+    thumb_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::string mime_type_ = String::read(reader);
-    std::vector<TLObject> attributes_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> attributes_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     std::optional<std::vector<TLObject>> stickers_;
-
-    if (1 << 0)
-        stickers_ = Vector<TLObject>::read(reader);
-    else
-        stickers_ = std::nullopt;
+    stickers_ = (1 << 0) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> ttl_seconds_;
-
-    if (1 << 1)
-        ttl_seconds_ = Int::read(reader);
-    else
-        ttl_seconds_ = std::nullopt;
+    ttl_seconds_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     return InputMediaUploadedDocument(file_, mime_type_, attributes_, nosound_video_, force_file_, thumb_, stickers_, ttl_seconds_);
 }
 
@@ -1039,19 +1023,11 @@ InputMediaDocument::InputMediaDocument(TLObject id_, std::optional<int> ttl_seco
 InputMediaDocument InputMediaDocument::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject id_ = TLObject::read(reader);
+    TLObject id_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<int> ttl_seconds_;
-
-    if (1 << 0)
-        ttl_seconds_ = Int::read(reader);
-    else
-        ttl_seconds_ = std::nullopt;
+    ttl_seconds_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<std::string> query_;
-
-    if (1 << 1)
-        query_ = String::read(reader);
-    else
-        query_ = std::nullopt;
+    query_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     return InputMediaDocument(id_, ttl_seconds_, query_);
 }
 
@@ -1076,7 +1052,7 @@ InputMediaVenue::InputMediaVenue(TLObject geo_point_, std::string title_, std::s
 
 InputMediaVenue InputMediaVenue::read(Reader reader)
 {
-    TLObject geo_point_ = TLObject::read(reader);
+    TLObject geo_point_ = std::get<TLObject>(TLObject::read(reader));
     std::string title_ = String::read(reader);
     std::string address_ = String::read(reader);
     std::string provider_ = String::read(reader);
@@ -1105,11 +1081,7 @@ InputMediaPhotoExternal InputMediaPhotoExternal::read(Reader reader)
     int flags = Int::read(reader);
     std::string url_ = String::read(reader);
     std::optional<int> ttl_seconds_;
-
-    if (1 << 0)
-        ttl_seconds_ = Int::read(reader);
-    else
-        ttl_seconds_ = std::nullopt;
+    ttl_seconds_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     return InputMediaPhotoExternal(url_, ttl_seconds_);
 }
 
@@ -1133,11 +1105,7 @@ InputMediaDocumentExternal InputMediaDocumentExternal::read(Reader reader)
     int flags = Int::read(reader);
     std::string url_ = String::read(reader);
     std::optional<int> ttl_seconds_;
-
-    if (1 << 0)
-        ttl_seconds_ = Int::read(reader);
-    else
-        ttl_seconds_ = std::nullopt;
+    ttl_seconds_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     return InputMediaDocumentExternal(url_, ttl_seconds_);
 }
 
@@ -1158,7 +1126,7 @@ InputMediaGame::InputMediaGame(TLObject id_) {}
 
 InputMediaGame InputMediaGame::read(Reader reader)
 {
-    TLObject id_ = TLObject::read(reader);
+    TLObject id_ = std::get<TLObject>(TLObject::read(reader));
     return InputMediaGame(id_);
 }
 
@@ -1178,21 +1146,13 @@ InputMediaInvoice InputMediaInvoice::read(Reader reader)
     std::string title_ = String::read(reader);
     std::string description_ = String::read(reader);
     std::optional<TLObject> photo_;
-
-    if (1 << 0)
-        photo_ = TLObject::read(reader);
-    else
-        photo_ = std::nullopt;
-    TLObject invoice_ = TLObject::read(reader);
+    photo_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
+    TLObject invoice_ = std::get<TLObject>(TLObject::read(reader));
     std::string payload_ = Bytes::read(reader);
     std::string provider_ = String::read(reader);
-    TLObject provider_data_ = TLObject::read(reader);
+    TLObject provider_data_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<std::string> start_param_;
-
-    if (1 << 1)
-        start_param_ = String::read(reader);
-    else
-        start_param_ = std::nullopt;
+    start_param_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     return InputMediaInvoice(title_, description_, invoice_, payload_, provider_, provider_data_, photo_, start_param_);
 }
 
@@ -1224,30 +1184,14 @@ InputMediaGeoLive InputMediaGeoLive::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> stopped_;
-
-    if (1 << 0)
-        stopped_ = true;
-    else
-        stopped_ = std::nullopt;
-    TLObject geo_point_ = TLObject::read(reader);
+    stopped_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject geo_point_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<int> heading_;
-
-    if (1 << 2)
-        heading_ = Int::read(reader);
-    else
-        heading_ = std::nullopt;
+    heading_ = (1 << 2) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> period_;
-
-    if (1 << 1)
-        period_ = Int::read(reader);
-    else
-        period_ = std::nullopt;
+    period_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> proximity_notification_radius_;
-
-    if (1 << 3)
-        proximity_notification_radius_ = Int::read(reader);
-    else
-        proximity_notification_radius_ = std::nullopt;
+    proximity_notification_radius_ = (1 << 3) ? std::optional{Int::read(reader)} : std::nullopt;
     return InputMediaGeoLive(geo_point_, stopped_, heading_, period_, proximity_notification_radius_);
 }
 
@@ -1278,25 +1222,13 @@ InputMediaPoll::InputMediaPoll(TLObject poll_, std::optional<std::vector<std::st
 InputMediaPoll InputMediaPoll::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject poll_ = TLObject::read(reader);
+    TLObject poll_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<std::vector<std::string>> correct_answers_;
-
-    if (1 << 0)
-        correct_answers_ = Vector<std::string>::read(reader);
-    else
-        correct_answers_ = std::nullopt;
+    correct_answers_ = (1 << 0) ? std::optional{std::get<std::vector<std::string>>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::string> solution_;
-
-    if (1 << 1)
-        solution_ = String::read(reader);
-    else
-        solution_ = std::nullopt;
+    solution_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::vector<TLObject>> solution_entities_;
-
-    if (1 << 1)
-        solution_entities_ = Vector<TLObject>::read(reader);
-    else
-        solution_entities_ = std::nullopt;
+    solution_entities_ = (1 << 1) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     return InputMediaPoll(poll_, correct_answers_, solution_, solution_entities_);
 }
 
@@ -1354,23 +1286,11 @@ InputChatUploadedPhoto InputChatUploadedPhoto::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<TLObject> file_;
-
-    if (1 << 0)
-        file_ = TLObject::read(reader);
-    else
-        file_ = std::nullopt;
+    file_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> video_;
-
-    if (1 << 1)
-        video_ = TLObject::read(reader);
-    else
-        video_ = std::nullopt;
+    video_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<double> video_start_ts_;
-
-    if (1 << 2)
-        video_start_ts_ = Double::read(reader);
-    else
-        video_start_ts_ = std::nullopt;
+    video_start_ts_ = (1 << 2) ? std::optional{Double::read(reader)} : std::nullopt;
     return InputChatUploadedPhoto(file_, video_, video_start_ts_);
 }
 
@@ -1398,7 +1318,7 @@ InputChatPhoto::InputChatPhoto(TLObject id_) {}
 
 InputChatPhoto InputChatPhoto::read(Reader reader)
 {
-    TLObject id_ = TLObject::read(reader);
+    TLObject id_ = std::get<TLObject>(TLObject::read(reader));
     return InputChatPhoto(id_);
 }
 
@@ -1429,11 +1349,7 @@ InputGeoPoint InputGeoPoint::read(Reader reader)
     double lat_ = Double::read(reader);
     double long__ = Double::read(reader);
     std::optional<int> accuracy_radius_;
-
-    if (1 << 0)
-        accuracy_radius_ = Int::read(reader);
-    else
-        accuracy_radius_ = std::nullopt;
+    accuracy_radius_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     return InputGeoPoint(lat_, long__, accuracy_radius_);
 }
 
@@ -1627,12 +1543,8 @@ InputPeerPhotoFileLocation InputPeerPhotoFileLocation::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> big_;
-
-    if (1 << 0)
-        big_ = true;
-    else
-        big_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    big_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     long photo_id_ = Long::read(reader);
     return InputPeerPhotoFileLocation(peer_, photo_id_, big_);
 }
@@ -1652,7 +1564,7 @@ InputStickerSetThumb::InputStickerSetThumb(TLObject stickerset_, int thumb_versi
 
 InputStickerSetThumb InputStickerSetThumb::read(Reader reader)
 {
-    TLObject stickerset_ = TLObject::read(reader);
+    TLObject stickerset_ = std::get<TLObject>(TLObject::read(reader));
     int thumb_version_ = Int::read(reader);
     return InputStickerSetThumb(stickerset_, thumb_version_);
 }
@@ -1670,7 +1582,7 @@ InputGroupCallStream::InputGroupCallStream(TLObject call_, long time_ms_, int sc
 
 InputGroupCallStream InputGroupCallStream::read(Reader reader)
 {
-    TLObject call_ = TLObject::read(reader);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
     long time_ms_ = Long::read(reader);
     int scale_ = Int::read(reader);
     return InputGroupCallStream(call_, time_ms_, scale_);
@@ -1756,162 +1668,58 @@ User User::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> self_;
-
-    if (1 << 10)
-        self_ = true;
-    else
-        self_ = std::nullopt;
+    self_ = (1 << 10) ? std::optional{true} : std::nullopt;
     std::optional<bool> contact_;
-
-    if (1 << 11)
-        contact_ = true;
-    else
-        contact_ = std::nullopt;
+    contact_ = (1 << 11) ? std::optional{true} : std::nullopt;
     std::optional<bool> mutual_contact_;
-
-    if (1 << 12)
-        mutual_contact_ = true;
-    else
-        mutual_contact_ = std::nullopt;
+    mutual_contact_ = (1 << 12) ? std::optional{true} : std::nullopt;
     std::optional<bool> deleted_;
-
-    if (1 << 13)
-        deleted_ = true;
-    else
-        deleted_ = std::nullopt;
+    deleted_ = (1 << 13) ? std::optional{true} : std::nullopt;
     std::optional<bool> bot_;
-
-    if (1 << 14)
-        bot_ = true;
-    else
-        bot_ = std::nullopt;
+    bot_ = (1 << 14) ? std::optional{true} : std::nullopt;
     std::optional<bool> bot_chat_history_;
-
-    if (1 << 15)
-        bot_chat_history_ = true;
-    else
-        bot_chat_history_ = std::nullopt;
+    bot_chat_history_ = (1 << 15) ? std::optional{true} : std::nullopt;
     std::optional<bool> bot_nochats_;
-
-    if (1 << 16)
-        bot_nochats_ = true;
-    else
-        bot_nochats_ = std::nullopt;
+    bot_nochats_ = (1 << 16) ? std::optional{true} : std::nullopt;
     std::optional<bool> verified_;
-
-    if (1 << 17)
-        verified_ = true;
-    else
-        verified_ = std::nullopt;
+    verified_ = (1 << 17) ? std::optional{true} : std::nullopt;
     std::optional<bool> restricted_;
-
-    if (1 << 18)
-        restricted_ = true;
-    else
-        restricted_ = std::nullopt;
+    restricted_ = (1 << 18) ? std::optional{true} : std::nullopt;
     std::optional<bool> min_;
-
-    if (1 << 20)
-        min_ = true;
-    else
-        min_ = std::nullopt;
+    min_ = (1 << 20) ? std::optional{true} : std::nullopt;
     std::optional<bool> bot_inline_geo_;
-
-    if (1 << 21)
-        bot_inline_geo_ = true;
-    else
-        bot_inline_geo_ = std::nullopt;
+    bot_inline_geo_ = (1 << 21) ? std::optional{true} : std::nullopt;
     std::optional<bool> support_;
-
-    if (1 << 23)
-        support_ = true;
-    else
-        support_ = std::nullopt;
+    support_ = (1 << 23) ? std::optional{true} : std::nullopt;
     std::optional<bool> scam_;
-
-    if (1 << 24)
-        scam_ = true;
-    else
-        scam_ = std::nullopt;
+    scam_ = (1 << 24) ? std::optional{true} : std::nullopt;
     std::optional<bool> apply_min_photo_;
-
-    if (1 << 25)
-        apply_min_photo_ = true;
-    else
-        apply_min_photo_ = std::nullopt;
+    apply_min_photo_ = (1 << 25) ? std::optional{true} : std::nullopt;
     std::optional<bool> fake_;
-
-    if (1 << 26)
-        fake_ = true;
-    else
-        fake_ = std::nullopt;
+    fake_ = (1 << 26) ? std::optional{true} : std::nullopt;
     int id_ = Int::read(reader);
     std::optional<long> access_hash_;
-
-    if (1 << 0)
-        access_hash_ = Long::read(reader);
-    else
-        access_hash_ = std::nullopt;
+    access_hash_ = (1 << 0) ? std::optional{Long::read(reader)} : std::nullopt;
     std::optional<std::string> first_name_;
-
-    if (1 << 1)
-        first_name_ = String::read(reader);
-    else
-        first_name_ = std::nullopt;
+    first_name_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> last_name_;
-
-    if (1 << 2)
-        last_name_ = String::read(reader);
-    else
-        last_name_ = std::nullopt;
+    last_name_ = (1 << 2) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> username_;
-
-    if (1 << 3)
-        username_ = String::read(reader);
-    else
-        username_ = std::nullopt;
+    username_ = (1 << 3) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> phone_;
-
-    if (1 << 4)
-        phone_ = String::read(reader);
-    else
-        phone_ = std::nullopt;
+    phone_ = (1 << 4) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<TLObject> photo_;
-
-    if (1 << 5)
-        photo_ = TLObject::read(reader);
-    else
-        photo_ = std::nullopt;
+    photo_ = (1 << 5) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> status_;
-
-    if (1 << 6)
-        status_ = TLObject::read(reader);
-    else
-        status_ = std::nullopt;
+    status_ = (1 << 6) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> bot_info_version_;
-
-    if (1 << 14)
-        bot_info_version_ = Int::read(reader);
-    else
-        bot_info_version_ = std::nullopt;
+    bot_info_version_ = (1 << 14) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<std::vector<TLObject>> restriction_reason_;
-
-    if (1 << 18)
-        restriction_reason_ = Vector<TLObject>::read(reader);
-    else
-        restriction_reason_ = std::nullopt;
+    restriction_reason_ = (1 << 18) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::string> bot_inline_placeholder_;
-
-    if (1 << 19)
-        bot_inline_placeholder_ = String::read(reader);
-    else
-        bot_inline_placeholder_ = std::nullopt;
+    bot_inline_placeholder_ = (1 << 19) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> lang_code_;
-
-    if (1 << 22)
-        lang_code_ = String::read(reader);
-    else
-        lang_code_ = std::nullopt;
+    lang_code_ = (1 << 22) ? std::optional{String::read(reader)} : std::nullopt;
     return User(id_, self_, contact_, mutual_contact_, deleted_, bot_, bot_chat_history_, bot_nochats_, verified_, restricted_, min_, bot_inline_geo_, support_, scam_, apply_min_photo_, fake_, access_hash_, first_name_, last_name_, username_, phone_, photo_, status_, bot_info_version_, restriction_reason_, bot_inline_placeholder_, lang_code_);
 }
 
@@ -2000,18 +1808,10 @@ UserProfilePhoto UserProfilePhoto::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> has_video_;
-
-    if (1 << 0)
-        has_video_ = true;
-    else
-        has_video_ = std::nullopt;
+    has_video_ = (1 << 0) ? std::optional{true} : std::nullopt;
     long photo_id_ = Long::read(reader);
     std::optional<std::string> stripped_thumb_;
-
-    if (1 << 1)
-        stripped_thumb_ = Bytes::read(reader);
-    else
-        stripped_thumb_ = std::nullopt;
+    stripped_thumb_ = (1 << 1) ? std::optional{Bytes::read(reader)} : std::nullopt;
     int dc_id_ = Int::read(reader);
     return UserProfilePhoto(photo_id_, dc_id_, has_video_, stripped_thumb_);
 }
@@ -2129,65 +1929,29 @@ Chat Chat::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> creator_;
-
-    if (1 << 0)
-        creator_ = true;
-    else
-        creator_ = std::nullopt;
+    creator_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> kicked_;
-
-    if (1 << 1)
-        kicked_ = true;
-    else
-        kicked_ = std::nullopt;
+    kicked_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> left_;
-
-    if (1 << 2)
-        left_ = true;
-    else
-        left_ = std::nullopt;
+    left_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<bool> deactivated_;
-
-    if (1 << 5)
-        deactivated_ = true;
-    else
-        deactivated_ = std::nullopt;
+    deactivated_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> call_active_;
-
-    if (1 << 23)
-        call_active_ = true;
-    else
-        call_active_ = std::nullopt;
+    call_active_ = (1 << 23) ? std::optional{true} : std::nullopt;
     std::optional<bool> call_not_empty_;
-
-    if (1 << 24)
-        call_not_empty_ = true;
-    else
-        call_not_empty_ = std::nullopt;
+    call_not_empty_ = (1 << 24) ? std::optional{true} : std::nullopt;
     int id_ = Int::read(reader);
     std::string title_ = String::read(reader);
-    TLObject photo_ = TLObject::read(reader);
+    TLObject photo_ = std::get<TLObject>(TLObject::read(reader));
     int participants_count_ = Int::read(reader);
     int date_ = Int::read(reader);
     int version_ = Int::read(reader);
     std::optional<TLObject> migrated_to_;
-
-    if (1 << 6)
-        migrated_to_ = TLObject::read(reader);
-    else
-        migrated_to_ = std::nullopt;
+    migrated_to_ = (1 << 6) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> admin_rights_;
-
-    if (1 << 14)
-        admin_rights_ = TLObject::read(reader);
-    else
-        admin_rights_ = std::nullopt;
+    admin_rights_ = (1 << 14) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> default_banned_rights_;
-
-    if (1 << 18)
-        default_banned_rights_ = TLObject::read(reader);
-    else
-        default_banned_rights_ = std::nullopt;
+    default_banned_rights_ = (1 << 18) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return Chat(id_, title_, photo_, participants_count_, date_, version_, creator_, kicked_, left_, deactivated_, call_active_, call_not_empty_, migrated_to_, admin_rights_, default_banned_rights_);
 }
 
@@ -2247,148 +2011,56 @@ Channel Channel::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> creator_;
-
-    if (1 << 0)
-        creator_ = true;
-    else
-        creator_ = std::nullopt;
+    creator_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> left_;
-
-    if (1 << 2)
-        left_ = true;
-    else
-        left_ = std::nullopt;
+    left_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<bool> broadcast_;
-
-    if (1 << 5)
-        broadcast_ = true;
-    else
-        broadcast_ = std::nullopt;
+    broadcast_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> verified_;
-
-    if (1 << 7)
-        verified_ = true;
-    else
-        verified_ = std::nullopt;
+    verified_ = (1 << 7) ? std::optional{true} : std::nullopt;
     std::optional<bool> megagroup_;
-
-    if (1 << 8)
-        megagroup_ = true;
-    else
-        megagroup_ = std::nullopt;
+    megagroup_ = (1 << 8) ? std::optional{true} : std::nullopt;
     std::optional<bool> restricted_;
-
-    if (1 << 9)
-        restricted_ = true;
-    else
-        restricted_ = std::nullopt;
+    restricted_ = (1 << 9) ? std::optional{true} : std::nullopt;
     std::optional<bool> signatures_;
-
-    if (1 << 11)
-        signatures_ = true;
-    else
-        signatures_ = std::nullopt;
+    signatures_ = (1 << 11) ? std::optional{true} : std::nullopt;
     std::optional<bool> min_;
-
-    if (1 << 12)
-        min_ = true;
-    else
-        min_ = std::nullopt;
+    min_ = (1 << 12) ? std::optional{true} : std::nullopt;
     std::optional<bool> scam_;
-
-    if (1 << 19)
-        scam_ = true;
-    else
-        scam_ = std::nullopt;
+    scam_ = (1 << 19) ? std::optional{true} : std::nullopt;
     std::optional<bool> has_link_;
-
-    if (1 << 20)
-        has_link_ = true;
-    else
-        has_link_ = std::nullopt;
+    has_link_ = (1 << 20) ? std::optional{true} : std::nullopt;
     std::optional<bool> has_geo_;
-
-    if (1 << 21)
-        has_geo_ = true;
-    else
-        has_geo_ = std::nullopt;
+    has_geo_ = (1 << 21) ? std::optional{true} : std::nullopt;
     std::optional<bool> slowmode_enabled_;
-
-    if (1 << 22)
-        slowmode_enabled_ = true;
-    else
-        slowmode_enabled_ = std::nullopt;
+    slowmode_enabled_ = (1 << 22) ? std::optional{true} : std::nullopt;
     std::optional<bool> call_active_;
-
-    if (1 << 23)
-        call_active_ = true;
-    else
-        call_active_ = std::nullopt;
+    call_active_ = (1 << 23) ? std::optional{true} : std::nullopt;
     std::optional<bool> call_not_empty_;
-
-    if (1 << 24)
-        call_not_empty_ = true;
-    else
-        call_not_empty_ = std::nullopt;
+    call_not_empty_ = (1 << 24) ? std::optional{true} : std::nullopt;
     std::optional<bool> fake_;
-
-    if (1 << 25)
-        fake_ = true;
-    else
-        fake_ = std::nullopt;
+    fake_ = (1 << 25) ? std::optional{true} : std::nullopt;
     std::optional<bool> gigagroup_;
-
-    if (1 << 26)
-        gigagroup_ = true;
-    else
-        gigagroup_ = std::nullopt;
+    gigagroup_ = (1 << 26) ? std::optional{true} : std::nullopt;
     int id_ = Int::read(reader);
     std::optional<long> access_hash_;
-
-    if (1 << 13)
-        access_hash_ = Long::read(reader);
-    else
-        access_hash_ = std::nullopt;
+    access_hash_ = (1 << 13) ? std::optional{Long::read(reader)} : std::nullopt;
     std::string title_ = String::read(reader);
     std::optional<std::string> username_;
-
-    if (1 << 6)
-        username_ = String::read(reader);
-    else
-        username_ = std::nullopt;
-    TLObject photo_ = TLObject::read(reader);
+    username_ = (1 << 6) ? std::optional{String::read(reader)} : std::nullopt;
+    TLObject photo_ = std::get<TLObject>(TLObject::read(reader));
     int date_ = Int::read(reader);
     int version_ = Int::read(reader);
     std::optional<std::vector<TLObject>> restriction_reason_;
-
-    if (1 << 9)
-        restriction_reason_ = Vector<TLObject>::read(reader);
-    else
-        restriction_reason_ = std::nullopt;
+    restriction_reason_ = (1 << 9) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> admin_rights_;
-
-    if (1 << 14)
-        admin_rights_ = TLObject::read(reader);
-    else
-        admin_rights_ = std::nullopt;
+    admin_rights_ = (1 << 14) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> banned_rights_;
-
-    if (1 << 15)
-        banned_rights_ = TLObject::read(reader);
-    else
-        banned_rights_ = std::nullopt;
+    banned_rights_ = (1 << 15) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> default_banned_rights_;
-
-    if (1 << 18)
-        default_banned_rights_ = TLObject::read(reader);
-    else
-        default_banned_rights_ = std::nullopt;
+    default_banned_rights_ = (1 << 18) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> participants_count_;
-
-    if (1 << 17)
-        participants_count_ = Int::read(reader);
-    else
-        participants_count_ = std::nullopt;
+    participants_count_ = (1 << 17) ? std::optional{Int::read(reader)} : std::nullopt;
     return Channel(id_, title_, photo_, date_, version_, creator_, left_, broadcast_, verified_, megagroup_, restricted_, signatures_, min_, scam_, has_link_, has_geo_, slowmode_enabled_, call_active_, call_not_empty_, fake_, gigagroup_, access_hash_, username_, restriction_reason_, admin_rights_, banned_rights_, default_banned_rights_, participants_count_);
 }
 
@@ -2455,26 +2127,14 @@ ChannelForbidden ChannelForbidden::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> broadcast_;
-
-    if (1 << 5)
-        broadcast_ = true;
-    else
-        broadcast_ = std::nullopt;
+    broadcast_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> megagroup_;
-
-    if (1 << 8)
-        megagroup_ = true;
-    else
-        megagroup_ = std::nullopt;
+    megagroup_ = (1 << 8) ? std::optional{true} : std::nullopt;
     int id_ = Int::read(reader);
     long access_hash_ = Long::read(reader);
     std::string title_ = String::read(reader);
     std::optional<int> until_date_;
-
-    if (1 << 16)
-        until_date_ = Int::read(reader);
-    else
-        until_date_ = std::nullopt;
+    until_date_ = (1 << 16) ? std::optional{Int::read(reader)} : std::nullopt;
     return ChannelForbidden(id_, access_hash_, title_, broadcast_, megagroup_, until_date_);
 }
 
@@ -2501,69 +2161,29 @@ ChatFull ChatFull::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> can_set_username_;
-
-    if (1 << 7)
-        can_set_username_ = true;
-    else
-        can_set_username_ = std::nullopt;
+    can_set_username_ = (1 << 7) ? std::optional{true} : std::nullopt;
     std::optional<bool> has_scheduled_;
-
-    if (1 << 8)
-        has_scheduled_ = true;
-    else
-        has_scheduled_ = std::nullopt;
+    has_scheduled_ = (1 << 8) ? std::optional{true} : std::nullopt;
     int id_ = Int::read(reader);
     std::string about_ = String::read(reader);
-    TLObject participants_ = TLObject::read(reader);
+    TLObject participants_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<TLObject> chat_photo_;
-
-    if (1 << 2)
-        chat_photo_ = TLObject::read(reader);
-    else
-        chat_photo_ = std::nullopt;
-    TLObject notify_settings_ = TLObject::read(reader);
+    chat_photo_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
+    TLObject notify_settings_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<TLObject> exported_invite_;
-
-    if (1 << 13)
-        exported_invite_ = TLObject::read(reader);
-    else
-        exported_invite_ = std::nullopt;
+    exported_invite_ = (1 << 13) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::vector<TLObject>> bot_info_;
-
-    if (1 << 3)
-        bot_info_ = Vector<TLObject>::read(reader);
-    else
-        bot_info_ = std::nullopt;
+    bot_info_ = (1 << 3) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> pinned_msg_id_;
-
-    if (1 << 6)
-        pinned_msg_id_ = Int::read(reader);
-    else
-        pinned_msg_id_ = std::nullopt;
+    pinned_msg_id_ = (1 << 6) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> folder_id_;
-
-    if (1 << 11)
-        folder_id_ = Int::read(reader);
-    else
-        folder_id_ = std::nullopt;
+    folder_id_ = (1 << 11) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<TLObject> call_;
-
-    if (1 << 12)
-        call_ = TLObject::read(reader);
-    else
-        call_ = std::nullopt;
+    call_ = (1 << 12) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> ttl_period_;
-
-    if (1 << 14)
-        ttl_period_ = Int::read(reader);
-    else
-        ttl_period_ = std::nullopt;
+    ttl_period_ = (1 << 14) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<TLObject> groupcall_default_join_as_;
-
-    if (1 << 15)
-        groupcall_default_join_as_ = TLObject::read(reader);
-    else
-        groupcall_default_join_as_ = std::nullopt;
+    groupcall_default_join_as_ = (1 << 15) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return ChatFull(id_, about_, participants_, notify_settings_, can_set_username_, has_scheduled_, chat_photo_, exported_invite_, bot_info_, pinned_msg_id_, folder_id_, call_, ttl_period_, groupcall_default_join_as_);
 }
 
@@ -2619,188 +2239,72 @@ ChannelFull ChannelFull::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> can_view_participants_;
-
-    if (1 << 3)
-        can_view_participants_ = true;
-    else
-        can_view_participants_ = std::nullopt;
+    can_view_participants_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::optional<bool> can_set_username_;
-
-    if (1 << 6)
-        can_set_username_ = true;
-    else
-        can_set_username_ = std::nullopt;
+    can_set_username_ = (1 << 6) ? std::optional{true} : std::nullopt;
     std::optional<bool> can_set_stickers_;
-
-    if (1 << 7)
-        can_set_stickers_ = true;
-    else
-        can_set_stickers_ = std::nullopt;
+    can_set_stickers_ = (1 << 7) ? std::optional{true} : std::nullopt;
     std::optional<bool> hidden_prehistory_;
-
-    if (1 << 10)
-        hidden_prehistory_ = true;
-    else
-        hidden_prehistory_ = std::nullopt;
+    hidden_prehistory_ = (1 << 10) ? std::optional{true} : std::nullopt;
     std::optional<bool> can_set_location_;
-
-    if (1 << 16)
-        can_set_location_ = true;
-    else
-        can_set_location_ = std::nullopt;
+    can_set_location_ = (1 << 16) ? std::optional{true} : std::nullopt;
     std::optional<bool> has_scheduled_;
-
-    if (1 << 19)
-        has_scheduled_ = true;
-    else
-        has_scheduled_ = std::nullopt;
+    has_scheduled_ = (1 << 19) ? std::optional{true} : std::nullopt;
     std::optional<bool> can_view_stats_;
-
-    if (1 << 20)
-        can_view_stats_ = true;
-    else
-        can_view_stats_ = std::nullopt;
+    can_view_stats_ = (1 << 20) ? std::optional{true} : std::nullopt;
     std::optional<bool> blocked_;
-
-    if (1 << 22)
-        blocked_ = true;
-    else
-        blocked_ = std::nullopt;
+    blocked_ = (1 << 22) ? std::optional{true} : std::nullopt;
     int id_ = Int::read(reader);
     std::string about_ = String::read(reader);
     std::optional<int> participants_count_;
-
-    if (1 << 0)
-        participants_count_ = Int::read(reader);
-    else
-        participants_count_ = std::nullopt;
+    participants_count_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> admins_count_;
-
-    if (1 << 1)
-        admins_count_ = Int::read(reader);
-    else
-        admins_count_ = std::nullopt;
+    admins_count_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> kicked_count_;
-
-    if (1 << 2)
-        kicked_count_ = Int::read(reader);
-    else
-        kicked_count_ = std::nullopt;
+    kicked_count_ = (1 << 2) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> banned_count_;
-
-    if (1 << 2)
-        banned_count_ = Int::read(reader);
-    else
-        banned_count_ = std::nullopt;
+    banned_count_ = (1 << 2) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> online_count_;
-
-    if (1 << 13)
-        online_count_ = Int::read(reader);
-    else
-        online_count_ = std::nullopt;
+    online_count_ = (1 << 13) ? std::optional{Int::read(reader)} : std::nullopt;
     int read_inbox_max_id_ = Int::read(reader);
     int read_outbox_max_id_ = Int::read(reader);
     int unread_count_ = Int::read(reader);
-    TLObject chat_photo_ = TLObject::read(reader);
-    TLObject notify_settings_ = TLObject::read(reader);
+    TLObject chat_photo_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject notify_settings_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<TLObject> exported_invite_;
-
-    if (1 << 23)
-        exported_invite_ = TLObject::read(reader);
-    else
-        exported_invite_ = std::nullopt;
-    std::vector<TLObject> bot_info_ = Vector<TLObject>::read(reader);
+    exported_invite_ = (1 << 23) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
+    std::vector<TLObject> bot_info_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     std::optional<int> migrated_from_chat_id_;
-
-    if (1 << 4)
-        migrated_from_chat_id_ = Int::read(reader);
-    else
-        migrated_from_chat_id_ = std::nullopt;
+    migrated_from_chat_id_ = (1 << 4) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> migrated_from_max_id_;
-
-    if (1 << 4)
-        migrated_from_max_id_ = Int::read(reader);
-    else
-        migrated_from_max_id_ = std::nullopt;
+    migrated_from_max_id_ = (1 << 4) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> pinned_msg_id_;
-
-    if (1 << 5)
-        pinned_msg_id_ = Int::read(reader);
-    else
-        pinned_msg_id_ = std::nullopt;
+    pinned_msg_id_ = (1 << 5) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<TLObject> stickerset_;
-
-    if (1 << 8)
-        stickerset_ = TLObject::read(reader);
-    else
-        stickerset_ = std::nullopt;
+    stickerset_ = (1 << 8) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> available_min_id_;
-
-    if (1 << 9)
-        available_min_id_ = Int::read(reader);
-    else
-        available_min_id_ = std::nullopt;
+    available_min_id_ = (1 << 9) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> folder_id_;
-
-    if (1 << 11)
-        folder_id_ = Int::read(reader);
-    else
-        folder_id_ = std::nullopt;
+    folder_id_ = (1 << 11) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> linked_chat_id_;
-
-    if (1 << 14)
-        linked_chat_id_ = Int::read(reader);
-    else
-        linked_chat_id_ = std::nullopt;
+    linked_chat_id_ = (1 << 14) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<TLObject> location_;
-
-    if (1 << 15)
-        location_ = TLObject::read(reader);
-    else
-        location_ = std::nullopt;
+    location_ = (1 << 15) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> slowmode_seconds_;
-
-    if (1 << 17)
-        slowmode_seconds_ = Int::read(reader);
-    else
-        slowmode_seconds_ = std::nullopt;
+    slowmode_seconds_ = (1 << 17) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> slowmode_next_send_date_;
-
-    if (1 << 18)
-        slowmode_next_send_date_ = Int::read(reader);
-    else
-        slowmode_next_send_date_ = std::nullopt;
+    slowmode_next_send_date_ = (1 << 18) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> stats_dc_;
-
-    if (1 << 12)
-        stats_dc_ = Int::read(reader);
-    else
-        stats_dc_ = std::nullopt;
+    stats_dc_ = (1 << 12) ? std::optional{Int::read(reader)} : std::nullopt;
     int pts_ = Int::read(reader);
     std::optional<TLObject> call_;
-
-    if (1 << 21)
-        call_ = TLObject::read(reader);
-    else
-        call_ = std::nullopt;
+    call_ = (1 << 21) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> ttl_period_;
-
-    if (1 << 24)
-        ttl_period_ = Int::read(reader);
-    else
-        ttl_period_ = std::nullopt;
+    ttl_period_ = (1 << 24) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<std::vector<std::string>> pending_suggestions_;
-
-    if (1 << 25)
-        pending_suggestions_ = Vector<std::string>::read(reader);
-    else
-        pending_suggestions_ = std::nullopt;
+    pending_suggestions_ = (1 << 25) ? std::optional{std::get<std::vector<std::string>>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> groupcall_default_join_as_;
-
-    if (1 << 26)
-        groupcall_default_join_as_ = TLObject::read(reader);
-    else
-        groupcall_default_join_as_ = std::nullopt;
+    groupcall_default_join_as_ = (1 << 26) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return ChannelFull(id_, about_, read_inbox_max_id_, read_outbox_max_id_, unread_count_, chat_photo_, notify_settings_, bot_info_, pts_, can_view_participants_, can_set_username_, can_set_stickers_, hidden_prehistory_, can_set_location_, has_scheduled_, can_view_stats_, blocked_, participants_count_, admins_count_, kicked_count_, banned_count_, online_count_, exported_invite_, migrated_from_chat_id_, migrated_from_max_id_, pinned_msg_id_, stickerset_, available_min_id_, folder_id_, linked_chat_id_, location_, slowmode_seconds_, slowmode_next_send_date_, stats_dc_, call_, ttl_period_, pending_suggestions_, groupcall_default_join_as_);
 }
 
@@ -2976,11 +2480,7 @@ ChatParticipantsForbidden ChatParticipantsForbidden::read(Reader reader)
     int flags = Int::read(reader);
     int chat_id_ = Int::read(reader);
     std::optional<TLObject> self_participant_;
-
-    if (1 << 0)
-        self_participant_ = TLObject::read(reader);
-    else
-        self_participant_ = std::nullopt;
+    self_participant_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return ChatParticipantsForbidden(chat_id_, self_participant_);
 }
 
@@ -3002,7 +2502,7 @@ ChatParticipants::ChatParticipants(int chat_id_, std::vector<TLObject> participa
 ChatParticipants ChatParticipants::read(Reader reader)
 {
     int chat_id_ = Int::read(reader);
-    std::vector<TLObject> participants_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> participants_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     int version_ = Int::read(reader);
     return ChatParticipants(chat_id_, participants_, version_);
 }
@@ -3034,18 +2534,10 @@ ChatPhoto ChatPhoto::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> has_video_;
-
-    if (1 << 0)
-        has_video_ = true;
-    else
-        has_video_ = std::nullopt;
+    has_video_ = (1 << 0) ? std::optional{true} : std::nullopt;
     long photo_id_ = Long::read(reader);
     std::optional<std::string> stripped_thumb_;
-
-    if (1 << 1)
-        stripped_thumb_ = Bytes::read(reader);
-    else
-        stripped_thumb_ = std::nullopt;
+    stripped_thumb_ = (1 << 1) ? std::optional{Bytes::read(reader)} : std::nullopt;
     int dc_id_ = Int::read(reader);
     return ChatPhoto(photo_id_, dc_id_, has_video_, stripped_thumb_);
 }
@@ -3072,11 +2564,7 @@ MessageEmpty MessageEmpty::read(Reader reader)
     int flags = Int::read(reader);
     int id_ = Int::read(reader);
     std::optional<TLObject> peer_id_;
-
-    if (1 << 0)
-        peer_id_ = TLObject::read(reader);
-    else
-        peer_id_ = std::nullopt;
+    peer_id_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return MessageEmpty(id_, peer_id_);
 }
 
@@ -3099,153 +2587,57 @@ Message Message::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> out_;
-
-    if (1 << 1)
-        out_ = true;
-    else
-        out_ = std::nullopt;
+    out_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> mentioned_;
-
-    if (1 << 4)
-        mentioned_ = true;
-    else
-        mentioned_ = std::nullopt;
+    mentioned_ = (1 << 4) ? std::optional{true} : std::nullopt;
     std::optional<bool> media_unread_;
-
-    if (1 << 5)
-        media_unread_ = true;
-    else
-        media_unread_ = std::nullopt;
+    media_unread_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> silent_;
-
-    if (1 << 13)
-        silent_ = true;
-    else
-        silent_ = std::nullopt;
+    silent_ = (1 << 13) ? std::optional{true} : std::nullopt;
     std::optional<bool> post_;
-
-    if (1 << 14)
-        post_ = true;
-    else
-        post_ = std::nullopt;
+    post_ = (1 << 14) ? std::optional{true} : std::nullopt;
     std::optional<bool> from_scheduled_;
-
-    if (1 << 18)
-        from_scheduled_ = true;
-    else
-        from_scheduled_ = std::nullopt;
+    from_scheduled_ = (1 << 18) ? std::optional{true} : std::nullopt;
     std::optional<bool> legacy_;
-
-    if (1 << 19)
-        legacy_ = true;
-    else
-        legacy_ = std::nullopt;
+    legacy_ = (1 << 19) ? std::optional{true} : std::nullopt;
     std::optional<bool> edit_hide_;
-
-    if (1 << 21)
-        edit_hide_ = true;
-    else
-        edit_hide_ = std::nullopt;
+    edit_hide_ = (1 << 21) ? std::optional{true} : std::nullopt;
     std::optional<bool> pinned_;
-
-    if (1 << 24)
-        pinned_ = true;
-    else
-        pinned_ = std::nullopt;
+    pinned_ = (1 << 24) ? std::optional{true} : std::nullopt;
     int id_ = Int::read(reader);
     std::optional<TLObject> from_id_;
-
-    if (1 << 8)
-        from_id_ = TLObject::read(reader);
-    else
-        from_id_ = std::nullopt;
-    TLObject peer_id_ = TLObject::read(reader);
+    from_id_ = (1 << 8) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
+    TLObject peer_id_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<TLObject> fwd_from_;
-
-    if (1 << 2)
-        fwd_from_ = TLObject::read(reader);
-    else
-        fwd_from_ = std::nullopt;
+    fwd_from_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> via_bot_id_;
-
-    if (1 << 11)
-        via_bot_id_ = Int::read(reader);
-    else
-        via_bot_id_ = std::nullopt;
+    via_bot_id_ = (1 << 11) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<TLObject> reply_to_;
-
-    if (1 << 3)
-        reply_to_ = TLObject::read(reader);
-    else
-        reply_to_ = std::nullopt;
+    reply_to_ = (1 << 3) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     int date_ = Int::read(reader);
     std::string message_ = String::read(reader);
     std::optional<TLObject> media_;
-
-    if (1 << 9)
-        media_ = TLObject::read(reader);
-    else
-        media_ = std::nullopt;
+    media_ = (1 << 9) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> reply_markup_;
-
-    if (1 << 6)
-        reply_markup_ = TLObject::read(reader);
-    else
-        reply_markup_ = std::nullopt;
+    reply_markup_ = (1 << 6) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::vector<TLObject>> entities_;
-
-    if (1 << 7)
-        entities_ = Vector<TLObject>::read(reader);
-    else
-        entities_ = std::nullopt;
+    entities_ = (1 << 7) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> views_;
-
-    if (1 << 10)
-        views_ = Int::read(reader);
-    else
-        views_ = std::nullopt;
+    views_ = (1 << 10) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> forwards_;
-
-    if (1 << 10)
-        forwards_ = Int::read(reader);
-    else
-        forwards_ = std::nullopt;
+    forwards_ = (1 << 10) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<TLObject> replies_;
-
-    if (1 << 23)
-        replies_ = TLObject::read(reader);
-    else
-        replies_ = std::nullopt;
+    replies_ = (1 << 23) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> edit_date_;
-
-    if (1 << 15)
-        edit_date_ = Int::read(reader);
-    else
-        edit_date_ = std::nullopt;
+    edit_date_ = (1 << 15) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<std::string> post_author_;
-
-    if (1 << 16)
-        post_author_ = String::read(reader);
-    else
-        post_author_ = std::nullopt;
+    post_author_ = (1 << 16) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<long> grouped_id_;
-
-    if (1 << 17)
-        grouped_id_ = Long::read(reader);
-    else
-        grouped_id_ = std::nullopt;
+    grouped_id_ = (1 << 17) ? std::optional{Long::read(reader)} : std::nullopt;
     std::optional<std::vector<TLObject>> restriction_reason_;
-
-    if (1 << 22)
-        restriction_reason_ = Vector<TLObject>::read(reader);
-    else
-        restriction_reason_ = std::nullopt;
+    restriction_reason_ = (1 << 22) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> ttl_period_;
-
-    if (1 << 25)
-        ttl_period_ = Int::read(reader);
-    else
-        ttl_period_ = std::nullopt;
+    ttl_period_ = (1 << 25) ? std::optional{Int::read(reader)} : std::nullopt;
     return Message(id_, peer_id_, date_, message_, out_, mentioned_, media_unread_, silent_, post_, from_scheduled_, legacy_, edit_hide_, pinned_, from_id_, fwd_from_, via_bot_id_, reply_to_, media_, reply_markup_, entities_, views_, forwards_, replies_, edit_date_, post_author_, grouped_id_, restriction_reason_, ttl_period_);
 }
 
@@ -3336,63 +2728,27 @@ MessageService MessageService::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> out_;
-
-    if (1 << 1)
-        out_ = true;
-    else
-        out_ = std::nullopt;
+    out_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> mentioned_;
-
-    if (1 << 4)
-        mentioned_ = true;
-    else
-        mentioned_ = std::nullopt;
+    mentioned_ = (1 << 4) ? std::optional{true} : std::nullopt;
     std::optional<bool> media_unread_;
-
-    if (1 << 5)
-        media_unread_ = true;
-    else
-        media_unread_ = std::nullopt;
+    media_unread_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> silent_;
-
-    if (1 << 13)
-        silent_ = true;
-    else
-        silent_ = std::nullopt;
+    silent_ = (1 << 13) ? std::optional{true} : std::nullopt;
     std::optional<bool> post_;
-
-    if (1 << 14)
-        post_ = true;
-    else
-        post_ = std::nullopt;
+    post_ = (1 << 14) ? std::optional{true} : std::nullopt;
     std::optional<bool> legacy_;
-
-    if (1 << 19)
-        legacy_ = true;
-    else
-        legacy_ = std::nullopt;
+    legacy_ = (1 << 19) ? std::optional{true} : std::nullopt;
     int id_ = Int::read(reader);
     std::optional<TLObject> from_id_;
-
-    if (1 << 8)
-        from_id_ = TLObject::read(reader);
-    else
-        from_id_ = std::nullopt;
-    TLObject peer_id_ = TLObject::read(reader);
+    from_id_ = (1 << 8) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
+    TLObject peer_id_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<TLObject> reply_to_;
-
-    if (1 << 3)
-        reply_to_ = TLObject::read(reader);
-    else
-        reply_to_ = std::nullopt;
+    reply_to_ = (1 << 3) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     int date_ = Int::read(reader);
-    TLObject action_ = TLObject::read(reader);
+    TLObject action_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<int> ttl_period_;
-
-    if (1 << 25)
-        ttl_period_ = Int::read(reader);
-    else
-        ttl_period_ = std::nullopt;
+    ttl_period_ = (1 << 25) ? std::optional{Int::read(reader)} : std::nullopt;
     return MessageService(id_, peer_id_, date_, action_, out_, mentioned_, media_unread_, silent_, post_, legacy_, from_id_, reply_to_, ttl_period_);
 }
 
@@ -3443,17 +2799,9 @@ MessageMediaPhoto MessageMediaPhoto::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<TLObject> photo_;
-
-    if (1 << 0)
-        photo_ = TLObject::read(reader);
-    else
-        photo_ = std::nullopt;
+    photo_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> ttl_seconds_;
-
-    if (1 << 2)
-        ttl_seconds_ = Int::read(reader);
-    else
-        ttl_seconds_ = std::nullopt;
+    ttl_seconds_ = (1 << 2) ? std::optional{Int::read(reader)} : std::nullopt;
     return MessageMediaPhoto(photo_, ttl_seconds_);
 }
 
@@ -3477,7 +2825,7 @@ MessageMediaGeo::MessageMediaGeo(TLObject geo_) {}
 
 MessageMediaGeo MessageMediaGeo::read(Reader reader)
 {
-    TLObject geo_ = TLObject::read(reader);
+    TLObject geo_ = std::get<TLObject>(TLObject::read(reader));
     return MessageMediaGeo(geo_);
 }
 
@@ -3530,17 +2878,9 @@ MessageMediaDocument MessageMediaDocument::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<TLObject> document_;
-
-    if (1 << 0)
-        document_ = TLObject::read(reader);
-    else
-        document_ = std::nullopt;
+    document_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> ttl_seconds_;
-
-    if (1 << 2)
-        ttl_seconds_ = Int::read(reader);
-    else
-        ttl_seconds_ = std::nullopt;
+    ttl_seconds_ = (1 << 2) ? std::optional{Int::read(reader)} : std::nullopt;
     return MessageMediaDocument(document_, ttl_seconds_);
 }
 
@@ -3564,7 +2904,7 @@ MessageMediaWebPage::MessageMediaWebPage(TLObject webpage_) {}
 
 MessageMediaWebPage MessageMediaWebPage::read(Reader reader)
 {
-    TLObject webpage_ = TLObject::read(reader);
+    TLObject webpage_ = std::get<TLObject>(TLObject::read(reader));
     return MessageMediaWebPage(webpage_);
 }
 
@@ -3580,7 +2920,7 @@ MessageMediaVenue::MessageMediaVenue(TLObject geo_, std::string title_, std::str
 
 MessageMediaVenue MessageMediaVenue::read(Reader reader)
 {
-    TLObject geo_ = TLObject::read(reader);
+    TLObject geo_ = std::get<TLObject>(TLObject::read(reader));
     std::string title_ = String::read(reader);
     std::string address_ = String::read(reader);
     std::string provider_ = String::read(reader);
@@ -3606,7 +2946,7 @@ MessageMediaGame::MessageMediaGame(TLObject game_) {}
 
 MessageMediaGame MessageMediaGame::read(Reader reader)
 {
-    TLObject game_ = TLObject::read(reader);
+    TLObject game_ = std::get<TLObject>(TLObject::read(reader));
     return MessageMediaGame(game_);
 }
 
@@ -3624,31 +2964,15 @@ MessageMediaInvoice MessageMediaInvoice::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> shipping_address_requested_;
-
-    if (1 << 1)
-        shipping_address_requested_ = true;
-    else
-        shipping_address_requested_ = std::nullopt;
+    shipping_address_requested_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> test_;
-
-    if (1 << 3)
-        test_ = true;
-    else
-        test_ = std::nullopt;
+    test_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::string title_ = String::read(reader);
     std::string description_ = String::read(reader);
     std::optional<TLObject> photo_;
-
-    if (1 << 0)
-        photo_ = TLObject::read(reader);
-    else
-        photo_ = std::nullopt;
+    photo_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> receipt_msg_id_;
-
-    if (1 << 2)
-        receipt_msg_id_ = Int::read(reader);
-    else
-        receipt_msg_id_ = std::nullopt;
+    receipt_msg_id_ = (1 << 2) ? std::optional{Int::read(reader)} : std::nullopt;
     std::string currency_ = String::read(reader);
     long total_amount_ = Long::read(reader);
     std::string start_param_ = String::read(reader);
@@ -3683,20 +3007,12 @@ MessageMediaGeoLive::MessageMediaGeoLive(TLObject geo_, int period_, std::option
 MessageMediaGeoLive MessageMediaGeoLive::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject geo_ = TLObject::read(reader);
+    TLObject geo_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<int> heading_;
-
-    if (1 << 0)
-        heading_ = Int::read(reader);
-    else
-        heading_ = std::nullopt;
+    heading_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     int period_ = Int::read(reader);
     std::optional<int> proximity_notification_radius_;
-
-    if (1 << 1)
-        proximity_notification_radius_ = Int::read(reader);
-    else
-        proximity_notification_radius_ = std::nullopt;
+    proximity_notification_radius_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     return MessageMediaGeoLive(geo_, period_, heading_, proximity_notification_radius_);
 }
 
@@ -3722,8 +3038,8 @@ MessageMediaPoll::MessageMediaPoll(TLObject poll_, TLObject results_) {}
 
 MessageMediaPoll MessageMediaPoll::read(Reader reader)
 {
-    TLObject poll_ = TLObject::read(reader);
-    TLObject results_ = TLObject::read(reader);
+    TLObject poll_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject results_ = std::get<TLObject>(TLObject::read(reader));
     return MessageMediaPoll(poll_, results_);
 }
 
@@ -3770,7 +3086,7 @@ MessageActionChatCreate::MessageActionChatCreate(std::string title_, std::vector
 MessageActionChatCreate MessageActionChatCreate::read(Reader reader)
 {
     std::string title_ = String::read(reader);
-    std::vector<int> users_ = Vector<int>::read(reader);
+    std::vector<int> users_ = std::get<std::vector<int>>(TLObject::read(reader));
     return MessageActionChatCreate(title_, users_);
 }
 
@@ -3803,7 +3119,7 @@ MessageActionChatEditPhoto::MessageActionChatEditPhoto(TLObject photo_) {}
 
 MessageActionChatEditPhoto MessageActionChatEditPhoto::read(Reader reader)
 {
-    TLObject photo_ = TLObject::read(reader);
+    TLObject photo_ = std::get<TLObject>(TLObject::read(reader));
     return MessageActionChatEditPhoto(photo_);
 }
 
@@ -3830,7 +3146,7 @@ MessageActionChatAddUser::MessageActionChatAddUser(std::vector<int> users_) {}
 
 MessageActionChatAddUser MessageActionChatAddUser::read(Reader reader)
 {
-    std::vector<int> users_ = Vector<int>::read(reader);
+    std::vector<int> users_ = std::get<std::vector<int>>(TLObject::read(reader));
     return MessageActionChatAddUser(users_);
 }
 
@@ -3973,18 +3289,10 @@ MessageActionPaymentSentMe MessageActionPaymentSentMe::read(Reader reader)
     long total_amount_ = Long::read(reader);
     std::string payload_ = Bytes::read(reader);
     std::optional<TLObject> info_;
-
-    if (1 << 0)
-        info_ = TLObject::read(reader);
-    else
-        info_ = std::nullopt;
+    info_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::string> shipping_option_id_;
-
-    if (1 << 1)
-        shipping_option_id_ = String::read(reader);
-    else
-        shipping_option_id_ = std::nullopt;
-    TLObject charge_ = TLObject::read(reader);
+    shipping_option_id_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
+    TLObject charge_ = std::get<TLObject>(TLObject::read(reader));
     return MessageActionPaymentSentMe(currency_, total_amount_, payload_, charge_, info_, shipping_option_id_);
 }
 
@@ -4032,24 +3340,12 @@ MessageActionPhoneCall MessageActionPhoneCall::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> video_;
-
-    if (1 << 2)
-        video_ = true;
-    else
-        video_ = std::nullopt;
+    video_ = (1 << 2) ? std::optional{true} : std::nullopt;
     long call_id_ = Long::read(reader);
     std::optional<TLObject> reason_;
-
-    if (1 << 0)
-        reason_ = TLObject::read(reader);
-    else
-        reason_ = std::nullopt;
+    reason_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> duration_;
-
-    if (1 << 1)
-        duration_ = Int::read(reader);
-    else
-        duration_ = std::nullopt;
+    duration_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     return MessageActionPhoneCall(call_id_, video_, reason_, duration_);
 }
 
@@ -4118,8 +3414,8 @@ MessageActionSecureValuesSentMe::MessageActionSecureValuesSentMe(std::vector<TLO
 
 MessageActionSecureValuesSentMe MessageActionSecureValuesSentMe::read(Reader reader)
 {
-    std::vector<TLObject> values_ = Vector<TLObject>::read(reader);
-    TLObject credentials_ = TLObject::read(reader);
+    std::vector<TLObject> values_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    TLObject credentials_ = std::get<TLObject>(TLObject::read(reader));
     return MessageActionSecureValuesSentMe(values_, credentials_);
 }
 
@@ -4136,7 +3432,7 @@ MessageActionSecureValuesSent::MessageActionSecureValuesSent(std::vector<TLObjec
 
 MessageActionSecureValuesSent MessageActionSecureValuesSent::read(Reader reader)
 {
-    std::vector<TLObject> types_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> types_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return MessageActionSecureValuesSent(types_);
 }
 
@@ -4163,8 +3459,8 @@ MessageActionGeoProximityReached::MessageActionGeoProximityReached(TLObject from
 
 MessageActionGeoProximityReached MessageActionGeoProximityReached::read(Reader reader)
 {
-    TLObject from_id_ = TLObject::read(reader);
-    TLObject to_id_ = TLObject::read(reader);
+    TLObject from_id_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject to_id_ = std::get<TLObject>(TLObject::read(reader));
     int distance_ = Int::read(reader);
     return MessageActionGeoProximityReached(from_id_, to_id_, distance_);
 }
@@ -4184,13 +3480,9 @@ MessageActionGroupCall::MessageActionGroupCall(TLObject call_, std::optional<int
 MessageActionGroupCall MessageActionGroupCall::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject call_ = TLObject::read(reader);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<int> duration_;
-
-    if (1 << 0)
-        duration_ = Int::read(reader);
-    else
-        duration_ = std::nullopt;
+    duration_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     return MessageActionGroupCall(call_, duration_);
 }
 
@@ -4211,8 +3503,8 @@ MessageActionInviteToGroupCall::MessageActionInviteToGroupCall(TLObject call_, s
 
 MessageActionInviteToGroupCall MessageActionInviteToGroupCall::read(Reader reader)
 {
-    TLObject call_ = TLObject::read(reader);
-    std::vector<int> users_ = Vector<int>::read(reader);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<int> users_ = std::get<std::vector<int>>(TLObject::read(reader));
     return MessageActionInviteToGroupCall(call_, users_);
 }
 
@@ -4245,7 +3537,7 @@ MessageActionGroupCallScheduled::MessageActionGroupCallScheduled(TLObject call_,
 
 MessageActionGroupCallScheduled MessageActionGroupCallScheduled::read(Reader reader)
 {
-    TLObject call_ = TLObject::read(reader);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
     int schedule_date_ = Int::read(reader);
     return MessageActionGroupCallScheduled(call_, schedule_date_);
 }
@@ -4265,42 +3557,22 @@ Dialog Dialog::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> pinned_;
-
-    if (1 << 2)
-        pinned_ = true;
-    else
-        pinned_ = std::nullopt;
+    pinned_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<bool> unread_mark_;
-
-    if (1 << 3)
-        unread_mark_ = true;
-    else
-        unread_mark_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    unread_mark_ = (1 << 3) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int top_message_ = Int::read(reader);
     int read_inbox_max_id_ = Int::read(reader);
     int read_outbox_max_id_ = Int::read(reader);
     int unread_count_ = Int::read(reader);
     int unread_mentions_count_ = Int::read(reader);
-    TLObject notify_settings_ = TLObject::read(reader);
+    TLObject notify_settings_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<int> pts_;
-
-    if (1 << 0)
-        pts_ = Int::read(reader);
-    else
-        pts_ = std::nullopt;
+    pts_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<TLObject> draft_;
-
-    if (1 << 1)
-        draft_ = TLObject::read(reader);
-    else
-        draft_ = std::nullopt;
+    draft_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> folder_id_;
-
-    if (1 << 4)
-        folder_id_ = Int::read(reader);
-    else
-        folder_id_ = std::nullopt;
+    folder_id_ = (1 << 4) ? std::optional{Int::read(reader)} : std::nullopt;
     return Dialog(peer_, top_message_, read_inbox_max_id_, read_outbox_max_id_, unread_count_, unread_mentions_count_, notify_settings_, pinned_, unread_mark_, pts_, draft_, folder_id_);
 }
 
@@ -4339,13 +3611,9 @@ DialogFolder DialogFolder::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> pinned_;
-
-    if (1 << 2)
-        pinned_ = true;
-    else
-        pinned_ = std::nullopt;
-    TLObject folder_ = TLObject::read(reader);
-    TLObject peer_ = TLObject::read(reader);
+    pinned_ = (1 << 2) ? std::optional{true} : std::nullopt;
+    TLObject folder_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int top_message_ = Int::read(reader);
     int unread_muted_peers_count_ = Int::read(reader);
     int unread_unmuted_peers_count_ = Int::read(reader);
@@ -4392,22 +3660,14 @@ Photo Photo::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> has_stickers_;
-
-    if (1 << 0)
-        has_stickers_ = true;
-    else
-        has_stickers_ = std::nullopt;
+    has_stickers_ = (1 << 0) ? std::optional{true} : std::nullopt;
     long id_ = Long::read(reader);
     long access_hash_ = Long::read(reader);
     std::string file_reference_ = Bytes::read(reader);
     int date_ = Int::read(reader);
-    std::vector<TLObject> sizes_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> sizes_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     std::optional<std::vector<TLObject>> video_sizes_;
-
-    if (1 << 1)
-        video_sizes_ = Vector<TLObject>::read(reader);
-    else
-        video_sizes_ = std::nullopt;
+    video_sizes_ = (1 << 1) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     int dc_id_ = Int::read(reader);
     return Photo(id_, access_hash_, file_reference_, date_, sizes_, dc_id_, has_stickers_, video_sizes_);
 }
@@ -4516,7 +3776,7 @@ PhotoSizeProgressive PhotoSizeProgressive::read(Reader reader)
     std::string type_ = String::read(reader);
     int w_ = Int::read(reader);
     int h_ = Int::read(reader);
-    std::vector<int> sizes_ = Vector<int>::read(reader);
+    std::vector<int> sizes_ = std::get<std::vector<int>>(TLObject::read(reader));
     return PhotoSizeProgressive(type_, w_, h_, sizes_);
 }
 
@@ -4569,11 +3829,7 @@ GeoPoint GeoPoint::read(Reader reader)
     double lat_ = Double::read(reader);
     long access_hash_ = Long::read(reader);
     std::optional<int> accuracy_radius_;
-
-    if (1 << 0)
-        accuracy_radius_ = Int::read(reader);
-    else
-        accuracy_radius_ = std::nullopt;
+    accuracy_radius_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     return GeoPoint(long__, lat_, access_hash_, accuracy_radius_);
 }
 
@@ -4596,7 +3852,7 @@ InputNotifyPeer::InputNotifyPeer(TLObject peer_) {}
 
 InputNotifyPeer InputNotifyPeer::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     return InputNotifyPeer(peer_);
 }
 
@@ -4647,29 +3903,13 @@ InputPeerNotifySettings InputPeerNotifySettings::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> show_previews_;
-
-    if (1 << 0)
-        show_previews_ = true;
-    else
-        show_previews_ = std::nullopt;
+    show_previews_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> silent_;
-
-    if (1 << 1)
-        silent_ = true;
-    else
-        silent_ = std::nullopt;
+    silent_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<int> mute_until_;
-
-    if (1 << 2)
-        mute_until_ = Int::read(reader);
-    else
-        mute_until_ = std::nullopt;
+    mute_until_ = (1 << 2) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<std::string> sound_;
-
-    if (1 << 3)
-        sound_ = String::read(reader);
-    else
-        sound_ = std::nullopt;
+    sound_ = (1 << 3) ? std::optional{String::read(reader)} : std::nullopt;
     return InputPeerNotifySettings(show_previews_, silent_, mute_until_, sound_);
 }
 
@@ -4697,29 +3937,13 @@ PeerNotifySettings PeerNotifySettings::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> show_previews_;
-
-    if (1 << 0)
-        show_previews_ = true;
-    else
-        show_previews_ = std::nullopt;
+    show_previews_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> silent_;
-
-    if (1 << 1)
-        silent_ = true;
-    else
-        silent_ = std::nullopt;
+    silent_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<int> mute_until_;
-
-    if (1 << 2)
-        mute_until_ = Int::read(reader);
-    else
-        mute_until_ = std::nullopt;
+    mute_until_ = (1 << 2) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<std::string> sound_;
-
-    if (1 << 3)
-        sound_ = String::read(reader);
-    else
-        sound_ = std::nullopt;
+    sound_ = (1 << 3) ? std::optional{String::read(reader)} : std::nullopt;
     return PeerNotifySettings(show_previews_, silent_, mute_until_, sound_);
 }
 
@@ -4747,59 +3971,23 @@ PeerSettings PeerSettings::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> report_spam_;
-
-    if (1 << 0)
-        report_spam_ = true;
-    else
-        report_spam_ = std::nullopt;
+    report_spam_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> add_contact_;
-
-    if (1 << 1)
-        add_contact_ = true;
-    else
-        add_contact_ = std::nullopt;
+    add_contact_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> block_contact_;
-
-    if (1 << 2)
-        block_contact_ = true;
-    else
-        block_contact_ = std::nullopt;
+    block_contact_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<bool> share_contact_;
-
-    if (1 << 3)
-        share_contact_ = true;
-    else
-        share_contact_ = std::nullopt;
+    share_contact_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::optional<bool> need_contacts_exception_;
-
-    if (1 << 4)
-        need_contacts_exception_ = true;
-    else
-        need_contacts_exception_ = std::nullopt;
+    need_contacts_exception_ = (1 << 4) ? std::optional{true} : std::nullopt;
     std::optional<bool> report_geo_;
-
-    if (1 << 5)
-        report_geo_ = true;
-    else
-        report_geo_ = std::nullopt;
+    report_geo_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> autoarchived_;
-
-    if (1 << 7)
-        autoarchived_ = true;
-    else
-        autoarchived_ = std::nullopt;
+    autoarchived_ = (1 << 7) ? std::optional{true} : std::nullopt;
     std::optional<bool> invite_members_;
-
-    if (1 << 8)
-        invite_members_ = true;
-    else
-        invite_members_ = std::nullopt;
+    invite_members_ = (1 << 8) ? std::optional{true} : std::nullopt;
     std::optional<int> geo_distance_;
-
-    if (1 << 6)
-        geo_distance_ = Int::read(reader);
-    else
-        geo_distance_ = std::nullopt;
+    geo_distance_ = (1 << 6) ? std::optional{Int::read(reader)} : std::nullopt;
     return PeerSettings(report_spam_, add_contact_, block_contact_, share_contact_, need_contacts_exception_, report_geo_, autoarchived_, invite_members_, geo_distance_);
 }
 
@@ -4823,46 +4011,26 @@ std::string PeerSettings::write()
     return buffer;
 }
 
-WallPaper::WallPaper(long id_, long access_hash_, std::string slug_, TLObject document_, std::optional<bool> creator_, std::optional<bool> default_, std::optional<bool> pattern_, std::optional<bool> dark_, std::optional<TLObject> settings_) {}
+WallPaper::WallPaper(long id_, long access_hash_, std::string slug_, TLObject document_, std::optional<bool> creator_, std::optional<bool> default__, std::optional<bool> pattern_, std::optional<bool> dark_, std::optional<TLObject> settings_) {}
 
 WallPaper WallPaper::read(Reader reader)
 {
     long id_ = Long::read(reader);
     int flags = Int::read(reader);
     std::optional<bool> creator_;
-
-    if (1 << 0)
-        creator_ = true;
-    else
-        creator_ = std::nullopt;
-    std::optional<bool> default_;
-
-    if (1 << 1)
-        default_ = true;
-    else
-        default_ = std::nullopt;
+    creator_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    std::optional<bool> default__;
+    default__ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> pattern_;
-
-    if (1 << 3)
-        pattern_ = true;
-    else
-        pattern_ = std::nullopt;
+    pattern_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::optional<bool> dark_;
-
-    if (1 << 4)
-        dark_ = true;
-    else
-        dark_ = std::nullopt;
+    dark_ = (1 << 4) ? std::optional{true} : std::nullopt;
     long access_hash_ = Long::read(reader);
     std::string slug_ = String::read(reader);
-    TLObject document_ = TLObject::read(reader);
+    TLObject document_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<TLObject> settings_;
-
-    if (1 << 2)
-        settings_ = TLObject::read(reader);
-    else
-        settings_ = std::nullopt;
-    return WallPaper(id_, access_hash_, slug_, document_, creator_, default_, pattern_, dark_, settings_);
+    settings_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
+    return WallPaper(id_, access_hash_, slug_, document_, creator_, default__, pattern_, dark_, settings_);
 }
 
 std::string WallPaper::write()
@@ -4871,7 +4039,7 @@ std::string WallPaper::write()
     buffer += Int::write(__id);
     int flags = 0;
     flags |= creator ? 1 << 0 : 0;
-    flags |= default ? 1 << 1 : 0;
+    flags |= default_ ? 1 << 1 : 0;
     flags |= pattern ? 1 << 3 : 0;
     flags |= dark ? 1 << 4 : 0;
     flags |= settings ? 1 << 2 : 0;
@@ -4885,31 +4053,19 @@ std::string WallPaper::write()
     return buffer;
 }
 
-WallPaperNoFile::WallPaperNoFile(long id_, std::optional<bool> default_, std::optional<bool> dark_, std::optional<TLObject> settings_) {}
+WallPaperNoFile::WallPaperNoFile(long id_, std::optional<bool> default__, std::optional<bool> dark_, std::optional<TLObject> settings_) {}
 
 WallPaperNoFile WallPaperNoFile::read(Reader reader)
 {
     long id_ = Long::read(reader);
     int flags = Int::read(reader);
-    std::optional<bool> default_;
-
-    if (1 << 1)
-        default_ = true;
-    else
-        default_ = std::nullopt;
+    std::optional<bool> default__;
+    default__ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> dark_;
-
-    if (1 << 4)
-        dark_ = true;
-    else
-        dark_ = std::nullopt;
+    dark_ = (1 << 4) ? std::optional{true} : std::nullopt;
     std::optional<TLObject> settings_;
-
-    if (1 << 2)
-        settings_ = TLObject::read(reader);
-    else
-        settings_ = std::nullopt;
-    return WallPaperNoFile(id_, default_, dark_, settings_);
+    settings_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
+    return WallPaperNoFile(id_, default__, dark_, settings_);
 }
 
 std::string WallPaperNoFile::write()
@@ -4917,7 +4073,7 @@ std::string WallPaperNoFile::write()
     std::string buffer;
     buffer += Int::write(__id);
     int flags = 0;
-    flags |= default ? 1 << 1 : 0;
+    flags |= default_ ? 1 << 1 : 0;
     flags |= dark ? 1 << 4 : 0;
     flags |= settings ? 1 << 2 : 0;
     buffer += Long::write(id);
@@ -5021,81 +4177,33 @@ UserFull UserFull::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> blocked_;
-
-    if (1 << 0)
-        blocked_ = true;
-    else
-        blocked_ = std::nullopt;
+    blocked_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> phone_calls_available_;
-
-    if (1 << 4)
-        phone_calls_available_ = true;
-    else
-        phone_calls_available_ = std::nullopt;
+    phone_calls_available_ = (1 << 4) ? std::optional{true} : std::nullopt;
     std::optional<bool> phone_calls_private_;
-
-    if (1 << 5)
-        phone_calls_private_ = true;
-    else
-        phone_calls_private_ = std::nullopt;
+    phone_calls_private_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> can_pin_message_;
-
-    if (1 << 7)
-        can_pin_message_ = true;
-    else
-        can_pin_message_ = std::nullopt;
+    can_pin_message_ = (1 << 7) ? std::optional{true} : std::nullopt;
     std::optional<bool> has_scheduled_;
-
-    if (1 << 12)
-        has_scheduled_ = true;
-    else
-        has_scheduled_ = std::nullopt;
+    has_scheduled_ = (1 << 12) ? std::optional{true} : std::nullopt;
     std::optional<bool> video_calls_available_;
-
-    if (1 << 13)
-        video_calls_available_ = true;
-    else
-        video_calls_available_ = std::nullopt;
-    TLObject user_ = TLObject::read(reader);
+    video_calls_available_ = (1 << 13) ? std::optional{true} : std::nullopt;
+    TLObject user_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<std::string> about_;
-
-    if (1 << 1)
-        about_ = String::read(reader);
-    else
-        about_ = std::nullopt;
-    TLObject settings_ = TLObject::read(reader);
+    about_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
+    TLObject settings_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<TLObject> profile_photo_;
-
-    if (1 << 2)
-        profile_photo_ = TLObject::read(reader);
-    else
-        profile_photo_ = std::nullopt;
-    TLObject notify_settings_ = TLObject::read(reader);
+    profile_photo_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
+    TLObject notify_settings_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<TLObject> bot_info_;
-
-    if (1 << 3)
-        bot_info_ = TLObject::read(reader);
-    else
-        bot_info_ = std::nullopt;
+    bot_info_ = (1 << 3) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> pinned_msg_id_;
-
-    if (1 << 6)
-        pinned_msg_id_ = Int::read(reader);
-    else
-        pinned_msg_id_ = std::nullopt;
+    pinned_msg_id_ = (1 << 6) ? std::optional{Int::read(reader)} : std::nullopt;
     int common_chats_count_ = Int::read(reader);
     std::optional<int> folder_id_;
-
-    if (1 << 11)
-        folder_id_ = Int::read(reader);
-    else
-        folder_id_ = std::nullopt;
+    folder_id_ = (1 << 11) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> ttl_period_;
-
-    if (1 << 14)
-        ttl_period_ = Int::read(reader);
-    else
-        ttl_period_ = std::nullopt;
+    ttl_period_ = (1 << 14) ? std::optional{Int::read(reader)} : std::nullopt;
     return UserFull(user_, settings_, notify_settings_, common_chats_count_, blocked_, phone_calls_available_, phone_calls_private_, can_pin_message_, has_scheduled_, video_calls_available_, about_, profile_photo_, bot_info_, pinned_msg_id_, folder_id_, ttl_period_);
 }
 
@@ -5182,7 +4290,7 @@ ContactStatus::ContactStatus(int user_id_, TLObject status_) {}
 ContactStatus ContactStatus::read(Reader reader)
 {
     int user_id_ = Int::read(reader);
-    TLObject status_ = TLObject::read(reader);
+    TLObject status_ = std::get<TLObject>(TLObject::read(reader));
     return ContactStatus(user_id_, status_);
 }
 
@@ -5311,11 +4419,7 @@ InputMessagesFilterPhoneCalls InputMessagesFilterPhoneCalls::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> missed_;
-
-    if (1 << 0)
-        missed_ = true;
-    else
-        missed_ = std::nullopt;
+    missed_ = (1 << 0) ? std::optional{true} : std::nullopt;
     return InputMessagesFilterPhoneCalls(missed_);
 }
 
@@ -5398,7 +4502,7 @@ UpdateNewMessage::UpdateNewMessage(TLObject message_, int pts_, int pts_count_) 
 
 UpdateNewMessage UpdateNewMessage::read(Reader reader)
 {
-    TLObject message_ = TLObject::read(reader);
+    TLObject message_ = std::get<TLObject>(TLObject::read(reader));
     int pts_ = Int::read(reader);
     int pts_count_ = Int::read(reader);
     return UpdateNewMessage(message_, pts_, pts_count_);
@@ -5436,7 +4540,7 @@ UpdateDeleteMessages::UpdateDeleteMessages(std::vector<int> messages_, int pts_,
 
 UpdateDeleteMessages UpdateDeleteMessages::read(Reader reader)
 {
-    std::vector<int> messages_ = Vector<int>::read(reader);
+    std::vector<int> messages_ = std::get<std::vector<int>>(TLObject::read(reader));
     int pts_ = Int::read(reader);
     int pts_count_ = Int::read(reader);
     return UpdateDeleteMessages(messages_, pts_, pts_count_);
@@ -5457,7 +4561,7 @@ UpdateUserTyping::UpdateUserTyping(int user_id_, TLObject action_) {}
 UpdateUserTyping UpdateUserTyping::read(Reader reader)
 {
     int user_id_ = Int::read(reader);
-    TLObject action_ = TLObject::read(reader);
+    TLObject action_ = std::get<TLObject>(TLObject::read(reader));
     return UpdateUserTyping(user_id_, action_);
 }
 
@@ -5475,8 +4579,8 @@ UpdateChatUserTyping::UpdateChatUserTyping(int chat_id_, TLObject from_id_, TLOb
 UpdateChatUserTyping UpdateChatUserTyping::read(Reader reader)
 {
     int chat_id_ = Int::read(reader);
-    TLObject from_id_ = TLObject::read(reader);
-    TLObject action_ = TLObject::read(reader);
+    TLObject from_id_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject action_ = std::get<TLObject>(TLObject::read(reader));
     return UpdateChatUserTyping(chat_id_, from_id_, action_);
 }
 
@@ -5494,7 +4598,7 @@ UpdateChatParticipants::UpdateChatParticipants(TLObject participants_) {}
 
 UpdateChatParticipants UpdateChatParticipants::read(Reader reader)
 {
-    TLObject participants_ = TLObject::read(reader);
+    TLObject participants_ = std::get<TLObject>(TLObject::read(reader));
     return UpdateChatParticipants(participants_);
 }
 
@@ -5511,7 +4615,7 @@ UpdateUserStatus::UpdateUserStatus(int user_id_, TLObject status_) {}
 UpdateUserStatus UpdateUserStatus::read(Reader reader)
 {
     int user_id_ = Int::read(reader);
-    TLObject status_ = TLObject::read(reader);
+    TLObject status_ = std::get<TLObject>(TLObject::read(reader));
     return UpdateUserStatus(user_id_, status_);
 }
 
@@ -5552,7 +4656,7 @@ UpdateUserPhoto UpdateUserPhoto::read(Reader reader)
 {
     int user_id_ = Int::read(reader);
     int date_ = Int::read(reader);
-    TLObject photo_ = TLObject::read(reader);
+    TLObject photo_ = std::get<TLObject>(TLObject::read(reader));
     bool previous_ = Bool::read(reader);
     return UpdateUserPhoto(user_id_, date_, photo_, previous_);
 }
@@ -5572,7 +4676,7 @@ UpdateNewEncryptedMessage::UpdateNewEncryptedMessage(TLObject message_, int qts_
 
 UpdateNewEncryptedMessage UpdateNewEncryptedMessage::read(Reader reader)
 {
-    TLObject message_ = TLObject::read(reader);
+    TLObject message_ = std::get<TLObject>(TLObject::read(reader));
     int qts_ = Int::read(reader);
     return UpdateNewEncryptedMessage(message_, qts_);
 }
@@ -5606,7 +4710,7 @@ UpdateEncryption::UpdateEncryption(TLObject chat_, int date_) {}
 
 UpdateEncryption UpdateEncryption::read(Reader reader)
 {
-    TLObject chat_ = TLObject::read(reader);
+    TLObject chat_ = std::get<TLObject>(TLObject::read(reader));
     int date_ = Int::read(reader);
     return UpdateEncryption(chat_, date_);
 }
@@ -5688,7 +4792,7 @@ UpdateDcOptions::UpdateDcOptions(std::vector<TLObject> dc_options_) {}
 
 UpdateDcOptions UpdateDcOptions::read(Reader reader)
 {
-    std::vector<TLObject> dc_options_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> dc_options_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return UpdateDcOptions(dc_options_);
 }
 
@@ -5704,8 +4808,8 @@ UpdateNotifySettings::UpdateNotifySettings(TLObject peer_, TLObject notify_setti
 
 UpdateNotifySettings UpdateNotifySettings::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    TLObject notify_settings_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject notify_settings_ = std::get<TLObject>(TLObject::read(reader));
     return UpdateNotifySettings(peer_, notify_settings_);
 }
 
@@ -5724,21 +4828,13 @@ UpdateServiceNotification UpdateServiceNotification::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> popup_;
-
-    if (1 << 0)
-        popup_ = true;
-    else
-        popup_ = std::nullopt;
+    popup_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<int> inbox_date_;
-
-    if (1 << 1)
-        inbox_date_ = Int::read(reader);
-    else
-        inbox_date_ = std::nullopt;
+    inbox_date_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     std::string type_ = String::read(reader);
     std::string message_ = String::read(reader);
-    TLObject media_ = TLObject::read(reader);
-    std::vector<TLObject> entities_ = Vector<TLObject>::read(reader);
+    TLObject media_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<TLObject> entities_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return UpdateServiceNotification(type_, message_, media_, entities_, popup_, inbox_date_);
 }
 
@@ -5763,8 +4859,8 @@ UpdatePrivacy::UpdatePrivacy(TLObject key_, std::vector<TLObject> rules_) {}
 
 UpdatePrivacy UpdatePrivacy::read(Reader reader)
 {
-    TLObject key_ = TLObject::read(reader);
-    std::vector<TLObject> rules_ = Vector<TLObject>::read(reader);
+    TLObject key_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<TLObject> rules_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return UpdatePrivacy(key_, rules_);
 }
 
@@ -5801,12 +4897,8 @@ UpdateReadHistoryInbox UpdateReadHistoryInbox::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<int> folder_id_;
-
-    if (1 << 0)
-        folder_id_ = Int::read(reader);
-    else
-        folder_id_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    folder_id_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int max_id_ = Int::read(reader);
     int still_unread_count_ = Int::read(reader);
     int pts_ = Int::read(reader);
@@ -5835,7 +4927,7 @@ UpdateReadHistoryOutbox::UpdateReadHistoryOutbox(TLObject peer_, int max_id_, in
 
 UpdateReadHistoryOutbox UpdateReadHistoryOutbox::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int max_id_ = Int::read(reader);
     int pts_ = Int::read(reader);
     int pts_count_ = Int::read(reader);
@@ -5857,7 +4949,7 @@ UpdateWebPage::UpdateWebPage(TLObject webpage_, int pts_, int pts_count_) {}
 
 UpdateWebPage UpdateWebPage::read(Reader reader)
 {
-    TLObject webpage_ = TLObject::read(reader);
+    TLObject webpage_ = std::get<TLObject>(TLObject::read(reader));
     int pts_ = Int::read(reader);
     int pts_count_ = Int::read(reader);
     return UpdateWebPage(webpage_, pts_, pts_count_);
@@ -5877,7 +4969,7 @@ UpdateReadMessagesContents::UpdateReadMessagesContents(std::vector<int> messages
 
 UpdateReadMessagesContents UpdateReadMessagesContents::read(Reader reader)
 {
-    std::vector<int> messages_ = Vector<int>::read(reader);
+    std::vector<int> messages_ = std::get<std::vector<int>>(TLObject::read(reader));
     int pts_ = Int::read(reader);
     int pts_count_ = Int::read(reader);
     return UpdateReadMessagesContents(messages_, pts_, pts_count_);
@@ -5900,11 +4992,7 @@ UpdateChannelTooLong UpdateChannelTooLong::read(Reader reader)
     int flags = Int::read(reader);
     int channel_id_ = Int::read(reader);
     std::optional<int> pts_;
-
-    if (1 << 0)
-        pts_ = Int::read(reader);
-    else
-        pts_ = std::nullopt;
+    pts_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     return UpdateChannelTooLong(channel_id_, pts_);
 }
 
@@ -5941,7 +5029,7 @@ UpdateNewChannelMessage::UpdateNewChannelMessage(TLObject message_, int pts_, in
 
 UpdateNewChannelMessage UpdateNewChannelMessage::read(Reader reader)
 {
-    TLObject message_ = TLObject::read(reader);
+    TLObject message_ = std::get<TLObject>(TLObject::read(reader));
     int pts_ = Int::read(reader);
     int pts_count_ = Int::read(reader);
     return UpdateNewChannelMessage(message_, pts_, pts_count_);
@@ -5963,11 +5051,7 @@ UpdateReadChannelInbox UpdateReadChannelInbox::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<int> folder_id_;
-
-    if (1 << 0)
-        folder_id_ = Int::read(reader);
-    else
-        folder_id_ = std::nullopt;
+    folder_id_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     int channel_id_ = Int::read(reader);
     int max_id_ = Int::read(reader);
     int still_unread_count_ = Int::read(reader);
@@ -5996,7 +5080,7 @@ UpdateDeleteChannelMessages::UpdateDeleteChannelMessages(int channel_id_, std::v
 UpdateDeleteChannelMessages UpdateDeleteChannelMessages::read(Reader reader)
 {
     int channel_id_ = Int::read(reader);
-    std::vector<int> messages_ = Vector<int>::read(reader);
+    std::vector<int> messages_ = std::get<std::vector<int>>(TLObject::read(reader));
     int pts_ = Int::read(reader);
     int pts_count_ = Int::read(reader);
     return UpdateDeleteChannelMessages(channel_id_, messages_, pts_, pts_count_);
@@ -6059,7 +5143,7 @@ UpdateNewStickerSet::UpdateNewStickerSet(TLObject stickerset_) {}
 
 UpdateNewStickerSet UpdateNewStickerSet::read(Reader reader)
 {
-    TLObject stickerset_ = TLObject::read(reader);
+    TLObject stickerset_ = std::get<TLObject>(TLObject::read(reader));
     return UpdateNewStickerSet(stickerset_);
 }
 
@@ -6077,12 +5161,8 @@ UpdateStickerSetsOrder UpdateStickerSetsOrder::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> masks_;
-
-    if (1 << 0)
-        masks_ = true;
-    else
-        masks_ = std::nullopt;
-    std::vector<long> order_ = Vector<long>::read(reader);
+    masks_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    std::vector<long> order_ = std::get<std::vector<long>>(TLObject::read(reader));
     return UpdateStickerSetsOrder(order_, masks_);
 }
 
@@ -6127,17 +5207,9 @@ UpdateBotInlineQuery UpdateBotInlineQuery::read(Reader reader)
     int user_id_ = Int::read(reader);
     std::string query_ = String::read(reader);
     std::optional<TLObject> geo_;
-
-    if (1 << 0)
-        geo_ = TLObject::read(reader);
-    else
-        geo_ = std::nullopt;
+    geo_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> peer_type_;
-
-    if (1 << 1)
-        peer_type_ = TLObject::read(reader);
-    else
-        peer_type_ = std::nullopt;
+    peer_type_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::string offset_ = String::read(reader);
     return UpdateBotInlineQuery(query_id_, user_id_, query_, offset_, geo_, peer_type_);
 }
@@ -6170,18 +5242,10 @@ UpdateBotInlineSend UpdateBotInlineSend::read(Reader reader)
     int user_id_ = Int::read(reader);
     std::string query_ = String::read(reader);
     std::optional<TLObject> geo_;
-
-    if (1 << 0)
-        geo_ = TLObject::read(reader);
-    else
-        geo_ = std::nullopt;
+    geo_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::string id_ = String::read(reader);
     std::optional<TLObject> msg_id_;
-
-    if (1 << 1)
-        msg_id_ = TLObject::read(reader);
-    else
-        msg_id_ = std::nullopt;
+    msg_id_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return UpdateBotInlineSend(user_id_, query_, id_, geo_, msg_id_);
 }
 
@@ -6208,7 +5272,7 @@ UpdateEditChannelMessage::UpdateEditChannelMessage(TLObject message_, int pts_, 
 
 UpdateEditChannelMessage UpdateEditChannelMessage::read(Reader reader)
 {
-    TLObject message_ = TLObject::read(reader);
+    TLObject message_ = std::get<TLObject>(TLObject::read(reader));
     int pts_ = Int::read(reader);
     int pts_count_ = Int::read(reader);
     return UpdateEditChannelMessage(message_, pts_, pts_count_);
@@ -6231,21 +5295,13 @@ UpdateBotCallbackQuery UpdateBotCallbackQuery::read(Reader reader)
     int flags = Int::read(reader);
     long query_id_ = Long::read(reader);
     int user_id_ = Int::read(reader);
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int msg_id_ = Int::read(reader);
     long chat_instance_ = Long::read(reader);
     std::optional<std::string> data_;
-
-    if (1 << 0)
-        data_ = Bytes::read(reader);
-    else
-        data_ = std::nullopt;
+    data_ = (1 << 0) ? std::optional{Bytes::read(reader)} : std::nullopt;
     std::optional<std::string> game_short_name_;
-
-    if (1 << 1)
-        game_short_name_ = String::read(reader);
-    else
-        game_short_name_ = std::nullopt;
+    game_short_name_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     return UpdateBotCallbackQuery(query_id_, user_id_, peer_, msg_id_, chat_instance_, data_, game_short_name_);
 }
 
@@ -6274,7 +5330,7 @@ UpdateEditMessage::UpdateEditMessage(TLObject message_, int pts_, int pts_count_
 
 UpdateEditMessage UpdateEditMessage::read(Reader reader)
 {
-    TLObject message_ = TLObject::read(reader);
+    TLObject message_ = std::get<TLObject>(TLObject::read(reader));
     int pts_ = Int::read(reader);
     int pts_count_ = Int::read(reader);
     return UpdateEditMessage(message_, pts_, pts_count_);
@@ -6297,20 +5353,12 @@ UpdateInlineBotCallbackQuery UpdateInlineBotCallbackQuery::read(Reader reader)
     int flags = Int::read(reader);
     long query_id_ = Long::read(reader);
     int user_id_ = Int::read(reader);
-    TLObject msg_id_ = TLObject::read(reader);
+    TLObject msg_id_ = std::get<TLObject>(TLObject::read(reader));
     long chat_instance_ = Long::read(reader);
     std::optional<std::string> data_;
-
-    if (1 << 0)
-        data_ = Bytes::read(reader);
-    else
-        data_ = std::nullopt;
+    data_ = (1 << 0) ? std::optional{Bytes::read(reader)} : std::nullopt;
     std::optional<std::string> game_short_name_;
-
-    if (1 << 1)
-        game_short_name_ = String::read(reader);
-    else
-        game_short_name_ = std::nullopt;
+    game_short_name_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     return UpdateInlineBotCallbackQuery(query_id_, user_id_, msg_id_, chat_instance_, data_, game_short_name_);
 }
 
@@ -6356,8 +5404,8 @@ UpdateDraftMessage::UpdateDraftMessage(TLObject peer_, TLObject draft_) {}
 
 UpdateDraftMessage UpdateDraftMessage::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    TLObject draft_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject draft_ = std::get<TLObject>(TLObject::read(reader));
     return UpdateDraftMessage(peer_, draft_);
 }
 
@@ -6419,7 +5467,7 @@ UpdateChannelWebPage::UpdateChannelWebPage(int channel_id_, TLObject webpage_, i
 UpdateChannelWebPage UpdateChannelWebPage::read(Reader reader)
 {
     int channel_id_ = Int::read(reader);
-    TLObject webpage_ = TLObject::read(reader);
+    TLObject webpage_ = std::get<TLObject>(TLObject::read(reader));
     int pts_ = Int::read(reader);
     int pts_count_ = Int::read(reader);
     return UpdateChannelWebPage(channel_id_, webpage_, pts_, pts_count_);
@@ -6442,18 +5490,10 @@ UpdateDialogPinned UpdateDialogPinned::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> pinned_;
-
-    if (1 << 0)
-        pinned_ = true;
-    else
-        pinned_ = std::nullopt;
+    pinned_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<int> folder_id_;
-
-    if (1 << 1)
-        folder_id_ = Int::read(reader);
-    else
-        folder_id_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    folder_id_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     return UpdateDialogPinned(peer_, pinned_, folder_id_);
 }
 
@@ -6477,17 +5517,9 @@ UpdatePinnedDialogs UpdatePinnedDialogs::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<int> folder_id_;
-
-    if (1 << 1)
-        folder_id_ = Int::read(reader);
-    else
-        folder_id_ = std::nullopt;
+    folder_id_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<std::vector<TLObject>> order_;
-
-    if (1 << 0)
-        order_ = Vector<TLObject>::read(reader);
-    else
-        order_ = std::nullopt;
+    order_ = (1 << 0) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     return UpdatePinnedDialogs(folder_id_, order_);
 }
 
@@ -6511,7 +5543,7 @@ UpdateBotWebhookJSON::UpdateBotWebhookJSON(TLObject data_) {}
 
 UpdateBotWebhookJSON UpdateBotWebhookJSON::read(Reader reader)
 {
-    TLObject data_ = TLObject::read(reader);
+    TLObject data_ = std::get<TLObject>(TLObject::read(reader));
     return UpdateBotWebhookJSON(data_);
 }
 
@@ -6528,7 +5560,7 @@ UpdateBotWebhookJSONQuery::UpdateBotWebhookJSONQuery(long query_id_, TLObject da
 UpdateBotWebhookJSONQuery UpdateBotWebhookJSONQuery::read(Reader reader)
 {
     long query_id_ = Long::read(reader);
-    TLObject data_ = TLObject::read(reader);
+    TLObject data_ = std::get<TLObject>(TLObject::read(reader));
     int timeout_ = Int::read(reader);
     return UpdateBotWebhookJSONQuery(query_id_, data_, timeout_);
 }
@@ -6550,7 +5582,7 @@ UpdateBotShippingQuery UpdateBotShippingQuery::read(Reader reader)
     long query_id_ = Long::read(reader);
     int user_id_ = Int::read(reader);
     std::string payload_ = Bytes::read(reader);
-    TLObject shipping_address_ = TLObject::read(reader);
+    TLObject shipping_address_ = std::get<TLObject>(TLObject::read(reader));
     return UpdateBotShippingQuery(query_id_, user_id_, payload_, shipping_address_);
 }
 
@@ -6574,17 +5606,9 @@ UpdateBotPrecheckoutQuery UpdateBotPrecheckoutQuery::read(Reader reader)
     int user_id_ = Int::read(reader);
     std::string payload_ = Bytes::read(reader);
     std::optional<TLObject> info_;
-
-    if (1 << 0)
-        info_ = TLObject::read(reader);
-    else
-        info_ = std::nullopt;
+    info_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::string> shipping_option_id_;
-
-    if (1 << 1)
-        shipping_option_id_ = String::read(reader);
-    else
-        shipping_option_id_ = std::nullopt;
+    shipping_option_id_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     std::string currency_ = String::read(reader);
     long total_amount_ = Long::read(reader);
     return UpdateBotPrecheckoutQuery(query_id_, user_id_, payload_, currency_, total_amount_, info_, shipping_option_id_);
@@ -6615,7 +5639,7 @@ UpdatePhoneCall::UpdatePhoneCall(TLObject phone_call_) {}
 
 UpdatePhoneCall UpdatePhoneCall::read(Reader reader)
 {
-    TLObject phone_call_ = TLObject::read(reader);
+    TLObject phone_call_ = std::get<TLObject>(TLObject::read(reader));
     return UpdatePhoneCall(phone_call_);
 }
 
@@ -6647,7 +5671,7 @@ UpdateLangPack::UpdateLangPack(TLObject difference_) {}
 
 UpdateLangPack UpdateLangPack::read(Reader reader)
 {
-    TLObject difference_ = TLObject::read(reader);
+    TLObject difference_ = std::get<TLObject>(TLObject::read(reader));
     return UpdateLangPack(difference_);
 }
 
@@ -6675,7 +5699,7 @@ UpdateChannelReadMessagesContents::UpdateChannelReadMessagesContents(int channel
 UpdateChannelReadMessagesContents UpdateChannelReadMessagesContents::read(Reader reader)
 {
     int channel_id_ = Int::read(reader);
-    std::vector<int> messages_ = Vector<int>::read(reader);
+    std::vector<int> messages_ = std::get<std::vector<int>>(TLObject::read(reader));
     return UpdateChannelReadMessagesContents(channel_id_, messages_);
 }
 
@@ -6723,12 +5747,8 @@ UpdateDialogUnreadMark UpdateDialogUnreadMark::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> unread_;
-
-    if (1 << 0)
-        unread_ = true;
-    else
-        unread_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    unread_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     return UpdateDialogUnreadMark(peer_, unread_);
 }
 
@@ -6749,12 +5769,8 @@ UpdateMessagePoll UpdateMessagePoll::read(Reader reader)
     int flags = Int::read(reader);
     long poll_id_ = Long::read(reader);
     std::optional<TLObject> poll_;
-
-    if (1 << 0)
-        poll_ = TLObject::read(reader);
-    else
-        poll_ = std::nullopt;
-    TLObject results_ = TLObject::read(reader);
+    poll_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
+    TLObject results_ = std::get<TLObject>(TLObject::read(reader));
     return UpdateMessagePoll(poll_id_, results_, poll_);
 }
 
@@ -6776,8 +5792,8 @@ UpdateChatDefaultBannedRights::UpdateChatDefaultBannedRights(TLObject peer_, TLO
 
 UpdateChatDefaultBannedRights UpdateChatDefaultBannedRights::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    TLObject default_banned_rights_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject default_banned_rights_ = std::get<TLObject>(TLObject::read(reader));
     int version_ = Int::read(reader);
     return UpdateChatDefaultBannedRights(peer_, default_banned_rights_, version_);
 }
@@ -6796,7 +5812,7 @@ UpdateFolderPeers::UpdateFolderPeers(std::vector<TLObject> folder_peers_, int pt
 
 UpdateFolderPeers UpdateFolderPeers::read(Reader reader)
 {
-    std::vector<TLObject> folder_peers_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> folder_peers_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     int pts_ = Int::read(reader);
     int pts_count_ = Int::read(reader);
     return UpdateFolderPeers(folder_peers_, pts_, pts_count_);
@@ -6816,8 +5832,8 @@ UpdatePeerSettings::UpdatePeerSettings(TLObject peer_, TLObject settings_) {}
 
 UpdatePeerSettings UpdatePeerSettings::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    TLObject settings_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject settings_ = std::get<TLObject>(TLObject::read(reader));
     return UpdatePeerSettings(peer_, settings_);
 }
 
@@ -6834,7 +5850,7 @@ UpdatePeerLocated::UpdatePeerLocated(std::vector<TLObject> peers_) {}
 
 UpdatePeerLocated UpdatePeerLocated::read(Reader reader)
 {
-    std::vector<TLObject> peers_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> peers_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return UpdatePeerLocated(peers_);
 }
 
@@ -6850,7 +5866,7 @@ UpdateNewScheduledMessage::UpdateNewScheduledMessage(TLObject message_) {}
 
 UpdateNewScheduledMessage UpdateNewScheduledMessage::read(Reader reader)
 {
-    TLObject message_ = TLObject::read(reader);
+    TLObject message_ = std::get<TLObject>(TLObject::read(reader));
     return UpdateNewScheduledMessage(message_);
 }
 
@@ -6866,8 +5882,8 @@ UpdateDeleteScheduledMessages::UpdateDeleteScheduledMessages(TLObject peer_, std
 
 UpdateDeleteScheduledMessages UpdateDeleteScheduledMessages::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    std::vector<int> messages_ = Vector<int>::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<int> messages_ = std::get<std::vector<int>>(TLObject::read(reader));
     return UpdateDeleteScheduledMessages(peer_, messages_);
 }
 
@@ -6884,7 +5900,7 @@ UpdateTheme::UpdateTheme(TLObject theme_) {}
 
 UpdateTheme UpdateTheme::read(Reader reader)
 {
-    TLObject theme_ = TLObject::read(reader);
+    TLObject theme_ = std::get<TLObject>(TLObject::read(reader));
     return UpdateTheme(theme_);
 }
 
@@ -6900,7 +5916,7 @@ UpdateGeoLiveViewed::UpdateGeoLiveViewed(TLObject peer_, int msg_id_) {}
 
 UpdateGeoLiveViewed UpdateGeoLiveViewed::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int msg_id_ = Int::read(reader);
     return UpdateGeoLiveViewed(peer_, msg_id_);
 }
@@ -6931,7 +5947,7 @@ UpdateMessagePollVote UpdateMessagePollVote::read(Reader reader)
 {
     long poll_id_ = Long::read(reader);
     int user_id_ = Int::read(reader);
-    std::vector<std::string> options_ = Vector<std::string>::read(reader);
+    std::vector<std::string> options_ = std::get<std::vector<std::string>>(TLObject::read(reader));
     int qts_ = Int::read(reader);
     return UpdateMessagePollVote(poll_id_, user_id_, options_, qts_);
 }
@@ -6954,11 +5970,7 @@ UpdateDialogFilter UpdateDialogFilter::read(Reader reader)
     int flags = Int::read(reader);
     int id_ = Int::read(reader);
     std::optional<TLObject> filter_;
-
-    if (1 << 0)
-        filter_ = TLObject::read(reader);
-    else
-        filter_ = std::nullopt;
+    filter_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return UpdateDialogFilter(id_, filter_);
 }
 
@@ -6979,7 +5991,7 @@ UpdateDialogFilterOrder::UpdateDialogFilterOrder(std::vector<int> order_) {}
 
 UpdateDialogFilterOrder UpdateDialogFilterOrder::read(Reader reader)
 {
-    std::vector<int> order_ = Vector<int>::read(reader);
+    std::vector<int> order_ = std::get<std::vector<int>>(TLObject::read(reader));
     return UpdateDialogFilterOrder(order_);
 }
 
@@ -7049,17 +6061,9 @@ UpdateReadChannelDiscussionInbox UpdateReadChannelDiscussionInbox::read(Reader r
     int top_msg_id_ = Int::read(reader);
     int read_max_id_ = Int::read(reader);
     std::optional<int> broadcast_id_;
-
-    if (1 << 0)
-        broadcast_id_ = Int::read(reader);
-    else
-        broadcast_id_ = std::nullopt;
+    broadcast_id_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> broadcast_post_;
-
-    if (1 << 0)
-        broadcast_post_ = Int::read(reader);
-    else
-        broadcast_post_ = std::nullopt;
+    broadcast_post_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     return UpdateReadChannelDiscussionInbox(channel_id_, top_msg_id_, read_max_id_, broadcast_id_, broadcast_post_);
 }
 
@@ -7106,7 +6110,7 @@ UpdatePeerBlocked::UpdatePeerBlocked(TLObject peer_id_, bool blocked_) {}
 
 UpdatePeerBlocked UpdatePeerBlocked::read(Reader reader)
 {
-    TLObject peer_id_ = TLObject::read(reader);
+    TLObject peer_id_ = std::get<TLObject>(TLObject::read(reader));
     bool blocked_ = Bool::read(reader);
     return UpdatePeerBlocked(peer_id_, blocked_);
 }
@@ -7127,13 +6131,9 @@ UpdateChannelUserTyping UpdateChannelUserTyping::read(Reader reader)
     int flags = Int::read(reader);
     int channel_id_ = Int::read(reader);
     std::optional<int> top_msg_id_;
-
-    if (1 << 0)
-        top_msg_id_ = Int::read(reader);
-    else
-        top_msg_id_ = std::nullopt;
-    TLObject from_id_ = TLObject::read(reader);
-    TLObject action_ = TLObject::read(reader);
+    top_msg_id_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
+    TLObject from_id_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject action_ = std::get<TLObject>(TLObject::read(reader));
     return UpdateChannelUserTyping(channel_id_, from_id_, action_, top_msg_id_);
 }
 
@@ -7158,13 +6158,9 @@ UpdatePinnedMessages UpdatePinnedMessages::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> pinned_;
-
-    if (1 << 0)
-        pinned_ = true;
-    else
-        pinned_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
-    std::vector<int> messages_ = Vector<int>::read(reader);
+    pinned_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<int> messages_ = std::get<std::vector<int>>(TLObject::read(reader));
     int pts_ = Int::read(reader);
     int pts_count_ = Int::read(reader);
     return UpdatePinnedMessages(peer_, messages_, pts_, pts_count_, pinned_);
@@ -7189,13 +6185,9 @@ UpdatePinnedChannelMessages UpdatePinnedChannelMessages::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> pinned_;
-
-    if (1 << 0)
-        pinned_ = true;
-    else
-        pinned_ = std::nullopt;
+    pinned_ = (1 << 0) ? std::optional{true} : std::nullopt;
     int channel_id_ = Int::read(reader);
-    std::vector<int> messages_ = Vector<int>::read(reader);
+    std::vector<int> messages_ = std::get<std::vector<int>>(TLObject::read(reader));
     int pts_ = Int::read(reader);
     int pts_count_ = Int::read(reader);
     return UpdatePinnedChannelMessages(channel_id_, messages_, pts_, pts_count_, pinned_);
@@ -7234,8 +6226,8 @@ UpdateGroupCallParticipants::UpdateGroupCallParticipants(TLObject call_, std::ve
 
 UpdateGroupCallParticipants UpdateGroupCallParticipants::read(Reader reader)
 {
-    TLObject call_ = TLObject::read(reader);
-    std::vector<TLObject> participants_ = Vector<TLObject>::read(reader);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<TLObject> participants_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     int version_ = Int::read(reader);
     return UpdateGroupCallParticipants(call_, participants_, version_);
 }
@@ -7255,7 +6247,7 @@ UpdateGroupCall::UpdateGroupCall(int chat_id_, TLObject call_) {}
 UpdateGroupCall UpdateGroupCall::read(Reader reader)
 {
     int chat_id_ = Int::read(reader);
-    TLObject call_ = TLObject::read(reader);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
     return UpdateGroupCall(chat_id_, call_);
 }
 
@@ -7273,13 +6265,9 @@ UpdatePeerHistoryTTL::UpdatePeerHistoryTTL(TLObject peer_, std::optional<int> tt
 UpdatePeerHistoryTTL UpdatePeerHistoryTTL::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<int> ttl_period_;
-
-    if (1 << 0)
-        ttl_period_ = Int::read(reader);
-    else
-        ttl_period_ = std::nullopt;
+    ttl_period_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     return UpdatePeerHistoryTTL(peer_, ttl_period_);
 }
 
@@ -7306,23 +6294,11 @@ UpdateChatParticipant UpdateChatParticipant::read(Reader reader)
     int actor_id_ = Int::read(reader);
     int user_id_ = Int::read(reader);
     std::optional<TLObject> prev_participant_;
-
-    if (1 << 0)
-        prev_participant_ = TLObject::read(reader);
-    else
-        prev_participant_ = std::nullopt;
+    prev_participant_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> new_participant_;
-
-    if (1 << 1)
-        new_participant_ = TLObject::read(reader);
-    else
-        new_participant_ = std::nullopt;
+    new_participant_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> invite_;
-
-    if (1 << 2)
-        invite_ = TLObject::read(reader);
-    else
-        invite_ = std::nullopt;
+    invite_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     int qts_ = Int::read(reader);
     return UpdateChatParticipant(chat_id_, date_, actor_id_, user_id_, qts_, prev_participant_, new_participant_, invite_);
 }
@@ -7362,23 +6338,11 @@ UpdateChannelParticipant UpdateChannelParticipant::read(Reader reader)
     int actor_id_ = Int::read(reader);
     int user_id_ = Int::read(reader);
     std::optional<TLObject> prev_participant_;
-
-    if (1 << 0)
-        prev_participant_ = TLObject::read(reader);
-    else
-        prev_participant_ = std::nullopt;
+    prev_participant_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> new_participant_;
-
-    if (1 << 1)
-        new_participant_ = TLObject::read(reader);
-    else
-        new_participant_ = std::nullopt;
+    new_participant_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> invite_;
-
-    if (1 << 2)
-        invite_ = TLObject::read(reader);
-    else
-        invite_ = std::nullopt;
+    invite_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     int qts_ = Int::read(reader);
     return UpdateChannelParticipant(channel_id_, date_, actor_id_, user_id_, qts_, prev_participant_, new_participant_, invite_);
 }
@@ -7436,12 +6400,8 @@ UpdateGroupCallConnection UpdateGroupCallConnection::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> presentation_;
-
-    if (1 << 0)
-        presentation_ = true;
-    else
-        presentation_ = std::nullopt;
-    TLObject params_ = TLObject::read(reader);
+    presentation_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject params_ = std::get<TLObject>(TLObject::read(reader));
     return UpdateGroupCallConnection(params_, presentation_);
 }
 
@@ -7472,29 +6432,13 @@ UpdateShortMessage UpdateShortMessage::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> out_;
-
-    if (1 << 1)
-        out_ = true;
-    else
-        out_ = std::nullopt;
+    out_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> mentioned_;
-
-    if (1 << 4)
-        mentioned_ = true;
-    else
-        mentioned_ = std::nullopt;
+    mentioned_ = (1 << 4) ? std::optional{true} : std::nullopt;
     std::optional<bool> media_unread_;
-
-    if (1 << 5)
-        media_unread_ = true;
-    else
-        media_unread_ = std::nullopt;
+    media_unread_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> silent_;
-
-    if (1 << 13)
-        silent_ = true;
-    else
-        silent_ = std::nullopt;
+    silent_ = (1 << 13) ? std::optional{true} : std::nullopt;
     int id_ = Int::read(reader);
     int user_id_ = Int::read(reader);
     std::string message_ = String::read(reader);
@@ -7502,35 +6446,15 @@ UpdateShortMessage UpdateShortMessage::read(Reader reader)
     int pts_count_ = Int::read(reader);
     int date_ = Int::read(reader);
     std::optional<TLObject> fwd_from_;
-
-    if (1 << 2)
-        fwd_from_ = TLObject::read(reader);
-    else
-        fwd_from_ = std::nullopt;
+    fwd_from_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> via_bot_id_;
-
-    if (1 << 11)
-        via_bot_id_ = Int::read(reader);
-    else
-        via_bot_id_ = std::nullopt;
+    via_bot_id_ = (1 << 11) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<TLObject> reply_to_;
-
-    if (1 << 3)
-        reply_to_ = TLObject::read(reader);
-    else
-        reply_to_ = std::nullopt;
+    reply_to_ = (1 << 3) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::vector<TLObject>> entities_;
-
-    if (1 << 7)
-        entities_ = Vector<TLObject>::read(reader);
-    else
-        entities_ = std::nullopt;
+    entities_ = (1 << 7) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> ttl_period_;
-
-    if (1 << 25)
-        ttl_period_ = Int::read(reader);
-    else
-        ttl_period_ = std::nullopt;
+    ttl_period_ = (1 << 25) ? std::optional{Int::read(reader)} : std::nullopt;
     return UpdateShortMessage(id_, user_id_, message_, pts_, pts_count_, date_, out_, mentioned_, media_unread_, silent_, fwd_from_, via_bot_id_, reply_to_, entities_, ttl_period_);
 }
 
@@ -7578,29 +6502,13 @@ UpdateShortChatMessage UpdateShortChatMessage::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> out_;
-
-    if (1 << 1)
-        out_ = true;
-    else
-        out_ = std::nullopt;
+    out_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> mentioned_;
-
-    if (1 << 4)
-        mentioned_ = true;
-    else
-        mentioned_ = std::nullopt;
+    mentioned_ = (1 << 4) ? std::optional{true} : std::nullopt;
     std::optional<bool> media_unread_;
-
-    if (1 << 5)
-        media_unread_ = true;
-    else
-        media_unread_ = std::nullopt;
+    media_unread_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> silent_;
-
-    if (1 << 13)
-        silent_ = true;
-    else
-        silent_ = std::nullopt;
+    silent_ = (1 << 13) ? std::optional{true} : std::nullopt;
     int id_ = Int::read(reader);
     int from_id_ = Int::read(reader);
     int chat_id_ = Int::read(reader);
@@ -7609,35 +6517,15 @@ UpdateShortChatMessage UpdateShortChatMessage::read(Reader reader)
     int pts_count_ = Int::read(reader);
     int date_ = Int::read(reader);
     std::optional<TLObject> fwd_from_;
-
-    if (1 << 2)
-        fwd_from_ = TLObject::read(reader);
-    else
-        fwd_from_ = std::nullopt;
+    fwd_from_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> via_bot_id_;
-
-    if (1 << 11)
-        via_bot_id_ = Int::read(reader);
-    else
-        via_bot_id_ = std::nullopt;
+    via_bot_id_ = (1 << 11) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<TLObject> reply_to_;
-
-    if (1 << 3)
-        reply_to_ = TLObject::read(reader);
-    else
-        reply_to_ = std::nullopt;
+    reply_to_ = (1 << 3) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::vector<TLObject>> entities_;
-
-    if (1 << 7)
-        entities_ = Vector<TLObject>::read(reader);
-    else
-        entities_ = std::nullopt;
+    entities_ = (1 << 7) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> ttl_period_;
-
-    if (1 << 25)
-        ttl_period_ = Int::read(reader);
-    else
-        ttl_period_ = std::nullopt;
+    ttl_period_ = (1 << 25) ? std::optional{Int::read(reader)} : std::nullopt;
     return UpdateShortChatMessage(id_, from_id_, chat_id_, message_, pts_, pts_count_, date_, out_, mentioned_, media_unread_, silent_, fwd_from_, via_bot_id_, reply_to_, entities_, ttl_period_);
 }
 
@@ -7684,7 +6572,7 @@ UpdateShort::UpdateShort(TLObject update_, int date_) {}
 
 UpdateShort UpdateShort::read(Reader reader)
 {
-    TLObject update_ = TLObject::read(reader);
+    TLObject update_ = std::get<TLObject>(TLObject::read(reader));
     int date_ = Int::read(reader);
     return UpdateShort(update_, date_);
 }
@@ -7702,9 +6590,9 @@ UpdatesCombined::UpdatesCombined(std::vector<TLObject> updates_, std::vector<TLO
 
 UpdatesCombined UpdatesCombined::read(Reader reader)
 {
-    std::vector<TLObject> updates_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> updates_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     int date_ = Int::read(reader);
     int seq_start_ = Int::read(reader);
     int seq_ = Int::read(reader);
@@ -7728,9 +6616,9 @@ Updates::Updates(std::vector<TLObject> updates_, std::vector<TLObject> users_, s
 
 Updates Updates::read(Reader reader)
 {
-    std::vector<TLObject> updates_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> updates_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     int date_ = Int::read(reader);
     int seq_ = Int::read(reader);
     return Updates(updates_, users_, chats_, date_, seq_);
@@ -7754,33 +6642,17 @@ UpdateShortSentMessage UpdateShortSentMessage::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> out_;
-
-    if (1 << 1)
-        out_ = true;
-    else
-        out_ = std::nullopt;
+    out_ = (1 << 1) ? std::optional{true} : std::nullopt;
     int id_ = Int::read(reader);
     int pts_ = Int::read(reader);
     int pts_count_ = Int::read(reader);
     int date_ = Int::read(reader);
     std::optional<TLObject> media_;
-
-    if (1 << 9)
-        media_ = TLObject::read(reader);
-    else
-        media_ = std::nullopt;
+    media_ = (1 << 9) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::vector<TLObject>> entities_;
-
-    if (1 << 7)
-        entities_ = Vector<TLObject>::read(reader);
-    else
-        entities_ = std::nullopt;
+    entities_ = (1 << 7) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> ttl_period_;
-
-    if (1 << 25)
-        ttl_period_ = Int::read(reader);
-    else
-        ttl_period_ = std::nullopt;
+    ttl_period_ = (1 << 25) ? std::optional{Int::read(reader)} : std::nullopt;
     return UpdateShortSentMessage(id_, pts_, pts_count_, date_, out_, media_, entities_, ttl_period_);
 }
 
@@ -7815,44 +6687,20 @@ DcOption DcOption::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> ipv6_;
-
-    if (1 << 0)
-        ipv6_ = true;
-    else
-        ipv6_ = std::nullopt;
+    ipv6_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> media_only_;
-
-    if (1 << 1)
-        media_only_ = true;
-    else
-        media_only_ = std::nullopt;
+    media_only_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> tcpo_only_;
-
-    if (1 << 2)
-        tcpo_only_ = true;
-    else
-        tcpo_only_ = std::nullopt;
+    tcpo_only_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<bool> cdn_;
-
-    if (1 << 3)
-        cdn_ = true;
-    else
-        cdn_ = std::nullopt;
+    cdn_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::optional<bool> static__;
-
-    if (1 << 4)
-        static__ = true;
-    else
-        static__ = std::nullopt;
+    static__ = (1 << 4) ? std::optional{true} : std::nullopt;
     int id_ = Int::read(reader);
     std::string ip_address_ = String::read(reader);
     int port_ = Int::read(reader);
     std::optional<std::string> secret_;
-
-    if (1 << 10)
-        secret_ = Bytes::read(reader);
-    else
-        secret_ = std::nullopt;
+    secret_ = (1 << 10) ? std::optional{Bytes::read(reader)} : std::nullopt;
     return DcOption(id_, ip_address_, port_, ipv6_, media_only_, tcpo_only_, cdn_, static__, secret_);
 }
 
@@ -7882,52 +6730,24 @@ Config Config::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> phonecalls_enabled_;
-
-    if (1 << 1)
-        phonecalls_enabled_ = true;
-    else
-        phonecalls_enabled_ = std::nullopt;
+    phonecalls_enabled_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> default_p2p_contacts_;
-
-    if (1 << 3)
-        default_p2p_contacts_ = true;
-    else
-        default_p2p_contacts_ = std::nullopt;
+    default_p2p_contacts_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::optional<bool> preload_featured_stickers_;
-
-    if (1 << 4)
-        preload_featured_stickers_ = true;
-    else
-        preload_featured_stickers_ = std::nullopt;
+    preload_featured_stickers_ = (1 << 4) ? std::optional{true} : std::nullopt;
     std::optional<bool> ignore_phone_entities_;
-
-    if (1 << 5)
-        ignore_phone_entities_ = true;
-    else
-        ignore_phone_entities_ = std::nullopt;
+    ignore_phone_entities_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> revoke_pm_inbox_;
-
-    if (1 << 6)
-        revoke_pm_inbox_ = true;
-    else
-        revoke_pm_inbox_ = std::nullopt;
+    revoke_pm_inbox_ = (1 << 6) ? std::optional{true} : std::nullopt;
     std::optional<bool> blocked_mode_;
-
-    if (1 << 8)
-        blocked_mode_ = true;
-    else
-        blocked_mode_ = std::nullopt;
+    blocked_mode_ = (1 << 8) ? std::optional{true} : std::nullopt;
     std::optional<bool> pfs_enabled_;
-
-    if (1 << 13)
-        pfs_enabled_ = true;
-    else
-        pfs_enabled_ = std::nullopt;
+    pfs_enabled_ = (1 << 13) ? std::optional{true} : std::nullopt;
     int date_ = Int::read(reader);
     int expires_ = Int::read(reader);
     bool test_mode_ = Bool::read(reader);
     int this_dc_ = Int::read(reader);
-    std::vector<TLObject> dc_options_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> dc_options_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     std::string dc_txt_domain_name_ = String::read(reader);
     int chat_size_max_ = Int::read(reader);
     int megagroup_size_max_ = Int::read(reader);
@@ -7949,11 +6769,7 @@ Config Config::read(Reader reader)
     int stickers_faved_limit_ = Int::read(reader);
     int channels_read_media_period_ = Int::read(reader);
     std::optional<int> tmp_sessions_;
-
-    if (1 << 0)
-        tmp_sessions_ = Int::read(reader);
-    else
-        tmp_sessions_ = std::nullopt;
+    tmp_sessions_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     int pinned_dialogs_count_max_ = Int::read(reader);
     int pinned_infolder_count_max_ = Int::read(reader);
     int call_receive_timeout_ms_ = Int::read(reader);
@@ -7962,56 +6778,24 @@ Config Config::read(Reader reader)
     int call_packet_timeout_ms_ = Int::read(reader);
     std::string me_url_prefix_ = String::read(reader);
     std::optional<std::string> autoupdate_url_prefix_;
-
-    if (1 << 7)
-        autoupdate_url_prefix_ = String::read(reader);
-    else
-        autoupdate_url_prefix_ = std::nullopt;
+    autoupdate_url_prefix_ = (1 << 7) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> gif_search_username_;
-
-    if (1 << 9)
-        gif_search_username_ = String::read(reader);
-    else
-        gif_search_username_ = std::nullopt;
+    gif_search_username_ = (1 << 9) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> venue_search_username_;
-
-    if (1 << 10)
-        venue_search_username_ = String::read(reader);
-    else
-        venue_search_username_ = std::nullopt;
+    venue_search_username_ = (1 << 10) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> img_search_username_;
-
-    if (1 << 11)
-        img_search_username_ = String::read(reader);
-    else
-        img_search_username_ = std::nullopt;
+    img_search_username_ = (1 << 11) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> static_maps_provider_;
-
-    if (1 << 12)
-        static_maps_provider_ = String::read(reader);
-    else
-        static_maps_provider_ = std::nullopt;
+    static_maps_provider_ = (1 << 12) ? std::optional{String::read(reader)} : std::nullopt;
     int caption_length_max_ = Int::read(reader);
     int message_length_max_ = Int::read(reader);
     int webfile_dc_id_ = Int::read(reader);
     std::optional<std::string> suggested_lang_code_;
-
-    if (1 << 2)
-        suggested_lang_code_ = String::read(reader);
-    else
-        suggested_lang_code_ = std::nullopt;
+    suggested_lang_code_ = (1 << 2) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<int> lang_pack_version_;
-
-    if (1 << 2)
-        lang_pack_version_ = Int::read(reader);
-    else
-        lang_pack_version_ = std::nullopt;
+    lang_pack_version_ = (1 << 2) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> base_lang_pack_version_;
-
-    if (1 << 2)
-        base_lang_pack_version_ = Int::read(reader);
-    else
-        base_lang_pack_version_ = std::nullopt;
+    base_lang_pack_version_ = (1 << 2) ? std::optional{Int::read(reader)} : std::nullopt;
     return Config(date_, expires_, test_mode_, this_dc_, dc_options_, dc_txt_domain_name_, chat_size_max_, megagroup_size_max_, forwarded_count_max_, online_update_period_ms_, offline_blur_timeout_ms_, offline_idle_timeout_ms_, online_cloud_timeout_ms_, notify_cloud_delay_ms_, notify_default_delay_ms_, push_chat_period_ms_, push_chat_limit_, saved_gifs_limit_, edit_time_limit_, revoke_time_limit_, revoke_pm_time_limit_, rating_e_decay_, stickers_recent_limit_, stickers_faved_limit_, channels_read_media_period_, pinned_dialogs_count_max_, pinned_infolder_count_max_, call_receive_timeout_ms_, call_ring_timeout_ms_, call_connect_timeout_ms_, call_packet_timeout_ms_, me_url_prefix_, caption_length_max_, message_length_max_, webfile_dc_id_, phonecalls_enabled_, default_p2p_contacts_, preload_featured_stickers_, ignore_phone_entities_, revoke_pm_inbox_, blocked_mode_, pfs_enabled_, tmp_sessions_, autoupdate_url_prefix_, gif_search_username_, venue_search_username_, img_search_username_, static_maps_provider_, suggested_lang_code_, lang_pack_version_, base_lang_pack_version_);
 }
 
@@ -8167,11 +6951,7 @@ EncryptedChatRequested EncryptedChatRequested::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<int> folder_id_;
-
-    if (1 << 0)
-        folder_id_ = Int::read(reader);
-    else
-        folder_id_ = std::nullopt;
+    folder_id_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     int id_ = Int::read(reader);
     long access_hash_ = Long::read(reader);
     int date_ = Int::read(reader);
@@ -8233,11 +7013,7 @@ EncryptedChatDiscarded EncryptedChatDiscarded::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> history_deleted_;
-
-    if (1 << 0)
-        history_deleted_ = true;
-    else
-        history_deleted_ = std::nullopt;
+    history_deleted_ = (1 << 0) ? std::optional{true} : std::nullopt;
     int id_ = Int::read(reader);
     return EncryptedChatDiscarded(id_, history_deleted_);
 }
@@ -8384,7 +7160,7 @@ EncryptedMessage EncryptedMessage::read(Reader reader)
     int chat_id_ = Int::read(reader);
     int date_ = Int::read(reader);
     std::string bytes_ = Bytes::read(reader);
-    TLObject file_ = TLObject::read(reader);
+    TLObject file_ = std::get<TLObject>(TLObject::read(reader));
     return EncryptedMessage(random_id_, chat_id_, date_, bytes_, file_);
 }
 
@@ -8481,19 +7257,11 @@ Document Document::read(Reader reader)
     std::string mime_type_ = String::read(reader);
     int size_ = Int::read(reader);
     std::optional<std::vector<TLObject>> thumbs_;
-
-    if (1 << 0)
-        thumbs_ = Vector<TLObject>::read(reader);
-    else
-        thumbs_ = std::nullopt;
+    thumbs_ = (1 << 0) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::vector<TLObject>> video_thumbs_;
-
-    if (1 << 1)
-        video_thumbs_ = Vector<TLObject>::read(reader);
-    else
-        video_thumbs_ = std::nullopt;
+    video_thumbs_ = (1 << 1) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     int dc_id_ = Int::read(reader);
-    std::vector<TLObject> attributes_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> attributes_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return Document(id_, access_hash_, file_reference_, date_, mime_type_, size_, dc_id_, attributes_, thumbs_, video_thumbs_);
 }
 
@@ -8525,7 +7293,7 @@ NotifyPeer::NotifyPeer(TLObject peer_) {}
 
 NotifyPeer NotifyPeer::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     return NotifyPeer(peer_);
 }
 
@@ -8945,7 +7713,7 @@ InputPrivacyValueAllowUsers::InputPrivacyValueAllowUsers(std::vector<TLObject> u
 
 InputPrivacyValueAllowUsers InputPrivacyValueAllowUsers::read(Reader reader)
 {
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return InputPrivacyValueAllowUsers(users_);
 }
 
@@ -8983,7 +7751,7 @@ InputPrivacyValueDisallowUsers::InputPrivacyValueDisallowUsers(std::vector<TLObj
 
 InputPrivacyValueDisallowUsers InputPrivacyValueDisallowUsers::read(Reader reader)
 {
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return InputPrivacyValueDisallowUsers(users_);
 }
 
@@ -8999,7 +7767,7 @@ InputPrivacyValueAllowChatParticipants::InputPrivacyValueAllowChatParticipants(s
 
 InputPrivacyValueAllowChatParticipants InputPrivacyValueAllowChatParticipants::read(Reader reader)
 {
-    std::vector<int> chats_ = Vector<int>::read(reader);
+    std::vector<int> chats_ = std::get<std::vector<int>>(TLObject::read(reader));
     return InputPrivacyValueAllowChatParticipants(chats_);
 }
 
@@ -9015,7 +7783,7 @@ InputPrivacyValueDisallowChatParticipants::InputPrivacyValueDisallowChatParticip
 
 InputPrivacyValueDisallowChatParticipants InputPrivacyValueDisallowChatParticipants::read(Reader reader)
 {
-    std::vector<int> chats_ = Vector<int>::read(reader);
+    std::vector<int> chats_ = std::get<std::vector<int>>(TLObject::read(reader));
     return InputPrivacyValueDisallowChatParticipants(chats_);
 }
 
@@ -9053,7 +7821,7 @@ PrivacyValueAllowUsers::PrivacyValueAllowUsers(std::vector<int> users_) {}
 
 PrivacyValueAllowUsers PrivacyValueAllowUsers::read(Reader reader)
 {
-    std::vector<int> users_ = Vector<int>::read(reader);
+    std::vector<int> users_ = std::get<std::vector<int>>(TLObject::read(reader));
     return PrivacyValueAllowUsers(users_);
 }
 
@@ -9091,7 +7859,7 @@ PrivacyValueDisallowUsers::PrivacyValueDisallowUsers(std::vector<int> users_) {}
 
 PrivacyValueDisallowUsers PrivacyValueDisallowUsers::read(Reader reader)
 {
-    std::vector<int> users_ = Vector<int>::read(reader);
+    std::vector<int> users_ = std::get<std::vector<int>>(TLObject::read(reader));
     return PrivacyValueDisallowUsers(users_);
 }
 
@@ -9107,7 +7875,7 @@ PrivacyValueAllowChatParticipants::PrivacyValueAllowChatParticipants(std::vector
 
 PrivacyValueAllowChatParticipants PrivacyValueAllowChatParticipants::read(Reader reader)
 {
-    std::vector<int> chats_ = Vector<int>::read(reader);
+    std::vector<int> chats_ = std::get<std::vector<int>>(TLObject::read(reader));
     return PrivacyValueAllowChatParticipants(chats_);
 }
 
@@ -9123,7 +7891,7 @@ PrivacyValueDisallowChatParticipants::PrivacyValueDisallowChatParticipants(std::
 
 PrivacyValueDisallowChatParticipants PrivacyValueDisallowChatParticipants::read(Reader reader)
 {
-    std::vector<int> chats_ = Vector<int>::read(reader);
+    std::vector<int> chats_ = std::get<std::vector<int>>(TLObject::read(reader));
     return PrivacyValueDisallowChatParticipants(chats_);
 }
 
@@ -9186,19 +7954,11 @@ DocumentAttributeSticker DocumentAttributeSticker::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> mask_;
-
-    if (1 << 1)
-        mask_ = true;
-    else
-        mask_ = std::nullopt;
+    mask_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::string alt_ = String::read(reader);
-    TLObject stickerset_ = TLObject::read(reader);
+    TLObject stickerset_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<TLObject> mask_coords_;
-
-    if (1 << 0)
-        mask_coords_ = TLObject::read(reader);
-    else
-        mask_coords_ = std::nullopt;
+    mask_coords_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return DocumentAttributeSticker(alt_, stickerset_, mask_, mask_coords_);
 }
 
@@ -9223,17 +7983,9 @@ DocumentAttributeVideo DocumentAttributeVideo::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> round_message_;
-
-    if (1 << 0)
-        round_message_ = true;
-    else
-        round_message_ = std::nullopt;
+    round_message_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> supports_streaming_;
-
-    if (1 << 1)
-        supports_streaming_ = true;
-    else
-        supports_streaming_ = std::nullopt;
+    supports_streaming_ = (1 << 1) ? std::optional{true} : std::nullopt;
     int duration_ = Int::read(reader);
     int w_ = Int::read(reader);
     int h_ = Int::read(reader);
@@ -9259,30 +8011,14 @@ DocumentAttributeAudio DocumentAttributeAudio::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> voice_;
-
-    if (1 << 10)
-        voice_ = true;
-    else
-        voice_ = std::nullopt;
+    voice_ = (1 << 10) ? std::optional{true} : std::nullopt;
     int duration_ = Int::read(reader);
     std::optional<std::string> title_;
-
-    if (1 << 0)
-        title_ = String::read(reader);
-    else
-        title_ = std::nullopt;
+    title_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> performer_;
-
-    if (1 << 1)
-        performer_ = String::read(reader);
-    else
-        performer_ = std::nullopt;
+    performer_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> waveform_;
-
-    if (1 << 2)
-        waveform_ = Bytes::read(reader);
-    else
-        waveform_ = std::nullopt;
+    waveform_ = (1 << 2) ? std::optional{Bytes::read(reader)} : std::nullopt;
     return DocumentAttributeAudio(duration_, voice_, title_, performer_, waveform_);
 }
 
@@ -9340,7 +8076,7 @@ StickerPack::StickerPack(std::string emoticon_, std::vector<long> documents_) {}
 StickerPack StickerPack::read(Reader reader)
 {
     std::string emoticon_ = String::read(reader);
-    std::vector<long> documents_ = Vector<long>::read(reader);
+    std::vector<long> documents_ = std::get<std::vector<long>>(TLObject::read(reader));
     return StickerPack(emoticon_, documents_);
 }
 
@@ -9397,89 +8133,33 @@ WebPage WebPage::read(Reader reader)
     std::string display_url_ = String::read(reader);
     int hash_ = Int::read(reader);
     std::optional<std::string> type_;
-
-    if (1 << 0)
-        type_ = String::read(reader);
-    else
-        type_ = std::nullopt;
+    type_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> site_name_;
-
-    if (1 << 1)
-        site_name_ = String::read(reader);
-    else
-        site_name_ = std::nullopt;
+    site_name_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> title_;
-
-    if (1 << 2)
-        title_ = String::read(reader);
-    else
-        title_ = std::nullopt;
+    title_ = (1 << 2) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> description_;
-
-    if (1 << 3)
-        description_ = String::read(reader);
-    else
-        description_ = std::nullopt;
+    description_ = (1 << 3) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<TLObject> photo_;
-
-    if (1 << 4)
-        photo_ = TLObject::read(reader);
-    else
-        photo_ = std::nullopt;
+    photo_ = (1 << 4) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::string> embed_url_;
-
-    if (1 << 5)
-        embed_url_ = String::read(reader);
-    else
-        embed_url_ = std::nullopt;
+    embed_url_ = (1 << 5) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> embed_type_;
-
-    if (1 << 5)
-        embed_type_ = String::read(reader);
-    else
-        embed_type_ = std::nullopt;
+    embed_type_ = (1 << 5) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<int> embed_width_;
-
-    if (1 << 6)
-        embed_width_ = Int::read(reader);
-    else
-        embed_width_ = std::nullopt;
+    embed_width_ = (1 << 6) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> embed_height_;
-
-    if (1 << 6)
-        embed_height_ = Int::read(reader);
-    else
-        embed_height_ = std::nullopt;
+    embed_height_ = (1 << 6) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> duration_;
-
-    if (1 << 7)
-        duration_ = Int::read(reader);
-    else
-        duration_ = std::nullopt;
+    duration_ = (1 << 7) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<std::string> author_;
-
-    if (1 << 8)
-        author_ = String::read(reader);
-    else
-        author_ = std::nullopt;
+    author_ = (1 << 8) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<TLObject> document_;
-
-    if (1 << 9)
-        document_ = TLObject::read(reader);
-    else
-        document_ = std::nullopt;
+    document_ = (1 << 9) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> cached_page_;
-
-    if (1 << 10)
-        cached_page_ = TLObject::read(reader);
-    else
-        cached_page_ = std::nullopt;
+    cached_page_ = (1 << 10) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::vector<TLObject>> attributes_;
-
-    if (1 << 12)
-        attributes_ = Vector<TLObject>::read(reader);
-    else
-        attributes_ = std::nullopt;
+    attributes_ = (1 << 12) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     return WebPage(id_, url_, display_url_, hash_, type_, site_name_, title_, description_, photo_, embed_url_, embed_type_, embed_width_, embed_height_, duration_, author_, document_, cached_page_, attributes_);
 }
 
@@ -9557,11 +8237,7 @@ WebPageNotModified WebPageNotModified::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<int> cached_page_views_;
-
-    if (1 << 0)
-        cached_page_views_ = Int::read(reader);
-    else
-        cached_page_views_ = std::nullopt;
+    cached_page_views_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     return WebPageNotModified(cached_page_views_);
 }
 
@@ -9583,23 +8259,11 @@ Authorization Authorization::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> current_;
-
-    if (1 << 0)
-        current_ = true;
-    else
-        current_ = std::nullopt;
+    current_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> official_app_;
-
-    if (1 << 1)
-        official_app_ = true;
-    else
-        official_app_ = std::nullopt;
+    official_app_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> password_pending_;
-
-    if (1 << 2)
-        password_pending_ = true;
-    else
-        password_pending_ = std::nullopt;
+    password_pending_ = (1 << 2) ? std::optional{true} : std::nullopt;
     long hash_ = Long::read(reader);
     std::string device_model_ = String::read(reader);
     std::string platform_ = String::read(reader);
@@ -9662,44 +8326,20 @@ ChatInviteExported ChatInviteExported::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> revoked_;
-
-    if (1 << 0)
-        revoked_ = true;
-    else
-        revoked_ = std::nullopt;
+    revoked_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> permanent_;
-
-    if (1 << 5)
-        permanent_ = true;
-    else
-        permanent_ = std::nullopt;
+    permanent_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::string link_ = String::read(reader);
     int admin_id_ = Int::read(reader);
     int date_ = Int::read(reader);
     std::optional<int> start_date_;
-
-    if (1 << 4)
-        start_date_ = Int::read(reader);
-    else
-        start_date_ = std::nullopt;
+    start_date_ = (1 << 4) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> expire_date_;
-
-    if (1 << 1)
-        expire_date_ = Int::read(reader);
-    else
-        expire_date_ = std::nullopt;
+    expire_date_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> usage_limit_;
-
-    if (1 << 2)
-        usage_limit_ = Int::read(reader);
-    else
-        usage_limit_ = std::nullopt;
+    usage_limit_ = (1 << 2) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> usage_;
-
-    if (1 << 3)
-        usage_ = Int::read(reader);
-    else
-        usage_ = std::nullopt;
+    usage_ = (1 << 3) ? std::optional{Int::read(reader)} : std::nullopt;
     return ChatInviteExported(link_, admin_id_, date_, revoked_, permanent_, start_date_, expire_date_, usage_limit_, usage_);
 }
 
@@ -9736,7 +8376,7 @@ ChatInviteAlready::ChatInviteAlready(TLObject chat_) {}
 
 ChatInviteAlready ChatInviteAlready::read(Reader reader)
 {
-    TLObject chat_ = TLObject::read(reader);
+    TLObject chat_ = std::get<TLObject>(TLObject::read(reader));
     return ChatInviteAlready(chat_);
 }
 
@@ -9754,38 +8394,18 @@ ChatInvite ChatInvite::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> channel_;
-
-    if (1 << 0)
-        channel_ = true;
-    else
-        channel_ = std::nullopt;
+    channel_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> broadcast_;
-
-    if (1 << 1)
-        broadcast_ = true;
-    else
-        broadcast_ = std::nullopt;
+    broadcast_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> public__;
-
-    if (1 << 2)
-        public__ = true;
-    else
-        public__ = std::nullopt;
+    public__ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<bool> megagroup_;
-
-    if (1 << 3)
-        megagroup_ = true;
-    else
-        megagroup_ = std::nullopt;
+    megagroup_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::string title_ = String::read(reader);
-    TLObject photo_ = TLObject::read(reader);
+    TLObject photo_ = std::get<TLObject>(TLObject::read(reader));
     int participants_count_ = Int::read(reader);
     std::optional<std::vector<TLObject>> participants_;
-
-    if (1 << 4)
-        participants_ = Vector<TLObject>::read(reader);
-    else
-        participants_ = std::nullopt;
+    participants_ = (1 << 4) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     return ChatInvite(title_, photo_, participants_count_, channel_, broadcast_, public__, megagroup_, participants_);
 }
 
@@ -9812,7 +8432,7 @@ ChatInvitePeek::ChatInvitePeek(TLObject chat_, int expires_) {}
 
 ChatInvitePeek ChatInvitePeek::read(Reader reader)
 {
-    TLObject chat_ = TLObject::read(reader);
+    TLObject chat_ = std::get<TLObject>(TLObject::read(reader));
     int expires_ = Int::read(reader);
     return ChatInvitePeek(chat_, expires_);
 }
@@ -9904,57 +8524,25 @@ StickerSet StickerSet::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> archived_;
-
-    if (1 << 1)
-        archived_ = true;
-    else
-        archived_ = std::nullopt;
+    archived_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> official_;
-
-    if (1 << 2)
-        official_ = true;
-    else
-        official_ = std::nullopt;
+    official_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<bool> masks_;
-
-    if (1 << 3)
-        masks_ = true;
-    else
-        masks_ = std::nullopt;
+    masks_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::optional<bool> animated_;
-
-    if (1 << 5)
-        animated_ = true;
-    else
-        animated_ = std::nullopt;
+    animated_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<int> installed_date_;
-
-    if (1 << 0)
-        installed_date_ = Int::read(reader);
-    else
-        installed_date_ = std::nullopt;
+    installed_date_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     long id_ = Long::read(reader);
     long access_hash_ = Long::read(reader);
     std::string title_ = String::read(reader);
     std::string short_name_ = String::read(reader);
     std::optional<std::vector<TLObject>> thumbs_;
-
-    if (1 << 4)
-        thumbs_ = Vector<TLObject>::read(reader);
-    else
-        thumbs_ = std::nullopt;
+    thumbs_ = (1 << 4) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> thumb_dc_id_;
-
-    if (1 << 4)
-        thumb_dc_id_ = Int::read(reader);
-    else
-        thumb_dc_id_ = std::nullopt;
+    thumb_dc_id_ = (1 << 4) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> thumb_version_;
-
-    if (1 << 4)
-        thumb_version_ = Int::read(reader);
-    else
-        thumb_version_ = std::nullopt;
+    thumb_version_ = (1 << 4) ? std::optional{Int::read(reader)} : std::nullopt;
     int count_ = Int::read(reader);
     int hash_ = Int::read(reader);
     return StickerSet(id_, access_hash_, title_, short_name_, count_, hash_, archived_, official_, masks_, animated_, installed_date_, thumbs_, thumb_dc_id_, thumb_version_);
@@ -10018,7 +8606,7 @@ BotInfo BotInfo::read(Reader reader)
 {
     int user_id_ = Int::read(reader);
     std::string description_ = String::read(reader);
-    std::vector<TLObject> commands_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> commands_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return BotInfo(user_id_, description_, commands_);
 }
 
@@ -10072,11 +8660,7 @@ KeyboardButtonCallback KeyboardButtonCallback::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> requires_password_;
-
-    if (1 << 0)
-        requires_password_ = true;
-    else
-        requires_password_ = std::nullopt;
+    requires_password_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::string text_ = String::read(reader);
     std::string data_ = Bytes::read(reader);
     return KeyboardButtonCallback(text_, data_, requires_password_);
@@ -10131,11 +8715,7 @@ KeyboardButtonSwitchInline KeyboardButtonSwitchInline::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> same_peer_;
-
-    if (1 << 0)
-        same_peer_ = true;
-    else
-        same_peer_ = std::nullopt;
+    same_peer_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::string text_ = String::read(reader);
     std::string query_ = String::read(reader);
     return KeyboardButtonSwitchInline(text_, query_, same_peer_);
@@ -10191,11 +8771,7 @@ KeyboardButtonUrlAuth KeyboardButtonUrlAuth::read(Reader reader)
     int flags = Int::read(reader);
     std::string text_ = String::read(reader);
     std::optional<std::string> fwd_text_;
-
-    if (1 << 0)
-        fwd_text_ = String::read(reader);
-    else
-        fwd_text_ = std::nullopt;
+    fwd_text_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
     std::string url_ = String::read(reader);
     int button_id_ = Int::read(reader);
     return KeyboardButtonUrlAuth(text_, url_, button_id_, fwd_text_);
@@ -10222,20 +8798,12 @@ InputKeyboardButtonUrlAuth InputKeyboardButtonUrlAuth::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> request_write_access_;
-
-    if (1 << 0)
-        request_write_access_ = true;
-    else
-        request_write_access_ = std::nullopt;
+    request_write_access_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::string text_ = String::read(reader);
     std::optional<std::string> fwd_text_;
-
-    if (1 << 1)
-        fwd_text_ = String::read(reader);
-    else
-        fwd_text_ = std::nullopt;
+    fwd_text_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     std::string url_ = String::read(reader);
-    TLObject bot_ = TLObject::read(reader);
+    TLObject bot_ = std::get<TLObject>(TLObject::read(reader));
     return InputKeyboardButtonUrlAuth(text_, url_, bot_, request_write_access_, fwd_text_);
 }
 
@@ -10261,11 +8829,7 @@ KeyboardButtonRequestPoll KeyboardButtonRequestPoll::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> quiz_;
-
-    if (1 << 0)
-        quiz_ = true;
-    else
-        quiz_ = std::nullopt;
+    quiz_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::string text_ = String::read(reader);
     return KeyboardButtonRequestPoll(text_, quiz_);
 }
@@ -10284,7 +8848,7 @@ KeyboardButtonRow::KeyboardButtonRow(std::vector<TLObject> buttons_) {}
 
 KeyboardButtonRow KeyboardButtonRow::read(Reader reader)
 {
-    std::vector<TLObject> buttons_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> buttons_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return KeyboardButtonRow(buttons_);
 }
 
@@ -10302,11 +8866,7 @@ ReplyKeyboardHide ReplyKeyboardHide::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> selective_;
-
-    if (1 << 2)
-        selective_ = true;
-    else
-        selective_ = std::nullopt;
+    selective_ = (1 << 2) ? std::optional{true} : std::nullopt;
     return ReplyKeyboardHide(selective_);
 }
 
@@ -10325,23 +8885,11 @@ ReplyKeyboardForceReply ReplyKeyboardForceReply::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> single_use_;
-
-    if (1 << 1)
-        single_use_ = true;
-    else
-        single_use_ = std::nullopt;
+    single_use_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> selective_;
-
-    if (1 << 2)
-        selective_ = true;
-    else
-        selective_ = std::nullopt;
+    selective_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<std::string> placeholder_;
-
-    if (1 << 3)
-        placeholder_ = String::read(reader);
-    else
-        placeholder_ = std::nullopt;
+    placeholder_ = (1 << 3) ? std::optional{String::read(reader)} : std::nullopt;
     return ReplyKeyboardForceReply(single_use_, selective_, placeholder_);
 }
 
@@ -10365,30 +8913,14 @@ ReplyKeyboardMarkup ReplyKeyboardMarkup::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> resize_;
-
-    if (1 << 0)
-        resize_ = true;
-    else
-        resize_ = std::nullopt;
+    resize_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> single_use_;
-
-    if (1 << 1)
-        single_use_ = true;
-    else
-        single_use_ = std::nullopt;
+    single_use_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> selective_;
-
-    if (1 << 2)
-        selective_ = true;
-    else
-        selective_ = std::nullopt;
-    std::vector<TLObject> rows_ = Vector<TLObject>::read(reader);
+    selective_ = (1 << 2) ? std::optional{true} : std::nullopt;
+    std::vector<TLObject> rows_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     std::optional<std::string> placeholder_;
-
-    if (1 << 3)
-        placeholder_ = String::read(reader);
-    else
-        placeholder_ = std::nullopt;
+    placeholder_ = (1 << 3) ? std::optional{String::read(reader)} : std::nullopt;
     return ReplyKeyboardMarkup(rows_, resize_, single_use_, selective_, placeholder_);
 }
 
@@ -10412,7 +8944,7 @@ ReplyInlineMarkup::ReplyInlineMarkup(std::vector<TLObject> rows_) {}
 
 ReplyInlineMarkup ReplyInlineMarkup::read(Reader reader)
 {
-    std::vector<TLObject> rows_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> rows_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return ReplyInlineMarkup(rows_);
 }
 
@@ -10652,7 +9184,7 @@ InputMessageEntityMentionName InputMessageEntityMentionName::read(Reader reader)
 {
     int offset_ = Int::read(reader);
     int length_ = Int::read(reader);
-    TLObject user_id_ = TLObject::read(reader);
+    TLObject user_id_ = std::get<TLObject>(TLObject::read(reader));
     return InputMessageEntityMentionName(offset_, length_, user_id_);
 }
 
@@ -10807,7 +9339,7 @@ InputChannelFromMessage::InputChannelFromMessage(TLObject peer_, int msg_id_, in
 
 InputChannelFromMessage InputChannelFromMessage::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int msg_id_ = Int::read(reader);
     int channel_id_ = Int::read(reader);
     return InputChannelFromMessage(peer_, msg_id_, channel_id_);
@@ -10858,12 +9390,8 @@ ChannelMessagesFilter ChannelMessagesFilter::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> exclude_new_messages_;
-
-    if (1 << 1)
-        exclude_new_messages_ = true;
-    else
-        exclude_new_messages_ = std::nullopt;
-    std::vector<TLObject> ranges_ = Vector<TLObject>::read(reader);
+    exclude_new_messages_ = (1 << 1) ? std::optional{true} : std::nullopt;
+    std::vector<TLObject> ranges_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return ChannelMessagesFilter(ranges_, exclude_new_messages_);
 }
 
@@ -10921,13 +9449,9 @@ ChannelParticipantCreator ChannelParticipantCreator::read(Reader reader)
 {
     int flags = Int::read(reader);
     int user_id_ = Int::read(reader);
-    TLObject admin_rights_ = TLObject::read(reader);
+    TLObject admin_rights_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<std::string> rank_;
-
-    if (1 << 0)
-        rank_ = String::read(reader);
-    else
-        rank_ = std::nullopt;
+    rank_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
     return ChannelParticipantCreator(user_id_, admin_rights_, rank_);
 }
 
@@ -10951,33 +9475,17 @@ ChannelParticipantAdmin ChannelParticipantAdmin::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> can_edit_;
-
-    if (1 << 0)
-        can_edit_ = true;
-    else
-        can_edit_ = std::nullopt;
+    can_edit_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> self_;
-
-    if (1 << 1)
-        self_ = true;
-    else
-        self_ = std::nullopt;
+    self_ = (1 << 1) ? std::optional{true} : std::nullopt;
     int user_id_ = Int::read(reader);
     std::optional<int> inviter_id_;
-
-    if (1 << 1)
-        inviter_id_ = Int::read(reader);
-    else
-        inviter_id_ = std::nullopt;
+    inviter_id_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     int promoted_by_ = Int::read(reader);
     int date_ = Int::read(reader);
-    TLObject admin_rights_ = TLObject::read(reader);
+    TLObject admin_rights_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<std::string> rank_;
-
-    if (1 << 2)
-        rank_ = String::read(reader);
-    else
-        rank_ = std::nullopt;
+    rank_ = (1 << 2) ? std::optional{String::read(reader)} : std::nullopt;
     return ChannelParticipantAdmin(user_id_, promoted_by_, date_, admin_rights_, can_edit_, self_, inviter_id_, rank_);
 }
 
@@ -11009,15 +9517,11 @@ ChannelParticipantBanned ChannelParticipantBanned::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> left_;
-
-    if (1 << 0)
-        left_ = true;
-    else
-        left_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    left_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int kicked_by_ = Int::read(reader);
     int date_ = Int::read(reader);
-    TLObject banned_rights_ = TLObject::read(reader);
+    TLObject banned_rights_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelParticipantBanned(peer_, kicked_by_, date_, banned_rights_, left_);
 }
 
@@ -11038,7 +9542,7 @@ ChannelParticipantLeft::ChannelParticipantLeft(TLObject peer_) {}
 
 ChannelParticipantLeft ChannelParticipantLeft::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelParticipantLeft(peer_);
 }
 
@@ -11153,17 +9657,9 @@ ChannelParticipantsMentions ChannelParticipantsMentions::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<std::string> q_;
-
-    if (1 << 0)
-        q_ = String::read(reader);
-    else
-        q_ = std::nullopt;
+    q_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<int> top_msg_id_;
-
-    if (1 << 1)
-        top_msg_id_ = Int::read(reader);
-    else
-        top_msg_id_ = std::nullopt;
+    top_msg_id_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     return ChannelParticipantsMentions(q_, top_msg_id_);
 }
 
@@ -11190,17 +9686,9 @@ InputBotInlineMessageMediaAuto InputBotInlineMessageMediaAuto::read(Reader reade
     int flags = Int::read(reader);
     std::string message_ = String::read(reader);
     std::optional<std::vector<TLObject>> entities_;
-
-    if (1 << 1)
-        entities_ = Vector<TLObject>::read(reader);
-    else
-        entities_ = std::nullopt;
+    entities_ = (1 << 1) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> reply_markup_;
-
-    if (1 << 2)
-        reply_markup_ = TLObject::read(reader);
-    else
-        reply_markup_ = std::nullopt;
+    reply_markup_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return InputBotInlineMessageMediaAuto(message_, entities_, reply_markup_);
 }
 
@@ -11227,24 +9715,12 @@ InputBotInlineMessageText InputBotInlineMessageText::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> no_webpage_;
-
-    if (1 << 0)
-        no_webpage_ = true;
-    else
-        no_webpage_ = std::nullopt;
+    no_webpage_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::string message_ = String::read(reader);
     std::optional<std::vector<TLObject>> entities_;
-
-    if (1 << 1)
-        entities_ = Vector<TLObject>::read(reader);
-    else
-        entities_ = std::nullopt;
+    entities_ = (1 << 1) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> reply_markup_;
-
-    if (1 << 2)
-        reply_markup_ = TLObject::read(reader);
-    else
-        reply_markup_ = std::nullopt;
+    reply_markup_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return InputBotInlineMessageText(message_, no_webpage_, entities_, reply_markup_);
 }
 
@@ -11271,31 +9747,15 @@ InputBotInlineMessageMediaGeo::InputBotInlineMessageMediaGeo(TLObject geo_point_
 InputBotInlineMessageMediaGeo InputBotInlineMessageMediaGeo::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject geo_point_ = TLObject::read(reader);
+    TLObject geo_point_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<int> heading_;
-
-    if (1 << 0)
-        heading_ = Int::read(reader);
-    else
-        heading_ = std::nullopt;
+    heading_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> period_;
-
-    if (1 << 1)
-        period_ = Int::read(reader);
-    else
-        period_ = std::nullopt;
+    period_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> proximity_notification_radius_;
-
-    if (1 << 3)
-        proximity_notification_radius_ = Int::read(reader);
-    else
-        proximity_notification_radius_ = std::nullopt;
+    proximity_notification_radius_ = (1 << 3) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<TLObject> reply_markup_;
-
-    if (1 << 2)
-        reply_markup_ = TLObject::read(reader);
-    else
-        reply_markup_ = std::nullopt;
+    reply_markup_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return InputBotInlineMessageMediaGeo(geo_point_, heading_, period_, proximity_notification_radius_, reply_markup_);
 }
 
@@ -11329,18 +9789,14 @@ InputBotInlineMessageMediaVenue::InputBotInlineMessageMediaVenue(TLObject geo_po
 InputBotInlineMessageMediaVenue InputBotInlineMessageMediaVenue::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject geo_point_ = TLObject::read(reader);
+    TLObject geo_point_ = std::get<TLObject>(TLObject::read(reader));
     std::string title_ = String::read(reader);
     std::string address_ = String::read(reader);
     std::string provider_ = String::read(reader);
     std::string venue_id_ = String::read(reader);
     std::string venue_type_ = String::read(reader);
     std::optional<TLObject> reply_markup_;
-
-    if (1 << 2)
-        reply_markup_ = TLObject::read(reader);
-    else
-        reply_markup_ = std::nullopt;
+    reply_markup_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return InputBotInlineMessageMediaVenue(geo_point_, title_, address_, provider_, venue_id_, venue_type_, reply_markup_);
 }
 
@@ -11372,11 +9828,7 @@ InputBotInlineMessageMediaContact InputBotInlineMessageMediaContact::read(Reader
     std::string last_name_ = String::read(reader);
     std::string vcard_ = String::read(reader);
     std::optional<TLObject> reply_markup_;
-
-    if (1 << 2)
-        reply_markup_ = TLObject::read(reader);
-    else
-        reply_markup_ = std::nullopt;
+    reply_markup_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return InputBotInlineMessageMediaContact(phone_number_, first_name_, last_name_, vcard_, reply_markup_);
 }
 
@@ -11402,11 +9854,7 @@ InputBotInlineMessageGame InputBotInlineMessageGame::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<TLObject> reply_markup_;
-
-    if (1 << 2)
-        reply_markup_ = TLObject::read(reader);
-    else
-        reply_markup_ = std::nullopt;
+    reply_markup_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return InputBotInlineMessageGame(reply_markup_);
 }
 
@@ -11430,21 +9878,13 @@ InputBotInlineMessageMediaInvoice InputBotInlineMessageMediaInvoice::read(Reader
     std::string title_ = String::read(reader);
     std::string description_ = String::read(reader);
     std::optional<TLObject> photo_;
-
-    if (1 << 0)
-        photo_ = TLObject::read(reader);
-    else
-        photo_ = std::nullopt;
-    TLObject invoice_ = TLObject::read(reader);
+    photo_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
+    TLObject invoice_ = std::get<TLObject>(TLObject::read(reader));
     std::string payload_ = Bytes::read(reader);
     std::string provider_ = String::read(reader);
-    TLObject provider_data_ = TLObject::read(reader);
+    TLObject provider_data_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<TLObject> reply_markup_;
-
-    if (1 << 2)
-        reply_markup_ = TLObject::read(reader);
-    else
-        reply_markup_ = std::nullopt;
+    reply_markup_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return InputBotInlineMessageMediaInvoice(title_, description_, invoice_, payload_, provider_, provider_data_, photo_, reply_markup_);
 }
 
@@ -11478,36 +9918,16 @@ InputBotInlineResult InputBotInlineResult::read(Reader reader)
     std::string id_ = String::read(reader);
     std::string type_ = String::read(reader);
     std::optional<std::string> title_;
-
-    if (1 << 1)
-        title_ = String::read(reader);
-    else
-        title_ = std::nullopt;
+    title_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> description_;
-
-    if (1 << 2)
-        description_ = String::read(reader);
-    else
-        description_ = std::nullopt;
+    description_ = (1 << 2) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> url_;
-
-    if (1 << 3)
-        url_ = String::read(reader);
-    else
-        url_ = std::nullopt;
+    url_ = (1 << 3) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<TLObject> thumb_;
-
-    if (1 << 4)
-        thumb_ = TLObject::read(reader);
-    else
-        thumb_ = std::nullopt;
+    thumb_ = (1 << 4) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> content_;
-
-    if (1 << 5)
-        content_ = TLObject::read(reader);
-    else
-        content_ = std::nullopt;
-    TLObject send_message_ = TLObject::read(reader);
+    content_ = (1 << 5) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
+    TLObject send_message_ = std::get<TLObject>(TLObject::read(reader));
     return InputBotInlineResult(id_, type_, send_message_, title_, description_, url_, thumb_, content_);
 }
 
@@ -11548,8 +9968,8 @@ InputBotInlineResultPhoto InputBotInlineResultPhoto::read(Reader reader)
 {
     std::string id_ = String::read(reader);
     std::string type_ = String::read(reader);
-    TLObject photo_ = TLObject::read(reader);
-    TLObject send_message_ = TLObject::read(reader);
+    TLObject photo_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject send_message_ = std::get<TLObject>(TLObject::read(reader));
     return InputBotInlineResultPhoto(id_, type_, photo_, send_message_);
 }
 
@@ -11572,19 +9992,11 @@ InputBotInlineResultDocument InputBotInlineResultDocument::read(Reader reader)
     std::string id_ = String::read(reader);
     std::string type_ = String::read(reader);
     std::optional<std::string> title_;
-
-    if (1 << 1)
-        title_ = String::read(reader);
-    else
-        title_ = std::nullopt;
+    title_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> description_;
-
-    if (1 << 2)
-        description_ = String::read(reader);
-    else
-        description_ = std::nullopt;
-    TLObject document_ = TLObject::read(reader);
-    TLObject send_message_ = TLObject::read(reader);
+    description_ = (1 << 2) ? std::optional{String::read(reader)} : std::nullopt;
+    TLObject document_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject send_message_ = std::get<TLObject>(TLObject::read(reader));
     return InputBotInlineResultDocument(id_, type_, document_, send_message_, title_, description_);
 }
 
@@ -11614,7 +10026,7 @@ InputBotInlineResultGame InputBotInlineResultGame::read(Reader reader)
 {
     std::string id_ = String::read(reader);
     std::string short_name_ = String::read(reader);
-    TLObject send_message_ = TLObject::read(reader);
+    TLObject send_message_ = std::get<TLObject>(TLObject::read(reader));
     return InputBotInlineResultGame(id_, short_name_, send_message_);
 }
 
@@ -11635,17 +10047,9 @@ BotInlineMessageMediaAuto BotInlineMessageMediaAuto::read(Reader reader)
     int flags = Int::read(reader);
     std::string message_ = String::read(reader);
     std::optional<std::vector<TLObject>> entities_;
-
-    if (1 << 1)
-        entities_ = Vector<TLObject>::read(reader);
-    else
-        entities_ = std::nullopt;
+    entities_ = (1 << 1) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> reply_markup_;
-
-    if (1 << 2)
-        reply_markup_ = TLObject::read(reader);
-    else
-        reply_markup_ = std::nullopt;
+    reply_markup_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return BotInlineMessageMediaAuto(message_, entities_, reply_markup_);
 }
 
@@ -11672,24 +10076,12 @@ BotInlineMessageText BotInlineMessageText::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> no_webpage_;
-
-    if (1 << 0)
-        no_webpage_ = true;
-    else
-        no_webpage_ = std::nullopt;
+    no_webpage_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::string message_ = String::read(reader);
     std::optional<std::vector<TLObject>> entities_;
-
-    if (1 << 1)
-        entities_ = Vector<TLObject>::read(reader);
-    else
-        entities_ = std::nullopt;
+    entities_ = (1 << 1) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> reply_markup_;
-
-    if (1 << 2)
-        reply_markup_ = TLObject::read(reader);
-    else
-        reply_markup_ = std::nullopt;
+    reply_markup_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return BotInlineMessageText(message_, no_webpage_, entities_, reply_markup_);
 }
 
@@ -11716,31 +10108,15 @@ BotInlineMessageMediaGeo::BotInlineMessageMediaGeo(TLObject geo_, std::optional<
 BotInlineMessageMediaGeo BotInlineMessageMediaGeo::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject geo_ = TLObject::read(reader);
+    TLObject geo_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<int> heading_;
-
-    if (1 << 0)
-        heading_ = Int::read(reader);
-    else
-        heading_ = std::nullopt;
+    heading_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> period_;
-
-    if (1 << 1)
-        period_ = Int::read(reader);
-    else
-        period_ = std::nullopt;
+    period_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> proximity_notification_radius_;
-
-    if (1 << 3)
-        proximity_notification_radius_ = Int::read(reader);
-    else
-        proximity_notification_radius_ = std::nullopt;
+    proximity_notification_radius_ = (1 << 3) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<TLObject> reply_markup_;
-
-    if (1 << 2)
-        reply_markup_ = TLObject::read(reader);
-    else
-        reply_markup_ = std::nullopt;
+    reply_markup_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return BotInlineMessageMediaGeo(geo_, heading_, period_, proximity_notification_radius_, reply_markup_);
 }
 
@@ -11774,18 +10150,14 @@ BotInlineMessageMediaVenue::BotInlineMessageMediaVenue(TLObject geo_, std::strin
 BotInlineMessageMediaVenue BotInlineMessageMediaVenue::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject geo_ = TLObject::read(reader);
+    TLObject geo_ = std::get<TLObject>(TLObject::read(reader));
     std::string title_ = String::read(reader);
     std::string address_ = String::read(reader);
     std::string provider_ = String::read(reader);
     std::string venue_id_ = String::read(reader);
     std::string venue_type_ = String::read(reader);
     std::optional<TLObject> reply_markup_;
-
-    if (1 << 2)
-        reply_markup_ = TLObject::read(reader);
-    else
-        reply_markup_ = std::nullopt;
+    reply_markup_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return BotInlineMessageMediaVenue(geo_, title_, address_, provider_, venue_id_, venue_type_, reply_markup_);
 }
 
@@ -11817,11 +10189,7 @@ BotInlineMessageMediaContact BotInlineMessageMediaContact::read(Reader reader)
     std::string last_name_ = String::read(reader);
     std::string vcard_ = String::read(reader);
     std::optional<TLObject> reply_markup_;
-
-    if (1 << 2)
-        reply_markup_ = TLObject::read(reader);
-    else
-        reply_markup_ = std::nullopt;
+    reply_markup_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return BotInlineMessageMediaContact(phone_number_, first_name_, last_name_, vcard_, reply_markup_);
 }
 
@@ -11847,33 +10215,17 @@ BotInlineMessageMediaInvoice BotInlineMessageMediaInvoice::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> shipping_address_requested_;
-
-    if (1 << 1)
-        shipping_address_requested_ = true;
-    else
-        shipping_address_requested_ = std::nullopt;
+    shipping_address_requested_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> test_;
-
-    if (1 << 3)
-        test_ = true;
-    else
-        test_ = std::nullopt;
+    test_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::string title_ = String::read(reader);
     std::string description_ = String::read(reader);
     std::optional<TLObject> photo_;
-
-    if (1 << 0)
-        photo_ = TLObject::read(reader);
-    else
-        photo_ = std::nullopt;
+    photo_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::string currency_ = String::read(reader);
     long total_amount_ = Long::read(reader);
     std::optional<TLObject> reply_markup_;
-
-    if (1 << 2)
-        reply_markup_ = TLObject::read(reader);
-    else
-        reply_markup_ = std::nullopt;
+    reply_markup_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return BotInlineMessageMediaInvoice(title_, description_, currency_, total_amount_, shipping_address_requested_, test_, photo_, reply_markup_);
 }
 
@@ -11907,36 +10259,16 @@ BotInlineResult BotInlineResult::read(Reader reader)
     std::string id_ = String::read(reader);
     std::string type_ = String::read(reader);
     std::optional<std::string> title_;
-
-    if (1 << 1)
-        title_ = String::read(reader);
-    else
-        title_ = std::nullopt;
+    title_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> description_;
-
-    if (1 << 2)
-        description_ = String::read(reader);
-    else
-        description_ = std::nullopt;
+    description_ = (1 << 2) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> url_;
-
-    if (1 << 3)
-        url_ = String::read(reader);
-    else
-        url_ = std::nullopt;
+    url_ = (1 << 3) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<TLObject> thumb_;
-
-    if (1 << 4)
-        thumb_ = TLObject::read(reader);
-    else
-        thumb_ = std::nullopt;
+    thumb_ = (1 << 4) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> content_;
-
-    if (1 << 5)
-        content_ = TLObject::read(reader);
-    else
-        content_ = std::nullopt;
-    TLObject send_message_ = TLObject::read(reader);
+    content_ = (1 << 5) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
+    TLObject send_message_ = std::get<TLObject>(TLObject::read(reader));
     return BotInlineResult(id_, type_, send_message_, title_, description_, url_, thumb_, content_);
 }
 
@@ -11979,30 +10311,14 @@ BotInlineMediaResult BotInlineMediaResult::read(Reader reader)
     std::string id_ = String::read(reader);
     std::string type_ = String::read(reader);
     std::optional<TLObject> photo_;
-
-    if (1 << 0)
-        photo_ = TLObject::read(reader);
-    else
-        photo_ = std::nullopt;
+    photo_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> document_;
-
-    if (1 << 1)
-        document_ = TLObject::read(reader);
-    else
-        document_ = std::nullopt;
+    document_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::string> title_;
-
-    if (1 << 2)
-        title_ = String::read(reader);
-    else
-        title_ = std::nullopt;
+    title_ = (1 << 2) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> description_;
-
-    if (1 << 3)
-        description_ = String::read(reader);
-    else
-        description_ = std::nullopt;
-    TLObject send_message_ = TLObject::read(reader);
+    description_ = (1 << 3) ? std::optional{String::read(reader)} : std::nullopt;
+    TLObject send_message_ = std::get<TLObject>(TLObject::read(reader));
     return BotInlineMediaResult(id_, type_, send_message_, photo_, document_, title_, description_);
 }
 
@@ -12057,54 +10373,22 @@ MessageFwdHeader MessageFwdHeader::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> imported_;
-
-    if (1 << 7)
-        imported_ = true;
-    else
-        imported_ = std::nullopt;
+    imported_ = (1 << 7) ? std::optional{true} : std::nullopt;
     std::optional<TLObject> from_id_;
-
-    if (1 << 0)
-        from_id_ = TLObject::read(reader);
-    else
-        from_id_ = std::nullopt;
+    from_id_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::string> from_name_;
-
-    if (1 << 5)
-        from_name_ = String::read(reader);
-    else
-        from_name_ = std::nullopt;
+    from_name_ = (1 << 5) ? std::optional{String::read(reader)} : std::nullopt;
     int date_ = Int::read(reader);
     std::optional<int> channel_post_;
-
-    if (1 << 2)
-        channel_post_ = Int::read(reader);
-    else
-        channel_post_ = std::nullopt;
+    channel_post_ = (1 << 2) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<std::string> post_author_;
-
-    if (1 << 3)
-        post_author_ = String::read(reader);
-    else
-        post_author_ = std::nullopt;
+    post_author_ = (1 << 3) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<TLObject> saved_from_peer_;
-
-    if (1 << 4)
-        saved_from_peer_ = TLObject::read(reader);
-    else
-        saved_from_peer_ = std::nullopt;
+    saved_from_peer_ = (1 << 4) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> saved_from_msg_id_;
-
-    if (1 << 4)
-        saved_from_msg_id_ = Int::read(reader);
-    else
-        saved_from_msg_id_ = std::nullopt;
+    saved_from_msg_id_ = (1 << 4) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<std::string> psa_type_;
-
-    if (1 << 6)
-        psa_type_ = String::read(reader);
-    else
-        psa_type_ = std::nullopt;
+    psa_type_ = (1 << 6) ? std::optional{String::read(reader)} : std::nullopt;
     return MessageFwdHeader(date_, imported_, from_id_, from_name_, channel_post_, post_author_, saved_from_peer_, saved_from_msg_id_, psa_type_);
 }
 
@@ -12188,7 +10472,7 @@ TopPeer::TopPeer(TLObject peer_, double rating_) {}
 
 TopPeer TopPeer::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     double rating_ = Double::read(reader);
     return TopPeer(peer_, rating_);
 }
@@ -12294,9 +10578,9 @@ TopPeerCategoryPeers::TopPeerCategoryPeers(TLObject category_, int count_, std::
 
 TopPeerCategoryPeers TopPeerCategoryPeers::read(Reader reader)
 {
-    TLObject category_ = TLObject::read(reader);
+    TLObject category_ = std::get<TLObject>(TLObject::read(reader));
     int count_ = Int::read(reader);
-    std::vector<TLObject> peers_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> peers_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return TopPeerCategoryPeers(category_, count_, peers_);
 }
 
@@ -12316,11 +10600,7 @@ DraftMessageEmpty DraftMessageEmpty::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<int> date_;
-
-    if (1 << 0)
-        date_ = Int::read(reader);
-    else
-        date_ = std::nullopt;
+    date_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     return DraftMessageEmpty(date_);
 }
 
@@ -12342,24 +10622,12 @@ DraftMessage DraftMessage::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> no_webpage_;
-
-    if (1 << 1)
-        no_webpage_ = true;
-    else
-        no_webpage_ = std::nullopt;
+    no_webpage_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<int> reply_to_msg_id_;
-
-    if (1 << 0)
-        reply_to_msg_id_ = Int::read(reader);
-    else
-        reply_to_msg_id_ = std::nullopt;
+    reply_to_msg_id_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     std::string message_ = String::read(reader);
     std::optional<std::vector<TLObject>> entities_;
-
-    if (1 << 3)
-        entities_ = Vector<TLObject>::read(reader);
-    else
-        entities_ = std::nullopt;
+    entities_ = (1 << 3) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     int date_ = Int::read(reader);
     return DraftMessage(message_, date_, no_webpage_, reply_to_msg_id_, entities_);
 }
@@ -12387,8 +10655,8 @@ StickerSetCovered::StickerSetCovered(TLObject set_, TLObject cover_) {}
 
 StickerSetCovered StickerSetCovered::read(Reader reader)
 {
-    TLObject set_ = TLObject::read(reader);
-    TLObject cover_ = TLObject::read(reader);
+    TLObject set_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject cover_ = std::get<TLObject>(TLObject::read(reader));
     return StickerSetCovered(set_, cover_);
 }
 
@@ -12405,8 +10673,8 @@ StickerSetMultiCovered::StickerSetMultiCovered(TLObject set_, std::vector<TLObje
 
 StickerSetMultiCovered StickerSetMultiCovered::read(Reader reader)
 {
-    TLObject set_ = TLObject::read(reader);
-    std::vector<TLObject> covers_ = Vector<TLObject>::read(reader);
+    TLObject set_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<TLObject> covers_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return StickerSetMultiCovered(set_, covers_);
 }
 
@@ -12445,7 +10713,7 @@ InputStickeredMediaPhoto::InputStickeredMediaPhoto(TLObject id_) {}
 
 InputStickeredMediaPhoto InputStickeredMediaPhoto::read(Reader reader)
 {
-    TLObject id_ = TLObject::read(reader);
+    TLObject id_ = std::get<TLObject>(TLObject::read(reader));
     return InputStickeredMediaPhoto(id_);
 }
 
@@ -12461,7 +10729,7 @@ InputStickeredMediaDocument::InputStickeredMediaDocument(TLObject id_) {}
 
 InputStickeredMediaDocument InputStickeredMediaDocument::read(Reader reader)
 {
-    TLObject id_ = TLObject::read(reader);
+    TLObject id_ = std::get<TLObject>(TLObject::read(reader));
     return InputStickeredMediaDocument(id_);
 }
 
@@ -12483,13 +10751,9 @@ Game Game::read(Reader reader)
     std::string short_name_ = String::read(reader);
     std::string title_ = String::read(reader);
     std::string description_ = String::read(reader);
-    TLObject photo_ = TLObject::read(reader);
+    TLObject photo_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<TLObject> document_;
-
-    if (1 << 0)
-        document_ = TLObject::read(reader);
-    else
-        document_ = std::nullopt;
+    document_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return Game(id_, access_hash_, short_name_, title_, description_, photo_, document_);
 }
 
@@ -12533,7 +10797,7 @@ InputGameShortName::InputGameShortName(TLObject bot_id_, std::string short_name_
 
 InputGameShortName InputGameShortName::read(Reader reader)
 {
-    TLObject bot_id_ = TLObject::read(reader);
+    TLObject bot_id_ = std::get<TLObject>(TLObject::read(reader));
     std::string short_name_ = String::read(reader);
     return InputGameShortName(bot_id_, short_name_);
 }
@@ -12598,7 +10862,7 @@ TextBold::TextBold(TLObject text_) {}
 
 TextBold TextBold::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     return TextBold(text_);
 }
 
@@ -12614,7 +10878,7 @@ TextItalic::TextItalic(TLObject text_) {}
 
 TextItalic TextItalic::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     return TextItalic(text_);
 }
 
@@ -12630,7 +10894,7 @@ TextUnderline::TextUnderline(TLObject text_) {}
 
 TextUnderline TextUnderline::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     return TextUnderline(text_);
 }
 
@@ -12646,7 +10910,7 @@ TextStrike::TextStrike(TLObject text_) {}
 
 TextStrike TextStrike::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     return TextStrike(text_);
 }
 
@@ -12662,7 +10926,7 @@ TextFixed::TextFixed(TLObject text_) {}
 
 TextFixed TextFixed::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     return TextFixed(text_);
 }
 
@@ -12678,7 +10942,7 @@ TextUrl::TextUrl(TLObject text_, std::string url_, long webpage_id_) {}
 
 TextUrl TextUrl::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     std::string url_ = String::read(reader);
     long webpage_id_ = Long::read(reader);
     return TextUrl(text_, url_, webpage_id_);
@@ -12698,7 +10962,7 @@ TextEmail::TextEmail(TLObject text_, std::string email_) {}
 
 TextEmail TextEmail::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     std::string email_ = String::read(reader);
     return TextEmail(text_, email_);
 }
@@ -12716,7 +10980,7 @@ TextConcat::TextConcat(std::vector<TLObject> texts_) {}
 
 TextConcat TextConcat::read(Reader reader)
 {
-    std::vector<TLObject> texts_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> texts_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return TextConcat(texts_);
 }
 
@@ -12732,7 +10996,7 @@ TextSubscript::TextSubscript(TLObject text_) {}
 
 TextSubscript TextSubscript::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     return TextSubscript(text_);
 }
 
@@ -12748,7 +11012,7 @@ TextSuperscript::TextSuperscript(TLObject text_) {}
 
 TextSuperscript TextSuperscript::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     return TextSuperscript(text_);
 }
 
@@ -12764,7 +11028,7 @@ TextMarked::TextMarked(TLObject text_) {}
 
 TextMarked TextMarked::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     return TextMarked(text_);
 }
 
@@ -12780,7 +11044,7 @@ TextPhone::TextPhone(TLObject text_, std::string phone_) {}
 
 TextPhone TextPhone::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     std::string phone_ = String::read(reader);
     return TextPhone(text_, phone_);
 }
@@ -12818,7 +11082,7 @@ TextAnchor::TextAnchor(TLObject text_, std::string name_) {}
 
 TextAnchor TextAnchor::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     std::string name_ = String::read(reader);
     return TextAnchor(text_, name_);
 }
@@ -12847,7 +11111,7 @@ PageBlockTitle::PageBlockTitle(TLObject text_) {}
 
 PageBlockTitle PageBlockTitle::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     return PageBlockTitle(text_);
 }
 
@@ -12863,7 +11127,7 @@ PageBlockSubtitle::PageBlockSubtitle(TLObject text_) {}
 
 PageBlockSubtitle PageBlockSubtitle::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     return PageBlockSubtitle(text_);
 }
 
@@ -12879,7 +11143,7 @@ PageBlockAuthorDate::PageBlockAuthorDate(TLObject author_, int published_date_) 
 
 PageBlockAuthorDate PageBlockAuthorDate::read(Reader reader)
 {
-    TLObject author_ = TLObject::read(reader);
+    TLObject author_ = std::get<TLObject>(TLObject::read(reader));
     int published_date_ = Int::read(reader);
     return PageBlockAuthorDate(author_, published_date_);
 }
@@ -12897,7 +11161,7 @@ PageBlockHeader::PageBlockHeader(TLObject text_) {}
 
 PageBlockHeader PageBlockHeader::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     return PageBlockHeader(text_);
 }
 
@@ -12913,7 +11177,7 @@ PageBlockSubheader::PageBlockSubheader(TLObject text_) {}
 
 PageBlockSubheader PageBlockSubheader::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     return PageBlockSubheader(text_);
 }
 
@@ -12929,7 +11193,7 @@ PageBlockParagraph::PageBlockParagraph(TLObject text_) {}
 
 PageBlockParagraph PageBlockParagraph::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     return PageBlockParagraph(text_);
 }
 
@@ -12945,7 +11209,7 @@ PageBlockPreformatted::PageBlockPreformatted(TLObject text_, std::string languag
 
 PageBlockPreformatted PageBlockPreformatted::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     std::string language_ = String::read(reader);
     return PageBlockPreformatted(text_, language_);
 }
@@ -12963,7 +11227,7 @@ PageBlockFooter::PageBlockFooter(TLObject text_) {}
 
 PageBlockFooter PageBlockFooter::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     return PageBlockFooter(text_);
 }
 
@@ -13006,7 +11270,7 @@ PageBlockList::PageBlockList(std::vector<TLObject> items_) {}
 
 PageBlockList PageBlockList::read(Reader reader)
 {
-    std::vector<TLObject> items_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> items_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return PageBlockList(items_);
 }
 
@@ -13022,8 +11286,8 @@ PageBlockBlockquote::PageBlockBlockquote(TLObject text_, TLObject caption_) {}
 
 PageBlockBlockquote PageBlockBlockquote::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
-    TLObject caption_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject caption_ = std::get<TLObject>(TLObject::read(reader));
     return PageBlockBlockquote(text_, caption_);
 }
 
@@ -13040,8 +11304,8 @@ PageBlockPullquote::PageBlockPullquote(TLObject text_, TLObject caption_) {}
 
 PageBlockPullquote PageBlockPullquote::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
-    TLObject caption_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject caption_ = std::get<TLObject>(TLObject::read(reader));
     return PageBlockPullquote(text_, caption_);
 }
 
@@ -13060,19 +11324,11 @@ PageBlockPhoto PageBlockPhoto::read(Reader reader)
 {
     int flags = Int::read(reader);
     long photo_id_ = Long::read(reader);
-    TLObject caption_ = TLObject::read(reader);
+    TLObject caption_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<std::string> url_;
-
-    if (1 << 0)
-        url_ = String::read(reader);
-    else
-        url_ = std::nullopt;
+    url_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<long> webpage_id_;
-
-    if (1 << 0)
-        webpage_id_ = Long::read(reader);
-    else
-        webpage_id_ = std::nullopt;
+    webpage_id_ = (1 << 0) ? std::optional{Long::read(reader)} : std::nullopt;
     return PageBlockPhoto(photo_id_, caption_, url_, webpage_id_);
 }
 
@@ -13100,19 +11356,11 @@ PageBlockVideo PageBlockVideo::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> autoplay_;
-
-    if (1 << 0)
-        autoplay_ = true;
-    else
-        autoplay_ = std::nullopt;
+    autoplay_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> loop_;
-
-    if (1 << 1)
-        loop_ = true;
-    else
-        loop_ = std::nullopt;
+    loop_ = (1 << 1) ? std::optional{true} : std::nullopt;
     long video_id_ = Long::read(reader);
-    TLObject caption_ = TLObject::read(reader);
+    TLObject caption_ = std::get<TLObject>(TLObject::read(reader));
     return PageBlockVideo(video_id_, caption_, autoplay_, loop_);
 }
 
@@ -13132,7 +11380,7 @@ PageBlockCover::PageBlockCover(TLObject cover_) {}
 
 PageBlockCover PageBlockCover::read(Reader reader)
 {
-    TLObject cover_ = TLObject::read(reader);
+    TLObject cover_ = std::get<TLObject>(TLObject::read(reader));
     return PageBlockCover(cover_);
 }
 
@@ -13150,48 +11398,20 @@ PageBlockEmbed PageBlockEmbed::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> full_width_;
-
-    if (1 << 0)
-        full_width_ = true;
-    else
-        full_width_ = std::nullopt;
+    full_width_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> allow_scrolling_;
-
-    if (1 << 3)
-        allow_scrolling_ = true;
-    else
-        allow_scrolling_ = std::nullopt;
+    allow_scrolling_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::optional<std::string> url_;
-
-    if (1 << 1)
-        url_ = String::read(reader);
-    else
-        url_ = std::nullopt;
+    url_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> html_;
-
-    if (1 << 2)
-        html_ = String::read(reader);
-    else
-        html_ = std::nullopt;
+    html_ = (1 << 2) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<long> poster_photo_id_;
-
-    if (1 << 4)
-        poster_photo_id_ = Long::read(reader);
-    else
-        poster_photo_id_ = std::nullopt;
+    poster_photo_id_ = (1 << 4) ? std::optional{Long::read(reader)} : std::nullopt;
     std::optional<int> w_;
-
-    if (1 << 5)
-        w_ = Int::read(reader);
-    else
-        w_ = std::nullopt;
+    w_ = (1 << 5) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> h_;
-
-    if (1 << 5)
-        h_ = Int::read(reader);
-    else
-        h_ = std::nullopt;
-    TLObject caption_ = TLObject::read(reader);
+    h_ = (1 << 5) ? std::optional{Int::read(reader)} : std::nullopt;
+    TLObject caption_ = std::get<TLObject>(TLObject::read(reader));
     return PageBlockEmbed(caption_, full_width_, allow_scrolling_, url_, html_, poster_photo_id_, w_, h_);
 }
 
@@ -13235,8 +11455,8 @@ PageBlockEmbedPost PageBlockEmbedPost::read(Reader reader)
     long author_photo_id_ = Long::read(reader);
     std::string author_ = String::read(reader);
     int date_ = Int::read(reader);
-    std::vector<TLObject> blocks_ = Vector<TLObject>::read(reader);
-    TLObject caption_ = TLObject::read(reader);
+    std::vector<TLObject> blocks_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    TLObject caption_ = std::get<TLObject>(TLObject::read(reader));
     return PageBlockEmbedPost(url_, webpage_id_, author_photo_id_, author_, date_, blocks_, caption_);
 }
 
@@ -13258,8 +11478,8 @@ PageBlockCollage::PageBlockCollage(std::vector<TLObject> items_, TLObject captio
 
 PageBlockCollage PageBlockCollage::read(Reader reader)
 {
-    std::vector<TLObject> items_ = Vector<TLObject>::read(reader);
-    TLObject caption_ = TLObject::read(reader);
+    std::vector<TLObject> items_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    TLObject caption_ = std::get<TLObject>(TLObject::read(reader));
     return PageBlockCollage(items_, caption_);
 }
 
@@ -13276,8 +11496,8 @@ PageBlockSlideshow::PageBlockSlideshow(std::vector<TLObject> items_, TLObject ca
 
 PageBlockSlideshow PageBlockSlideshow::read(Reader reader)
 {
-    std::vector<TLObject> items_ = Vector<TLObject>::read(reader);
-    TLObject caption_ = TLObject::read(reader);
+    std::vector<TLObject> items_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    TLObject caption_ = std::get<TLObject>(TLObject::read(reader));
     return PageBlockSlideshow(items_, caption_);
 }
 
@@ -13294,7 +11514,7 @@ PageBlockChannel::PageBlockChannel(TLObject channel_) {}
 
 PageBlockChannel PageBlockChannel::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
     return PageBlockChannel(channel_);
 }
 
@@ -13311,7 +11531,7 @@ PageBlockAudio::PageBlockAudio(long audio_id_, TLObject caption_) {}
 PageBlockAudio PageBlockAudio::read(Reader reader)
 {
     long audio_id_ = Long::read(reader);
-    TLObject caption_ = TLObject::read(reader);
+    TLObject caption_ = std::get<TLObject>(TLObject::read(reader));
     return PageBlockAudio(audio_id_, caption_);
 }
 
@@ -13328,7 +11548,7 @@ PageBlockKicker::PageBlockKicker(TLObject text_) {}
 
 PageBlockKicker PageBlockKicker::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     return PageBlockKicker(text_);
 }
 
@@ -13346,19 +11566,11 @@ PageBlockTable PageBlockTable::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> bordered_;
-
-    if (1 << 0)
-        bordered_ = true;
-    else
-        bordered_ = std::nullopt;
+    bordered_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> striped_;
-
-    if (1 << 1)
-        striped_ = true;
-    else
-        striped_ = std::nullopt;
-    TLObject title_ = TLObject::read(reader);
-    std::vector<TLObject> rows_ = Vector<TLObject>::read(reader);
+    striped_ = (1 << 1) ? std::optional{true} : std::nullopt;
+    TLObject title_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<TLObject> rows_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return PageBlockTable(title_, rows_, bordered_, striped_);
 }
 
@@ -13378,7 +11590,7 @@ PageBlockOrderedList::PageBlockOrderedList(std::vector<TLObject> items_) {}
 
 PageBlockOrderedList PageBlockOrderedList::read(Reader reader)
 {
-    std::vector<TLObject> items_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> items_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return PageBlockOrderedList(items_);
 }
 
@@ -13396,13 +11608,9 @@ PageBlockDetails PageBlockDetails::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> open_;
-
-    if (1 << 0)
-        open_ = true;
-    else
-        open_ = std::nullopt;
-    std::vector<TLObject> blocks_ = Vector<TLObject>::read(reader);
-    TLObject title_ = TLObject::read(reader);
+    open_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    std::vector<TLObject> blocks_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    TLObject title_ = std::get<TLObject>(TLObject::read(reader));
     return PageBlockDetails(blocks_, title_, open_);
 }
 
@@ -13421,8 +11629,8 @@ PageBlockRelatedArticles::PageBlockRelatedArticles(TLObject title_, std::vector<
 
 PageBlockRelatedArticles PageBlockRelatedArticles::read(Reader reader)
 {
-    TLObject title_ = TLObject::read(reader);
-    std::vector<TLObject> articles_ = Vector<TLObject>::read(reader);
+    TLObject title_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<TLObject> articles_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return PageBlockRelatedArticles(title_, articles_);
 }
 
@@ -13439,11 +11647,11 @@ PageBlockMap::PageBlockMap(TLObject geo_, int zoom_, int w_, int h_, TLObject ca
 
 PageBlockMap PageBlockMap::read(Reader reader)
 {
-    TLObject geo_ = TLObject::read(reader);
+    TLObject geo_ = std::get<TLObject>(TLObject::read(reader));
     int zoom_ = Int::read(reader);
     int w_ = Int::read(reader);
     int h_ = Int::read(reader);
-    TLObject caption_ = TLObject::read(reader);
+    TLObject caption_ = std::get<TLObject>(TLObject::read(reader));
     return PageBlockMap(geo_, zoom_, w_, h_, caption_);
 }
 
@@ -13543,67 +11751,27 @@ Invoice Invoice::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> test_;
-
-    if (1 << 0)
-        test_ = true;
-    else
-        test_ = std::nullopt;
+    test_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> name_requested_;
-
-    if (1 << 1)
-        name_requested_ = true;
-    else
-        name_requested_ = std::nullopt;
+    name_requested_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> phone_requested_;
-
-    if (1 << 2)
-        phone_requested_ = true;
-    else
-        phone_requested_ = std::nullopt;
+    phone_requested_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<bool> email_requested_;
-
-    if (1 << 3)
-        email_requested_ = true;
-    else
-        email_requested_ = std::nullopt;
+    email_requested_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::optional<bool> shipping_address_requested_;
-
-    if (1 << 4)
-        shipping_address_requested_ = true;
-    else
-        shipping_address_requested_ = std::nullopt;
+    shipping_address_requested_ = (1 << 4) ? std::optional{true} : std::nullopt;
     std::optional<bool> flexible_;
-
-    if (1 << 5)
-        flexible_ = true;
-    else
-        flexible_ = std::nullopt;
+    flexible_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> phone_to_provider_;
-
-    if (1 << 6)
-        phone_to_provider_ = true;
-    else
-        phone_to_provider_ = std::nullopt;
+    phone_to_provider_ = (1 << 6) ? std::optional{true} : std::nullopt;
     std::optional<bool> email_to_provider_;
-
-    if (1 << 7)
-        email_to_provider_ = true;
-    else
-        email_to_provider_ = std::nullopt;
+    email_to_provider_ = (1 << 7) ? std::optional{true} : std::nullopt;
     std::string currency_ = String::read(reader);
-    std::vector<TLObject> prices_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> prices_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     std::optional<long> max_tip_amount_;
-
-    if (1 << 8)
-        max_tip_amount_ = Long::read(reader);
-    else
-        max_tip_amount_ = std::nullopt;
+    max_tip_amount_ = (1 << 8) ? std::optional{Long::read(reader)} : std::nullopt;
     std::optional<std::vector<long>> suggested_tip_amounts_;
-
-    if (1 << 8)
-        suggested_tip_amounts_ = Vector<long>::read(reader);
-    else
-        suggested_tip_amounts_ = std::nullopt;
+    suggested_tip_amounts_ = (1 << 8) ? std::optional{std::get<std::vector<long>>(TLObject::read(reader))} : std::nullopt;
     return Invoice(currency_, prices_, test_, name_requested_, phone_requested_, email_requested_, shipping_address_requested_, flexible_, phone_to_provider_, email_to_provider_, max_tip_amount_, suggested_tip_amounts_);
 }
 
@@ -13683,29 +11851,13 @@ PaymentRequestedInfo PaymentRequestedInfo::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<std::string> name_;
-
-    if (1 << 0)
-        name_ = String::read(reader);
-    else
-        name_ = std::nullopt;
+    name_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> phone_;
-
-    if (1 << 1)
-        phone_ = String::read(reader);
-    else
-        phone_ = std::nullopt;
+    phone_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> email_;
-
-    if (1 << 2)
-        email_ = String::read(reader);
-    else
-        email_ = std::nullopt;
+    email_ = (1 << 2) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<TLObject> shipping_address_;
-
-    if (1 << 3)
-        shipping_address_ = TLObject::read(reader);
-    else
-        shipping_address_ = std::nullopt;
+    shipping_address_ = (1 << 3) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return PaymentRequestedInfo(name_, phone_, email_, shipping_address_);
 }
 
@@ -13759,7 +11911,7 @@ WebDocument WebDocument::read(Reader reader)
     long access_hash_ = Long::read(reader);
     int size_ = Int::read(reader);
     std::string mime_type_ = String::read(reader);
-    std::vector<TLObject> attributes_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> attributes_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return WebDocument(url_, access_hash_, size_, mime_type_, attributes_);
 }
 
@@ -13782,7 +11934,7 @@ WebDocumentNoProxy WebDocumentNoProxy::read(Reader reader)
     std::string url_ = String::read(reader);
     int size_ = Int::read(reader);
     std::string mime_type_ = String::read(reader);
-    std::vector<TLObject> attributes_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> attributes_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return WebDocumentNoProxy(url_, size_, mime_type_, attributes_);
 }
 
@@ -13804,7 +11956,7 @@ InputWebDocument InputWebDocument::read(Reader reader)
     std::string url_ = String::read(reader);
     int size_ = Int::read(reader);
     std::string mime_type_ = String::read(reader);
-    std::vector<TLObject> attributes_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> attributes_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return InputWebDocument(url_, size_, mime_type_, attributes_);
 }
 
@@ -13841,7 +11993,7 @@ InputWebFileGeoPointLocation::InputWebFileGeoPointLocation(TLObject geo_point_, 
 
 InputWebFileGeoPointLocation InputWebFileGeoPointLocation::read(Reader reader)
 {
-    TLObject geo_point_ = TLObject::read(reader);
+    TLObject geo_point_ = std::get<TLObject>(TLObject::read(reader));
     long access_hash_ = Long::read(reader);
     int w_ = Int::read(reader);
     int h_ = Int::read(reader);
@@ -13887,12 +12039,8 @@ InputPaymentCredentials InputPaymentCredentials::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> save_;
-
-    if (1 << 0)
-        save_ = true;
-    else
-        save_ = std::nullopt;
-    TLObject data_ = TLObject::read(reader);
+    save_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject data_ = std::get<TLObject>(TLObject::read(reader));
     return InputPaymentCredentials(data_, save_);
 }
 
@@ -13910,7 +12058,7 @@ InputPaymentCredentialsApplePay::InputPaymentCredentialsApplePay(TLObject paymen
 
 InputPaymentCredentialsApplePay InputPaymentCredentialsApplePay::read(Reader reader)
 {
-    TLObject payment_data_ = TLObject::read(reader);
+    TLObject payment_data_ = std::get<TLObject>(TLObject::read(reader));
     return InputPaymentCredentialsApplePay(payment_data_);
 }
 
@@ -13926,7 +12074,7 @@ InputPaymentCredentialsGooglePay::InputPaymentCredentialsGooglePay(TLObject paym
 
 InputPaymentCredentialsGooglePay InputPaymentCredentialsGooglePay::read(Reader reader)
 {
-    TLObject payment_token_ = TLObject::read(reader);
+    TLObject payment_token_ = std::get<TLObject>(TLObject::read(reader));
     return InputPaymentCredentialsGooglePay(payment_token_);
 }
 
@@ -13944,7 +12092,7 @@ ShippingOption ShippingOption::read(Reader reader)
 {
     std::string id_ = String::read(reader);
     std::string title_ = String::read(reader);
-    std::vector<TLObject> prices_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> prices_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return ShippingOption(id_, title_, prices_);
 }
 
@@ -13963,14 +12111,10 @@ InputStickerSetItem::InputStickerSetItem(TLObject document_, std::string emoji_,
 InputStickerSetItem InputStickerSetItem::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject document_ = TLObject::read(reader);
+    TLObject document_ = std::get<TLObject>(TLObject::read(reader));
     std::string emoji_ = String::read(reader);
     std::optional<TLObject> mask_coords_;
-
-    if (1 << 0)
-        mask_coords_ = TLObject::read(reader);
-    else
-        mask_coords_ = std::nullopt;
+    mask_coords_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return InputStickerSetItem(document_, emoji_, mask_coords_);
 }
 
@@ -14028,23 +12172,15 @@ PhoneCallWaiting PhoneCallWaiting::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> video_;
-
-    if (1 << 6)
-        video_ = true;
-    else
-        video_ = std::nullopt;
+    video_ = (1 << 6) ? std::optional{true} : std::nullopt;
     long id_ = Long::read(reader);
     long access_hash_ = Long::read(reader);
     int date_ = Int::read(reader);
     int admin_id_ = Int::read(reader);
     int participant_id_ = Int::read(reader);
-    TLObject protocol_ = TLObject::read(reader);
+    TLObject protocol_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<int> receive_date_;
-
-    if (1 << 0)
-        receive_date_ = Int::read(reader);
-    else
-        receive_date_ = std::nullopt;
+    receive_date_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     return PhoneCallWaiting(id_, access_hash_, date_, admin_id_, participant_id_, protocol_, video_, receive_date_);
 }
 
@@ -14073,18 +12209,14 @@ PhoneCallRequested PhoneCallRequested::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> video_;
-
-    if (1 << 6)
-        video_ = true;
-    else
-        video_ = std::nullopt;
+    video_ = (1 << 6) ? std::optional{true} : std::nullopt;
     long id_ = Long::read(reader);
     long access_hash_ = Long::read(reader);
     int date_ = Int::read(reader);
     int admin_id_ = Int::read(reader);
     int participant_id_ = Int::read(reader);
     std::string g_a_hash_ = Bytes::read(reader);
-    TLObject protocol_ = TLObject::read(reader);
+    TLObject protocol_ = std::get<TLObject>(TLObject::read(reader));
     return PhoneCallRequested(id_, access_hash_, date_, admin_id_, participant_id_, g_a_hash_, protocol_, video_);
 }
 
@@ -14110,18 +12242,14 @@ PhoneCallAccepted PhoneCallAccepted::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> video_;
-
-    if (1 << 6)
-        video_ = true;
-    else
-        video_ = std::nullopt;
+    video_ = (1 << 6) ? std::optional{true} : std::nullopt;
     long id_ = Long::read(reader);
     long access_hash_ = Long::read(reader);
     int date_ = Int::read(reader);
     int admin_id_ = Int::read(reader);
     int participant_id_ = Int::read(reader);
     std::string g_b_ = Bytes::read(reader);
-    TLObject protocol_ = TLObject::read(reader);
+    TLObject protocol_ = std::get<TLObject>(TLObject::read(reader));
     return PhoneCallAccepted(id_, access_hash_, date_, admin_id_, participant_id_, g_b_, protocol_, video_);
 }
 
@@ -14147,17 +12275,9 @@ PhoneCall PhoneCall::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> p2p_allowed_;
-
-    if (1 << 5)
-        p2p_allowed_ = true;
-    else
-        p2p_allowed_ = std::nullopt;
+    p2p_allowed_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> video_;
-
-    if (1 << 6)
-        video_ = true;
-    else
-        video_ = std::nullopt;
+    video_ = (1 << 6) ? std::optional{true} : std::nullopt;
     long id_ = Long::read(reader);
     long access_hash_ = Long::read(reader);
     int date_ = Int::read(reader);
@@ -14165,8 +12285,8 @@ PhoneCall PhoneCall::read(Reader reader)
     int participant_id_ = Int::read(reader);
     std::string g_a_or_b_ = Bytes::read(reader);
     long key_fingerprint_ = Long::read(reader);
-    TLObject protocol_ = TLObject::read(reader);
-    std::vector<TLObject> connections_ = Vector<TLObject>::read(reader);
+    TLObject protocol_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<TLObject> connections_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     int start_date_ = Int::read(reader);
     return PhoneCall(id_, access_hash_, date_, admin_id_, participant_id_, g_a_or_b_, key_fingerprint_, protocol_, connections_, start_date_, p2p_allowed_, video_);
 }
@@ -14197,36 +12317,16 @@ PhoneCallDiscarded PhoneCallDiscarded::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> need_rating_;
-
-    if (1 << 2)
-        need_rating_ = true;
-    else
-        need_rating_ = std::nullopt;
+    need_rating_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<bool> need_debug_;
-
-    if (1 << 3)
-        need_debug_ = true;
-    else
-        need_debug_ = std::nullopt;
+    need_debug_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::optional<bool> video_;
-
-    if (1 << 6)
-        video_ = true;
-    else
-        video_ = std::nullopt;
+    video_ = (1 << 6) ? std::optional{true} : std::nullopt;
     long id_ = Long::read(reader);
     std::optional<TLObject> reason_;
-
-    if (1 << 0)
-        reason_ = TLObject::read(reader);
-    else
-        reason_ = std::nullopt;
+    reason_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> duration_;
-
-    if (1 << 1)
-        duration_ = Int::read(reader);
-    else
-        duration_ = std::nullopt;
+    duration_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     return PhoneCallDiscarded(id_, need_rating_, need_debug_, video_, reason_, duration_);
 }
 
@@ -14280,17 +12380,9 @@ PhoneConnectionWebrtc PhoneConnectionWebrtc::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> turn_;
-
-    if (1 << 0)
-        turn_ = true;
-    else
-        turn_ = std::nullopt;
+    turn_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> stun_;
-
-    if (1 << 1)
-        stun_ = true;
-    else
-        stun_ = std::nullopt;
+    stun_ = (1 << 1) ? std::optional{true} : std::nullopt;
     long id_ = Long::read(reader);
     std::string ip_ = String::read(reader);
     std::string ipv6_ = String::read(reader);
@@ -14322,20 +12414,12 @@ PhoneCallProtocol PhoneCallProtocol::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> udp_p2p_;
-
-    if (1 << 0)
-        udp_p2p_ = true;
-    else
-        udp_p2p_ = std::nullopt;
+    udp_p2p_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> udp_reflector_;
-
-    if (1 << 1)
-        udp_reflector_ = true;
-    else
-        udp_reflector_ = std::nullopt;
+    udp_reflector_ = (1 << 1) ? std::optional{true} : std::nullopt;
     int min_layer_ = Int::read(reader);
     int max_layer_ = Int::read(reader);
-    std::vector<std::string> library_versions_ = Vector<std::string>::read(reader);
+    std::vector<std::string> library_versions_ = std::get<std::vector<std::string>>(TLObject::read(reader));
     return PhoneCallProtocol(min_layer_, max_layer_, library_versions_, udp_p2p_, udp_reflector_);
 }
 
@@ -14374,7 +12458,7 @@ CdnConfig::CdnConfig(std::vector<TLObject> public_keys_) {}
 
 CdnConfig CdnConfig::read(Reader reader)
 {
-    std::vector<TLObject> public_keys_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> public_keys_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return CdnConfig(public_keys_);
 }
 
@@ -14411,35 +12495,15 @@ LangPackStringPluralized LangPackStringPluralized::read(Reader reader)
     int flags = Int::read(reader);
     std::string key_ = String::read(reader);
     std::optional<std::string> zero_value_;
-
-    if (1 << 0)
-        zero_value_ = String::read(reader);
-    else
-        zero_value_ = std::nullopt;
+    zero_value_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> one_value_;
-
-    if (1 << 1)
-        one_value_ = String::read(reader);
-    else
-        one_value_ = std::nullopt;
+    one_value_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> two_value_;
-
-    if (1 << 2)
-        two_value_ = String::read(reader);
-    else
-        two_value_ = std::nullopt;
+    two_value_ = (1 << 2) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> few_value_;
-
-    if (1 << 3)
-        few_value_ = String::read(reader);
-    else
-        few_value_ = std::nullopt;
+    few_value_ = (1 << 3) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> many_value_;
-
-    if (1 << 4)
-        many_value_ = String::read(reader);
-    else
-        many_value_ = std::nullopt;
+    many_value_ = (1 << 4) ? std::optional{String::read(reader)} : std::nullopt;
     std::string other_value_ = String::read(reader);
     return LangPackStringPluralized(key_, other_value_, zero_value_, one_value_, two_value_, few_value_, many_value_);
 }
@@ -14497,7 +12561,7 @@ LangPackDifference LangPackDifference::read(Reader reader)
     std::string lang_code_ = String::read(reader);
     int from_version_ = Int::read(reader);
     int version_ = Int::read(reader);
-    std::vector<TLObject> strings_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> strings_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return LangPackDifference(lang_code_, from_version_, version_, strings_);
 }
 
@@ -14518,32 +12582,16 @@ LangPackLanguage LangPackLanguage::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> official_;
-
-    if (1 << 0)
-        official_ = true;
-    else
-        official_ = std::nullopt;
+    official_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> rtl_;
-
-    if (1 << 2)
-        rtl_ = true;
-    else
-        rtl_ = std::nullopt;
+    rtl_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<bool> beta_;
-
-    if (1 << 3)
-        beta_ = true;
-    else
-        beta_ = std::nullopt;
+    beta_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::string name_ = String::read(reader);
     std::string native_name_ = String::read(reader);
     std::string lang_code_ = String::read(reader);
     std::optional<std::string> base_lang_code_;
-
-    if (1 << 1)
-        base_lang_code_ = String::read(reader);
-    else
-        base_lang_code_ = std::nullopt;
+    base_lang_code_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     std::string plural_code_ = String::read(reader);
     int strings_count_ = Int::read(reader);
     int translated_count_ = Int::read(reader);
@@ -14631,8 +12679,8 @@ ChannelAdminLogEventActionChangePhoto::ChannelAdminLogEventActionChangePhoto(TLO
 
 ChannelAdminLogEventActionChangePhoto ChannelAdminLogEventActionChangePhoto::read(Reader reader)
 {
-    TLObject prev_photo_ = TLObject::read(reader);
-    TLObject new_photo_ = TLObject::read(reader);
+    TLObject prev_photo_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject new_photo_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEventActionChangePhoto(prev_photo_, new_photo_);
 }
 
@@ -14681,7 +12729,7 @@ ChannelAdminLogEventActionUpdatePinned::ChannelAdminLogEventActionUpdatePinned(T
 
 ChannelAdminLogEventActionUpdatePinned ChannelAdminLogEventActionUpdatePinned::read(Reader reader)
 {
-    TLObject message_ = TLObject::read(reader);
+    TLObject message_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEventActionUpdatePinned(message_);
 }
 
@@ -14697,8 +12745,8 @@ ChannelAdminLogEventActionEditMessage::ChannelAdminLogEventActionEditMessage(TLO
 
 ChannelAdminLogEventActionEditMessage ChannelAdminLogEventActionEditMessage::read(Reader reader)
 {
-    TLObject prev_message_ = TLObject::read(reader);
-    TLObject new_message_ = TLObject::read(reader);
+    TLObject prev_message_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject new_message_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEventActionEditMessage(prev_message_, new_message_);
 }
 
@@ -14715,7 +12763,7 @@ ChannelAdminLogEventActionDeleteMessage::ChannelAdminLogEventActionDeleteMessage
 
 ChannelAdminLogEventActionDeleteMessage ChannelAdminLogEventActionDeleteMessage::read(Reader reader)
 {
-    TLObject message_ = TLObject::read(reader);
+    TLObject message_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEventActionDeleteMessage(message_);
 }
 
@@ -14753,7 +12801,7 @@ ChannelAdminLogEventActionParticipantInvite::ChannelAdminLogEventActionParticipa
 
 ChannelAdminLogEventActionParticipantInvite ChannelAdminLogEventActionParticipantInvite::read(Reader reader)
 {
-    TLObject participant_ = TLObject::read(reader);
+    TLObject participant_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEventActionParticipantInvite(participant_);
 }
 
@@ -14769,8 +12817,8 @@ ChannelAdminLogEventActionParticipantToggleBan::ChannelAdminLogEventActionPartic
 
 ChannelAdminLogEventActionParticipantToggleBan ChannelAdminLogEventActionParticipantToggleBan::read(Reader reader)
 {
-    TLObject prev_participant_ = TLObject::read(reader);
-    TLObject new_participant_ = TLObject::read(reader);
+    TLObject prev_participant_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject new_participant_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEventActionParticipantToggleBan(prev_participant_, new_participant_);
 }
 
@@ -14787,8 +12835,8 @@ ChannelAdminLogEventActionParticipantToggleAdmin::ChannelAdminLogEventActionPart
 
 ChannelAdminLogEventActionParticipantToggleAdmin ChannelAdminLogEventActionParticipantToggleAdmin::read(Reader reader)
 {
-    TLObject prev_participant_ = TLObject::read(reader);
-    TLObject new_participant_ = TLObject::read(reader);
+    TLObject prev_participant_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject new_participant_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEventActionParticipantToggleAdmin(prev_participant_, new_participant_);
 }
 
@@ -14805,8 +12853,8 @@ ChannelAdminLogEventActionChangeStickerSet::ChannelAdminLogEventActionChangeStic
 
 ChannelAdminLogEventActionChangeStickerSet ChannelAdminLogEventActionChangeStickerSet::read(Reader reader)
 {
-    TLObject prev_stickerset_ = TLObject::read(reader);
-    TLObject new_stickerset_ = TLObject::read(reader);
+    TLObject prev_stickerset_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject new_stickerset_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEventActionChangeStickerSet(prev_stickerset_, new_stickerset_);
 }
 
@@ -14839,8 +12887,8 @@ ChannelAdminLogEventActionDefaultBannedRights::ChannelAdminLogEventActionDefault
 
 ChannelAdminLogEventActionDefaultBannedRights ChannelAdminLogEventActionDefaultBannedRights::read(Reader reader)
 {
-    TLObject prev_banned_rights_ = TLObject::read(reader);
-    TLObject new_banned_rights_ = TLObject::read(reader);
+    TLObject prev_banned_rights_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject new_banned_rights_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEventActionDefaultBannedRights(prev_banned_rights_, new_banned_rights_);
 }
 
@@ -14857,7 +12905,7 @@ ChannelAdminLogEventActionStopPoll::ChannelAdminLogEventActionStopPoll(TLObject 
 
 ChannelAdminLogEventActionStopPoll ChannelAdminLogEventActionStopPoll::read(Reader reader)
 {
-    TLObject message_ = TLObject::read(reader);
+    TLObject message_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEventActionStopPoll(message_);
 }
 
@@ -14891,8 +12939,8 @@ ChannelAdminLogEventActionChangeLocation::ChannelAdminLogEventActionChangeLocati
 
 ChannelAdminLogEventActionChangeLocation ChannelAdminLogEventActionChangeLocation::read(Reader reader)
 {
-    TLObject prev_value_ = TLObject::read(reader);
-    TLObject new_value_ = TLObject::read(reader);
+    TLObject prev_value_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject new_value_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEventActionChangeLocation(prev_value_, new_value_);
 }
 
@@ -14927,7 +12975,7 @@ ChannelAdminLogEventActionStartGroupCall::ChannelAdminLogEventActionStartGroupCa
 
 ChannelAdminLogEventActionStartGroupCall ChannelAdminLogEventActionStartGroupCall::read(Reader reader)
 {
-    TLObject call_ = TLObject::read(reader);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEventActionStartGroupCall(call_);
 }
 
@@ -14943,7 +12991,7 @@ ChannelAdminLogEventActionDiscardGroupCall::ChannelAdminLogEventActionDiscardGro
 
 ChannelAdminLogEventActionDiscardGroupCall ChannelAdminLogEventActionDiscardGroupCall::read(Reader reader)
 {
-    TLObject call_ = TLObject::read(reader);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEventActionDiscardGroupCall(call_);
 }
 
@@ -14959,7 +13007,7 @@ ChannelAdminLogEventActionParticipantMute::ChannelAdminLogEventActionParticipant
 
 ChannelAdminLogEventActionParticipantMute ChannelAdminLogEventActionParticipantMute::read(Reader reader)
 {
-    TLObject participant_ = TLObject::read(reader);
+    TLObject participant_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEventActionParticipantMute(participant_);
 }
 
@@ -14975,7 +13023,7 @@ ChannelAdminLogEventActionParticipantUnmute::ChannelAdminLogEventActionParticipa
 
 ChannelAdminLogEventActionParticipantUnmute ChannelAdminLogEventActionParticipantUnmute::read(Reader reader)
 {
-    TLObject participant_ = TLObject::read(reader);
+    TLObject participant_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEventActionParticipantUnmute(participant_);
 }
 
@@ -15007,7 +13055,7 @@ ChannelAdminLogEventActionParticipantJoinByInvite::ChannelAdminLogEventActionPar
 
 ChannelAdminLogEventActionParticipantJoinByInvite ChannelAdminLogEventActionParticipantJoinByInvite::read(Reader reader)
 {
-    TLObject invite_ = TLObject::read(reader);
+    TLObject invite_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEventActionParticipantJoinByInvite(invite_);
 }
 
@@ -15023,7 +13071,7 @@ ChannelAdminLogEventActionExportedInviteDelete::ChannelAdminLogEventActionExport
 
 ChannelAdminLogEventActionExportedInviteDelete ChannelAdminLogEventActionExportedInviteDelete::read(Reader reader)
 {
-    TLObject invite_ = TLObject::read(reader);
+    TLObject invite_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEventActionExportedInviteDelete(invite_);
 }
 
@@ -15039,7 +13087,7 @@ ChannelAdminLogEventActionExportedInviteRevoke::ChannelAdminLogEventActionExport
 
 ChannelAdminLogEventActionExportedInviteRevoke ChannelAdminLogEventActionExportedInviteRevoke::read(Reader reader)
 {
-    TLObject invite_ = TLObject::read(reader);
+    TLObject invite_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEventActionExportedInviteRevoke(invite_);
 }
 
@@ -15055,8 +13103,8 @@ ChannelAdminLogEventActionExportedInviteEdit::ChannelAdminLogEventActionExported
 
 ChannelAdminLogEventActionExportedInviteEdit ChannelAdminLogEventActionExportedInviteEdit::read(Reader reader)
 {
-    TLObject prev_invite_ = TLObject::read(reader);
-    TLObject new_invite_ = TLObject::read(reader);
+    TLObject prev_invite_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject new_invite_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEventActionExportedInviteEdit(prev_invite_, new_invite_);
 }
 
@@ -15073,7 +13121,7 @@ ChannelAdminLogEventActionParticipantVolume::ChannelAdminLogEventActionParticipa
 
 ChannelAdminLogEventActionParticipantVolume ChannelAdminLogEventActionParticipantVolume::read(Reader reader)
 {
-    TLObject participant_ = TLObject::read(reader);
+    TLObject participant_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEventActionParticipantVolume(participant_);
 }
 
@@ -15110,7 +13158,7 @@ ChannelAdminLogEvent ChannelAdminLogEvent::read(Reader reader)
     long id_ = Long::read(reader);
     int date_ = Int::read(reader);
     int user_id_ = Int::read(reader);
-    TLObject action_ = TLObject::read(reader);
+    TLObject action_ = std::get<TLObject>(TLObject::read(reader));
     return ChannelAdminLogEvent(id_, date_, user_id_, action_);
 }
 
@@ -15131,101 +13179,37 @@ ChannelAdminLogEventsFilter ChannelAdminLogEventsFilter::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> join_;
-
-    if (1 << 0)
-        join_ = true;
-    else
-        join_ = std::nullopt;
+    join_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> leave_;
-
-    if (1 << 1)
-        leave_ = true;
-    else
-        leave_ = std::nullopt;
+    leave_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> invite_;
-
-    if (1 << 2)
-        invite_ = true;
-    else
-        invite_ = std::nullopt;
+    invite_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<bool> ban_;
-
-    if (1 << 3)
-        ban_ = true;
-    else
-        ban_ = std::nullopt;
+    ban_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::optional<bool> unban_;
-
-    if (1 << 4)
-        unban_ = true;
-    else
-        unban_ = std::nullopt;
+    unban_ = (1 << 4) ? std::optional{true} : std::nullopt;
     std::optional<bool> kick_;
-
-    if (1 << 5)
-        kick_ = true;
-    else
-        kick_ = std::nullopt;
+    kick_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> unkick_;
-
-    if (1 << 6)
-        unkick_ = true;
-    else
-        unkick_ = std::nullopt;
+    unkick_ = (1 << 6) ? std::optional{true} : std::nullopt;
     std::optional<bool> promote_;
-
-    if (1 << 7)
-        promote_ = true;
-    else
-        promote_ = std::nullopt;
+    promote_ = (1 << 7) ? std::optional{true} : std::nullopt;
     std::optional<bool> demote_;
-
-    if (1 << 8)
-        demote_ = true;
-    else
-        demote_ = std::nullopt;
+    demote_ = (1 << 8) ? std::optional{true} : std::nullopt;
     std::optional<bool> info_;
-
-    if (1 << 9)
-        info_ = true;
-    else
-        info_ = std::nullopt;
+    info_ = (1 << 9) ? std::optional{true} : std::nullopt;
     std::optional<bool> settings_;
-
-    if (1 << 10)
-        settings_ = true;
-    else
-        settings_ = std::nullopt;
+    settings_ = (1 << 10) ? std::optional{true} : std::nullopt;
     std::optional<bool> pinned_;
-
-    if (1 << 11)
-        pinned_ = true;
-    else
-        pinned_ = std::nullopt;
+    pinned_ = (1 << 11) ? std::optional{true} : std::nullopt;
     std::optional<bool> edit_;
-
-    if (1 << 12)
-        edit_ = true;
-    else
-        edit_ = std::nullopt;
+    edit_ = (1 << 12) ? std::optional{true} : std::nullopt;
     std::optional<bool> delete__;
-
-    if (1 << 13)
-        delete__ = true;
-    else
-        delete__ = std::nullopt;
+    delete__ = (1 << 13) ? std::optional{true} : std::nullopt;
     std::optional<bool> group_call_;
-
-    if (1 << 14)
-        group_call_ = true;
-    else
-        group_call_ = std::nullopt;
+    group_call_ = (1 << 14) ? std::optional{true} : std::nullopt;
     std::optional<bool> invites_;
-
-    if (1 << 15)
-        invites_ = true;
-    else
-        invites_ = std::nullopt;
+    invites_ = (1 << 15) ? std::optional{true} : std::nullopt;
     return ChannelAdminLogEventsFilter(join_, leave_, invite_, ban_, unban_, kick_, unkick_, promote_, demote_, info_, settings_, pinned_, edit_, delete__, group_call_, invites_);
 }
 
@@ -15328,7 +13312,7 @@ RecentMeUrlChatInvite::RecentMeUrlChatInvite(std::string url_, TLObject chat_inv
 RecentMeUrlChatInvite RecentMeUrlChatInvite::read(Reader reader)
 {
     std::string url_ = String::read(reader);
-    TLObject chat_invite_ = TLObject::read(reader);
+    TLObject chat_invite_ = std::get<TLObject>(TLObject::read(reader));
     return RecentMeUrlChatInvite(url_, chat_invite_);
 }
 
@@ -15346,7 +13330,7 @@ RecentMeUrlStickerSet::RecentMeUrlStickerSet(std::string url_, TLObject set_) {}
 RecentMeUrlStickerSet RecentMeUrlStickerSet::read(Reader reader)
 {
     std::string url_ = String::read(reader);
-    TLObject set_ = TLObject::read(reader);
+    TLObject set_ = std::get<TLObject>(TLObject::read(reader));
     return RecentMeUrlStickerSet(url_, set_);
 }
 
@@ -15364,15 +13348,11 @@ InputSingleMedia::InputSingleMedia(TLObject media_, long random_id_, std::string
 InputSingleMedia InputSingleMedia::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject media_ = TLObject::read(reader);
+    TLObject media_ = std::get<TLObject>(TLObject::read(reader));
     long random_id_ = Long::read(reader);
     std::string message_ = String::read(reader);
     std::optional<std::vector<TLObject>> entities_;
-
-    if (1 << 0)
-        entities_ = Vector<TLObject>::read(reader);
-    else
-        entities_ = std::nullopt;
+    entities_ = (1 << 0) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     return InputSingleMedia(media_, random_id_, message_, entities_);
 }
 
@@ -15488,7 +13468,7 @@ InputDialogPeer::InputDialogPeer(TLObject peer_) {}
 
 InputDialogPeer InputDialogPeer::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     return InputDialogPeer(peer_);
 }
 
@@ -15520,7 +13500,7 @@ DialogPeer::DialogPeer(TLObject peer_) {}
 
 DialogPeer DialogPeer::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     return DialogPeer(peer_);
 }
 
@@ -15867,49 +13847,21 @@ SecureValue::SecureValue(TLObject type_, std::string hash_, std::optional<TLObje
 SecureValue SecureValue::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject type_ = TLObject::read(reader);
+    TLObject type_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<TLObject> data_;
-
-    if (1 << 0)
-        data_ = TLObject::read(reader);
-    else
-        data_ = std::nullopt;
+    data_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> front_side_;
-
-    if (1 << 1)
-        front_side_ = TLObject::read(reader);
-    else
-        front_side_ = std::nullopt;
+    front_side_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> reverse_side_;
-
-    if (1 << 2)
-        reverse_side_ = TLObject::read(reader);
-    else
-        reverse_side_ = std::nullopt;
+    reverse_side_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> selfie_;
-
-    if (1 << 3)
-        selfie_ = TLObject::read(reader);
-    else
-        selfie_ = std::nullopt;
+    selfie_ = (1 << 3) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::vector<TLObject>> translation_;
-
-    if (1 << 6)
-        translation_ = Vector<TLObject>::read(reader);
-    else
-        translation_ = std::nullopt;
+    translation_ = (1 << 6) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::vector<TLObject>> files_;
-
-    if (1 << 4)
-        files_ = Vector<TLObject>::read(reader);
-    else
-        files_ = std::nullopt;
+    files_ = (1 << 4) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> plain_data_;
-
-    if (1 << 5)
-        plain_data_ = TLObject::read(reader);
-    else
-        plain_data_ = std::nullopt;
+    plain_data_ = (1 << 5) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::string hash_ = Bytes::read(reader);
     return SecureValue(type_, hash_, data_, front_side_, reverse_side_, selfie_, translation_, files_, plain_data_);
 }
@@ -15957,49 +13909,21 @@ InputSecureValue::InputSecureValue(TLObject type_, std::optional<TLObject> data_
 InputSecureValue InputSecureValue::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject type_ = TLObject::read(reader);
+    TLObject type_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<TLObject> data_;
-
-    if (1 << 0)
-        data_ = TLObject::read(reader);
-    else
-        data_ = std::nullopt;
+    data_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> front_side_;
-
-    if (1 << 1)
-        front_side_ = TLObject::read(reader);
-    else
-        front_side_ = std::nullopt;
+    front_side_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> reverse_side_;
-
-    if (1 << 2)
-        reverse_side_ = TLObject::read(reader);
-    else
-        reverse_side_ = std::nullopt;
+    reverse_side_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> selfie_;
-
-    if (1 << 3)
-        selfie_ = TLObject::read(reader);
-    else
-        selfie_ = std::nullopt;
+    selfie_ = (1 << 3) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::vector<TLObject>> translation_;
-
-    if (1 << 6)
-        translation_ = Vector<TLObject>::read(reader);
-    else
-        translation_ = std::nullopt;
+    translation_ = (1 << 6) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::vector<TLObject>> files_;
-
-    if (1 << 4)
-        files_ = Vector<TLObject>::read(reader);
-    else
-        files_ = std::nullopt;
+    files_ = (1 << 4) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> plain_data_;
-
-    if (1 << 5)
-        plain_data_ = TLObject::read(reader);
-    else
-        plain_data_ = std::nullopt;
+    plain_data_ = (1 << 5) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return InputSecureValue(type_, data_, front_side_, reverse_side_, selfie_, translation_, files_, plain_data_);
 }
 
@@ -16044,7 +13968,7 @@ SecureValueHash::SecureValueHash(TLObject type_, std::string hash_) {}
 
 SecureValueHash SecureValueHash::read(Reader reader)
 {
-    TLObject type_ = TLObject::read(reader);
+    TLObject type_ = std::get<TLObject>(TLObject::read(reader));
     std::string hash_ = Bytes::read(reader);
     return SecureValueHash(type_, hash_);
 }
@@ -16062,7 +13986,7 @@ SecureValueErrorData::SecureValueErrorData(TLObject type_, std::string data_hash
 
 SecureValueErrorData SecureValueErrorData::read(Reader reader)
 {
-    TLObject type_ = TLObject::read(reader);
+    TLObject type_ = std::get<TLObject>(TLObject::read(reader));
     std::string data_hash_ = Bytes::read(reader);
     std::string field_ = String::read(reader);
     std::string text_ = String::read(reader);
@@ -16084,7 +14008,7 @@ SecureValueErrorFrontSide::SecureValueErrorFrontSide(TLObject type_, std::string
 
 SecureValueErrorFrontSide SecureValueErrorFrontSide::read(Reader reader)
 {
-    TLObject type_ = TLObject::read(reader);
+    TLObject type_ = std::get<TLObject>(TLObject::read(reader));
     std::string file_hash_ = Bytes::read(reader);
     std::string text_ = String::read(reader);
     return SecureValueErrorFrontSide(type_, file_hash_, text_);
@@ -16104,7 +14028,7 @@ SecureValueErrorReverseSide::SecureValueErrorReverseSide(TLObject type_, std::st
 
 SecureValueErrorReverseSide SecureValueErrorReverseSide::read(Reader reader)
 {
-    TLObject type_ = TLObject::read(reader);
+    TLObject type_ = std::get<TLObject>(TLObject::read(reader));
     std::string file_hash_ = Bytes::read(reader);
     std::string text_ = String::read(reader);
     return SecureValueErrorReverseSide(type_, file_hash_, text_);
@@ -16124,7 +14048,7 @@ SecureValueErrorSelfie::SecureValueErrorSelfie(TLObject type_, std::string file_
 
 SecureValueErrorSelfie SecureValueErrorSelfie::read(Reader reader)
 {
-    TLObject type_ = TLObject::read(reader);
+    TLObject type_ = std::get<TLObject>(TLObject::read(reader));
     std::string file_hash_ = Bytes::read(reader);
     std::string text_ = String::read(reader);
     return SecureValueErrorSelfie(type_, file_hash_, text_);
@@ -16144,7 +14068,7 @@ SecureValueErrorFile::SecureValueErrorFile(TLObject type_, std::string file_hash
 
 SecureValueErrorFile SecureValueErrorFile::read(Reader reader)
 {
-    TLObject type_ = TLObject::read(reader);
+    TLObject type_ = std::get<TLObject>(TLObject::read(reader));
     std::string file_hash_ = Bytes::read(reader);
     std::string text_ = String::read(reader);
     return SecureValueErrorFile(type_, file_hash_, text_);
@@ -16164,8 +14088,8 @@ SecureValueErrorFiles::SecureValueErrorFiles(TLObject type_, std::vector<std::st
 
 SecureValueErrorFiles SecureValueErrorFiles::read(Reader reader)
 {
-    TLObject type_ = TLObject::read(reader);
-    std::vector<std::string> file_hash_ = Vector<std::string>::read(reader);
+    TLObject type_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<std::string> file_hash_ = std::get<std::vector<std::string>>(TLObject::read(reader));
     std::string text_ = String::read(reader);
     return SecureValueErrorFiles(type_, file_hash_, text_);
 }
@@ -16184,7 +14108,7 @@ SecureValueError::SecureValueError(TLObject type_, std::string hash_, std::strin
 
 SecureValueError SecureValueError::read(Reader reader)
 {
-    TLObject type_ = TLObject::read(reader);
+    TLObject type_ = std::get<TLObject>(TLObject::read(reader));
     std::string hash_ = Bytes::read(reader);
     std::string text_ = String::read(reader);
     return SecureValueError(type_, hash_, text_);
@@ -16204,7 +14128,7 @@ SecureValueErrorTranslationFile::SecureValueErrorTranslationFile(TLObject type_,
 
 SecureValueErrorTranslationFile SecureValueErrorTranslationFile::read(Reader reader)
 {
-    TLObject type_ = TLObject::read(reader);
+    TLObject type_ = std::get<TLObject>(TLObject::read(reader));
     std::string file_hash_ = Bytes::read(reader);
     std::string text_ = String::read(reader);
     return SecureValueErrorTranslationFile(type_, file_hash_, text_);
@@ -16224,8 +14148,8 @@ SecureValueErrorTranslationFiles::SecureValueErrorTranslationFiles(TLObject type
 
 SecureValueErrorTranslationFiles SecureValueErrorTranslationFiles::read(Reader reader)
 {
-    TLObject type_ = TLObject::read(reader);
-    std::vector<std::string> file_hash_ = Vector<std::string>::read(reader);
+    TLObject type_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<std::string> file_hash_ = std::get<std::vector<std::string>>(TLObject::read(reader));
     std::string text_ = String::read(reader);
     return SecureValueErrorTranslationFiles(type_, file_hash_, text_);
 }
@@ -16308,7 +14232,7 @@ SecureSecretSettings::SecureSecretSettings(TLObject secure_algo_, std::string se
 
 SecureSecretSettings SecureSecretSettings::read(Reader reader)
 {
-    TLObject secure_algo_ = TLObject::read(reader);
+    TLObject secure_algo_ = std::get<TLObject>(TLObject::read(reader));
     std::string secure_secret_ = Bytes::read(reader);
     long secure_secret_id_ = Long::read(reader);
     return SecureSecretSettings(secure_algo_, secure_secret_, secure_secret_id_);
@@ -16361,24 +14285,12 @@ SecureRequiredType SecureRequiredType::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> native_names_;
-
-    if (1 << 0)
-        native_names_ = true;
-    else
-        native_names_ = std::nullopt;
+    native_names_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> selfie_required_;
-
-    if (1 << 1)
-        selfie_required_ = true;
-    else
-        selfie_required_ = std::nullopt;
+    selfie_required_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> translation_required_;
-
-    if (1 << 2)
-        translation_required_ = true;
-    else
-        translation_required_ = std::nullopt;
-    TLObject type_ = TLObject::read(reader);
+    translation_required_ = (1 << 2) ? std::optional{true} : std::nullopt;
+    TLObject type_ = std::get<TLObject>(TLObject::read(reader));
     return SecureRequiredType(type_, native_names_, selfie_required_, translation_required_);
 }
 
@@ -16398,7 +14310,7 @@ SecureRequiredTypeOneOf::SecureRequiredTypeOneOf(std::vector<TLObject> types_) {
 
 SecureRequiredTypeOneOf SecureRequiredTypeOneOf::read(Reader reader)
 {
-    std::vector<TLObject> types_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> types_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return SecureRequiredTypeOneOf(types_);
 }
 
@@ -16417,7 +14329,7 @@ InputAppEvent InputAppEvent::read(Reader reader)
     double time_ = Double::read(reader);
     std::string type_ = String::read(reader);
     long peer_ = Long::read(reader);
-    TLObject data_ = TLObject::read(reader);
+    TLObject data_ = std::get<TLObject>(TLObject::read(reader));
     return InputAppEvent(time_, type_, peer_, data_);
 }
 
@@ -16437,7 +14349,7 @@ JsonObjectValue::JsonObjectValue(std::string key_, TLObject value_) {}
 JsonObjectValue JsonObjectValue::read(Reader reader)
 {
     std::string key_ = String::read(reader);
-    TLObject value_ = TLObject::read(reader);
+    TLObject value_ = std::get<TLObject>(TLObject::read(reader));
     return JsonObjectValue(key_, value_);
 }
 
@@ -16513,7 +14425,7 @@ JsonArray::JsonArray(std::vector<TLObject> value_) {}
 
 JsonArray JsonArray::read(Reader reader)
 {
-    std::vector<TLObject> value_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> value_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return JsonArray(value_);
 }
 
@@ -16529,7 +14441,7 @@ JsonObject::JsonObject(std::vector<TLObject> value_) {}
 
 JsonObject JsonObject::read(Reader reader)
 {
-    std::vector<TLObject> value_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> value_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return JsonObject(value_);
 }
 
@@ -16547,53 +14459,21 @@ PageTableCell PageTableCell::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> header_;
-
-    if (1 << 0)
-        header_ = true;
-    else
-        header_ = std::nullopt;
+    header_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> align_center_;
-
-    if (1 << 3)
-        align_center_ = true;
-    else
-        align_center_ = std::nullopt;
+    align_center_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::optional<bool> align_right_;
-
-    if (1 << 4)
-        align_right_ = true;
-    else
-        align_right_ = std::nullopt;
+    align_right_ = (1 << 4) ? std::optional{true} : std::nullopt;
     std::optional<bool> valign_middle_;
-
-    if (1 << 5)
-        valign_middle_ = true;
-    else
-        valign_middle_ = std::nullopt;
+    valign_middle_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> valign_bottom_;
-
-    if (1 << 6)
-        valign_bottom_ = true;
-    else
-        valign_bottom_ = std::nullopt;
+    valign_bottom_ = (1 << 6) ? std::optional{true} : std::nullopt;
     std::optional<TLObject> text_;
-
-    if (1 << 7)
-        text_ = TLObject::read(reader);
-    else
-        text_ = std::nullopt;
+    text_ = (1 << 7) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> colspan_;
-
-    if (1 << 1)
-        colspan_ = Int::read(reader);
-    else
-        colspan_ = std::nullopt;
+    colspan_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> rowspan_;
-
-    if (1 << 2)
-        rowspan_ = Int::read(reader);
-    else
-        rowspan_ = std::nullopt;
+    rowspan_ = (1 << 2) ? std::optional{Int::read(reader)} : std::nullopt;
     return PageTableCell(header_, align_center_, align_right_, valign_middle_, valign_bottom_, text_, colspan_, rowspan_);
 }
 
@@ -16626,7 +14506,7 @@ PageTableRow::PageTableRow(std::vector<TLObject> cells_) {}
 
 PageTableRow PageTableRow::read(Reader reader)
 {
-    std::vector<TLObject> cells_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> cells_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return PageTableRow(cells_);
 }
 
@@ -16642,8 +14522,8 @@ PageCaption::PageCaption(TLObject text_, TLObject credit_) {}
 
 PageCaption PageCaption::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
-    TLObject credit_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject credit_ = std::get<TLObject>(TLObject::read(reader));
     return PageCaption(text_, credit_);
 }
 
@@ -16660,7 +14540,7 @@ PageListItemText::PageListItemText(TLObject text_) {}
 
 PageListItemText PageListItemText::read(Reader reader)
 {
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     return PageListItemText(text_);
 }
 
@@ -16676,7 +14556,7 @@ PageListItemBlocks::PageListItemBlocks(std::vector<TLObject> blocks_) {}
 
 PageListItemBlocks PageListItemBlocks::read(Reader reader)
 {
-    std::vector<TLObject> blocks_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> blocks_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return PageListItemBlocks(blocks_);
 }
 
@@ -16693,7 +14573,7 @@ PageListOrderedItemText::PageListOrderedItemText(std::string num_, TLObject text
 PageListOrderedItemText PageListOrderedItemText::read(Reader reader)
 {
     std::string num_ = String::read(reader);
-    TLObject text_ = TLObject::read(reader);
+    TLObject text_ = std::get<TLObject>(TLObject::read(reader));
     return PageListOrderedItemText(num_, text_);
 }
 
@@ -16711,7 +14591,7 @@ PageListOrderedItemBlocks::PageListOrderedItemBlocks(std::string num_, std::vect
 PageListOrderedItemBlocks PageListOrderedItemBlocks::read(Reader reader)
 {
     std::string num_ = String::read(reader);
-    std::vector<TLObject> blocks_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> blocks_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return PageListOrderedItemBlocks(num_, blocks_);
 }
 
@@ -16732,35 +14612,15 @@ PageRelatedArticle PageRelatedArticle::read(Reader reader)
     std::string url_ = String::read(reader);
     long webpage_id_ = Long::read(reader);
     std::optional<std::string> title_;
-
-    if (1 << 0)
-        title_ = String::read(reader);
-    else
-        title_ = std::nullopt;
+    title_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> description_;
-
-    if (1 << 1)
-        description_ = String::read(reader);
-    else
-        description_ = std::nullopt;
+    description_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<long> photo_id_;
-
-    if (1 << 2)
-        photo_id_ = Long::read(reader);
-    else
-        photo_id_ = std::nullopt;
+    photo_id_ = (1 << 2) ? std::optional{Long::read(reader)} : std::nullopt;
     std::optional<std::string> author_;
-
-    if (1 << 3)
-        author_ = String::read(reader);
-    else
-        author_ = std::nullopt;
+    author_ = (1 << 3) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<int> published_date_;
-
-    if (1 << 4)
-        published_date_ = Int::read(reader);
-    else
-        published_date_ = std::nullopt;
+    published_date_ = (1 << 4) ? std::optional{Int::read(reader)} : std::nullopt;
     return PageRelatedArticle(url_, webpage_id_, title_, description_, photo_id_, author_, published_date_);
 }
 
@@ -16800,33 +14660,17 @@ Page Page::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> part_;
-
-    if (1 << 0)
-        part_ = true;
-    else
-        part_ = std::nullopt;
+    part_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> rtl_;
-
-    if (1 << 1)
-        rtl_ = true;
-    else
-        rtl_ = std::nullopt;
+    rtl_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> v2_;
-
-    if (1 << 2)
-        v2_ = true;
-    else
-        v2_ = std::nullopt;
+    v2_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::string url_ = String::read(reader);
-    std::vector<TLObject> blocks_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> photos_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> documents_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> blocks_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> photos_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> documents_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     std::optional<int> views_;
-
-    if (1 << 3)
-        views_ = Int::read(reader);
-    else
-        views_ = std::nullopt;
+    views_ = (1 << 3) ? std::optional{Int::read(reader)} : std::nullopt;
     return Page(url_, blocks_, photos_, documents_, part_, rtl_, v2_, views_);
 }
 
@@ -16874,43 +14718,19 @@ Poll Poll::read(Reader reader)
     long id_ = Long::read(reader);
     int flags = Int::read(reader);
     std::optional<bool> closed_;
-
-    if (1 << 0)
-        closed_ = true;
-    else
-        closed_ = std::nullopt;
+    closed_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> public_voters_;
-
-    if (1 << 1)
-        public_voters_ = true;
-    else
-        public_voters_ = std::nullopt;
+    public_voters_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> multiple_choice_;
-
-    if (1 << 2)
-        multiple_choice_ = true;
-    else
-        multiple_choice_ = std::nullopt;
+    multiple_choice_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<bool> quiz_;
-
-    if (1 << 3)
-        quiz_ = true;
-    else
-        quiz_ = std::nullopt;
+    quiz_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::string question_ = String::read(reader);
-    std::vector<TLObject> answers_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> answers_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     std::optional<int> close_period_;
-
-    if (1 << 4)
-        close_period_ = Int::read(reader);
-    else
-        close_period_ = std::nullopt;
+    close_period_ = (1 << 4) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> close_date_;
-
-    if (1 << 5)
-        close_date_ = Int::read(reader);
-    else
-        close_date_ = std::nullopt;
+    close_date_ = (1 << 5) ? std::optional{Int::read(reader)} : std::nullopt;
     return Poll(id_, question_, answers_, closed_, public_voters_, multiple_choice_, quiz_, close_period_, close_date_);
 }
 
@@ -16943,17 +14763,9 @@ PollAnswerVoters PollAnswerVoters::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> chosen_;
-
-    if (1 << 0)
-        chosen_ = true;
-    else
-        chosen_ = std::nullopt;
+    chosen_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> correct_;
-
-    if (1 << 1)
-        correct_ = true;
-    else
-        correct_ = std::nullopt;
+    correct_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::string option_ = Bytes::read(reader);
     int voters_ = Int::read(reader);
     return PollAnswerVoters(option_, voters_, chosen_, correct_);
@@ -16977,41 +14789,17 @@ PollResults PollResults::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> min_;
-
-    if (1 << 0)
-        min_ = true;
-    else
-        min_ = std::nullopt;
+    min_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<std::vector<TLObject>> results_;
-
-    if (1 << 1)
-        results_ = Vector<TLObject>::read(reader);
-    else
-        results_ = std::nullopt;
+    results_ = (1 << 1) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> total_voters_;
-
-    if (1 << 2)
-        total_voters_ = Int::read(reader);
-    else
-        total_voters_ = std::nullopt;
+    total_voters_ = (1 << 2) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<std::vector<int>> recent_voters_;
-
-    if (1 << 3)
-        recent_voters_ = Vector<int>::read(reader);
-    else
-        recent_voters_ = std::nullopt;
+    recent_voters_ = (1 << 3) ? std::optional{std::get<std::vector<int>>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::string> solution_;
-
-    if (1 << 4)
-        solution_ = String::read(reader);
-    else
-        solution_ = std::nullopt;
+    solution_ = (1 << 4) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::vector<TLObject>> solution_entities_;
-
-    if (1 << 4)
-        solution_entities_ = Vector<TLObject>::read(reader);
-    else
-        solution_entities_ = std::nullopt;
+    solution_entities_ = (1 << 4) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     return PollResults(min_, results_, total_voters_, recent_voters_, solution_, solution_entities_);
 }
 
@@ -17082,71 +14870,27 @@ ChatAdminRights ChatAdminRights::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> change_info_;
-
-    if (1 << 0)
-        change_info_ = true;
-    else
-        change_info_ = std::nullopt;
+    change_info_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> post_messages_;
-
-    if (1 << 1)
-        post_messages_ = true;
-    else
-        post_messages_ = std::nullopt;
+    post_messages_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> edit_messages_;
-
-    if (1 << 2)
-        edit_messages_ = true;
-    else
-        edit_messages_ = std::nullopt;
+    edit_messages_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<bool> delete_messages_;
-
-    if (1 << 3)
-        delete_messages_ = true;
-    else
-        delete_messages_ = std::nullopt;
+    delete_messages_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::optional<bool> ban_users_;
-
-    if (1 << 4)
-        ban_users_ = true;
-    else
-        ban_users_ = std::nullopt;
+    ban_users_ = (1 << 4) ? std::optional{true} : std::nullopt;
     std::optional<bool> invite_users_;
-
-    if (1 << 5)
-        invite_users_ = true;
-    else
-        invite_users_ = std::nullopt;
+    invite_users_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> pin_messages_;
-
-    if (1 << 7)
-        pin_messages_ = true;
-    else
-        pin_messages_ = std::nullopt;
+    pin_messages_ = (1 << 7) ? std::optional{true} : std::nullopt;
     std::optional<bool> add_admins_;
-
-    if (1 << 9)
-        add_admins_ = true;
-    else
-        add_admins_ = std::nullopt;
+    add_admins_ = (1 << 9) ? std::optional{true} : std::nullopt;
     std::optional<bool> anonymous_;
-
-    if (1 << 10)
-        anonymous_ = true;
-    else
-        anonymous_ = std::nullopt;
+    anonymous_ = (1 << 10) ? std::optional{true} : std::nullopt;
     std::optional<bool> manage_call_;
-
-    if (1 << 11)
-        manage_call_ = true;
-    else
-        manage_call_ = std::nullopt;
+    manage_call_ = (1 << 11) ? std::optional{true} : std::nullopt;
     std::optional<bool> other_;
-
-    if (1 << 12)
-        other_ = true;
-    else
-        other_ = std::nullopt;
+    other_ = (1 << 12) ? std::optional{true} : std::nullopt;
     return ChatAdminRights(change_info_, post_messages_, edit_messages_, delete_messages_, ban_users_, invite_users_, pin_messages_, add_admins_, anonymous_, manage_call_, other_);
 }
 
@@ -17175,77 +14919,29 @@ ChatBannedRights ChatBannedRights::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> view_messages_;
-
-    if (1 << 0)
-        view_messages_ = true;
-    else
-        view_messages_ = std::nullopt;
+    view_messages_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> send_messages_;
-
-    if (1 << 1)
-        send_messages_ = true;
-    else
-        send_messages_ = std::nullopt;
+    send_messages_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> send_media_;
-
-    if (1 << 2)
-        send_media_ = true;
-    else
-        send_media_ = std::nullopt;
+    send_media_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<bool> send_stickers_;
-
-    if (1 << 3)
-        send_stickers_ = true;
-    else
-        send_stickers_ = std::nullopt;
+    send_stickers_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::optional<bool> send_gifs_;
-
-    if (1 << 4)
-        send_gifs_ = true;
-    else
-        send_gifs_ = std::nullopt;
+    send_gifs_ = (1 << 4) ? std::optional{true} : std::nullopt;
     std::optional<bool> send_games_;
-
-    if (1 << 5)
-        send_games_ = true;
-    else
-        send_games_ = std::nullopt;
+    send_games_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> send_inline_;
-
-    if (1 << 6)
-        send_inline_ = true;
-    else
-        send_inline_ = std::nullopt;
+    send_inline_ = (1 << 6) ? std::optional{true} : std::nullopt;
     std::optional<bool> embed_links_;
-
-    if (1 << 7)
-        embed_links_ = true;
-    else
-        embed_links_ = std::nullopt;
+    embed_links_ = (1 << 7) ? std::optional{true} : std::nullopt;
     std::optional<bool> send_polls_;
-
-    if (1 << 8)
-        send_polls_ = true;
-    else
-        send_polls_ = std::nullopt;
+    send_polls_ = (1 << 8) ? std::optional{true} : std::nullopt;
     std::optional<bool> change_info_;
-
-    if (1 << 10)
-        change_info_ = true;
-    else
-        change_info_ = std::nullopt;
+    change_info_ = (1 << 10) ? std::optional{true} : std::nullopt;
     std::optional<bool> invite_users_;
-
-    if (1 << 15)
-        invite_users_ = true;
-    else
-        invite_users_ = std::nullopt;
+    invite_users_ = (1 << 15) ? std::optional{true} : std::nullopt;
     std::optional<bool> pin_messages_;
-
-    if (1 << 17)
-        pin_messages_ = true;
-    else
-        pin_messages_ = std::nullopt;
+    pin_messages_ = (1 << 17) ? std::optional{true} : std::nullopt;
     int until_date_ = Int::read(reader);
     return ChatBannedRights(until_date_, view_messages_, send_messages_, send_media_, send_stickers_, send_gifs_, send_games_, send_inline_, embed_links_, send_polls_, change_info_, invite_users_, pin_messages_);
 }
@@ -17327,23 +15023,11 @@ CodeSettings CodeSettings::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> allow_flashcall_;
-
-    if (1 << 0)
-        allow_flashcall_ = true;
-    else
-        allow_flashcall_ = std::nullopt;
+    allow_flashcall_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> current_number_;
-
-    if (1 << 1)
-        current_number_ = true;
-    else
-        current_number_ = std::nullopt;
+    current_number_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> allow_app_hash_;
-
-    if (1 << 4)
-        allow_app_hash_ = true;
-    else
-        allow_app_hash_ = std::nullopt;
+    allow_app_hash_ = (1 << 4) ? std::optional{true} : std::nullopt;
     return CodeSettings(allow_flashcall_, current_number_, allow_app_hash_);
 }
 
@@ -17364,53 +15048,21 @@ WallPaperSettings WallPaperSettings::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> blur_;
-
-    if (1 << 1)
-        blur_ = true;
-    else
-        blur_ = std::nullopt;
+    blur_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> motion_;
-
-    if (1 << 2)
-        motion_ = true;
-    else
-        motion_ = std::nullopt;
+    motion_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<int> background_color_;
-
-    if (1 << 0)
-        background_color_ = Int::read(reader);
-    else
-        background_color_ = std::nullopt;
+    background_color_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> second_background_color_;
-
-    if (1 << 4)
-        second_background_color_ = Int::read(reader);
-    else
-        second_background_color_ = std::nullopt;
+    second_background_color_ = (1 << 4) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> third_background_color_;
-
-    if (1 << 5)
-        third_background_color_ = Int::read(reader);
-    else
-        third_background_color_ = std::nullopt;
+    third_background_color_ = (1 << 5) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> fourth_background_color_;
-
-    if (1 << 6)
-        fourth_background_color_ = Int::read(reader);
-    else
-        fourth_background_color_ = std::nullopt;
+    fourth_background_color_ = (1 << 6) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> intensity_;
-
-    if (1 << 3)
-        intensity_ = Int::read(reader);
-    else
-        intensity_ = std::nullopt;
+    intensity_ = (1 << 3) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> rotation_;
-
-    if (1 << 4)
-        rotation_ = Int::read(reader);
-    else
-        rotation_ = std::nullopt;
+    rotation_ = (1 << 4) ? std::optional{Int::read(reader)} : std::nullopt;
     return WallPaperSettings(blur_, motion_, background_color_, second_background_color_, third_background_color_, fourth_background_color_, intensity_, rotation_);
 }
 
@@ -17454,29 +15106,13 @@ AutoDownloadSettings AutoDownloadSettings::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> disabled_;
-
-    if (1 << 0)
-        disabled_ = true;
-    else
-        disabled_ = std::nullopt;
+    disabled_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> video_preload_large_;
-
-    if (1 << 1)
-        video_preload_large_ = true;
-    else
-        video_preload_large_ = std::nullopt;
+    video_preload_large_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> audio_preload_next_;
-
-    if (1 << 2)
-        audio_preload_next_ = true;
-    else
-        audio_preload_next_ = std::nullopt;
+    audio_preload_next_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<bool> phonecalls_less_data_;
-
-    if (1 << 3)
-        phonecalls_less_data_ = true;
-    else
-        phonecalls_less_data_ = std::nullopt;
+    phonecalls_less_data_ = (1 << 3) ? std::optional{true} : std::nullopt;
     int photo_size_max_ = Int::read(reader);
     int video_size_max_ = Int::read(reader);
     int file_size_max_ = Int::read(reader);
@@ -17505,7 +15141,7 @@ EmojiKeyword::EmojiKeyword(std::string keyword_, std::vector<std::string> emotic
 EmojiKeyword EmojiKeyword::read(Reader reader)
 {
     std::string keyword_ = String::read(reader);
-    std::vector<std::string> emoticons_ = Vector<std::string>::read(reader);
+    std::vector<std::string> emoticons_ = std::get<std::vector<std::string>>(TLObject::read(reader));
     return EmojiKeyword(keyword_, emoticons_);
 }
 
@@ -17523,7 +15159,7 @@ EmojiKeywordDeleted::EmojiKeywordDeleted(std::string keyword_, std::vector<std::
 EmojiKeywordDeleted EmojiKeywordDeleted::read(Reader reader)
 {
     std::string keyword_ = String::read(reader);
-    std::vector<std::string> emoticons_ = Vector<std::string>::read(reader);
+    std::vector<std::string> emoticons_ = std::get<std::vector<std::string>>(TLObject::read(reader));
     return EmojiKeywordDeleted(keyword_, emoticons_);
 }
 
@@ -17543,7 +15179,7 @@ EmojiKeywordsDifference EmojiKeywordsDifference::read(Reader reader)
     std::string lang_code_ = String::read(reader);
     int from_version_ = Int::read(reader);
     int version_ = Int::read(reader);
-    std::vector<TLObject> keywords_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> keywords_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return EmojiKeywordsDifference(lang_code_, from_version_, version_, keywords_);
 }
 
@@ -17596,31 +15232,15 @@ Folder Folder::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> autofill_new_broadcasts_;
-
-    if (1 << 0)
-        autofill_new_broadcasts_ = true;
-    else
-        autofill_new_broadcasts_ = std::nullopt;
+    autofill_new_broadcasts_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> autofill_public_groups_;
-
-    if (1 << 1)
-        autofill_public_groups_ = true;
-    else
-        autofill_public_groups_ = std::nullopt;
+    autofill_public_groups_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> autofill_new_correspondents_;
-
-    if (1 << 2)
-        autofill_new_correspondents_ = true;
-    else
-        autofill_new_correspondents_ = std::nullopt;
+    autofill_new_correspondents_ = (1 << 2) ? std::optional{true} : std::nullopt;
     int id_ = Int::read(reader);
     std::string title_ = String::read(reader);
     std::optional<TLObject> photo_;
-
-    if (1 << 3)
-        photo_ = TLObject::read(reader);
-    else
-        photo_ = std::nullopt;
+    photo_ = (1 << 3) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return Folder(id_, title_, autofill_new_broadcasts_, autofill_public_groups_, autofill_new_correspondents_, photo_);
 }
 
@@ -17645,7 +15265,7 @@ InputFolderPeer::InputFolderPeer(TLObject peer_, int folder_id_) {}
 
 InputFolderPeer InputFolderPeer::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int folder_id_ = Int::read(reader);
     return InputFolderPeer(peer_, folder_id_);
 }
@@ -17663,7 +15283,7 @@ FolderPeer::FolderPeer(TLObject peer_, int folder_id_) {}
 
 FolderPeer FolderPeer::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int folder_id_ = Int::read(reader);
     return FolderPeer(peer_, folder_id_);
 }
@@ -17683,12 +15303,8 @@ UrlAuthResultRequest UrlAuthResultRequest::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> request_write_access_;
-
-    if (1 << 0)
-        request_write_access_ = true;
-    else
-        request_write_access_ = std::nullopt;
-    TLObject bot_ = TLObject::read(reader);
+    request_write_access_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject bot_ = std::get<TLObject>(TLObject::read(reader));
     std::string domain_ = String::read(reader);
     return UrlAuthResultRequest(bot_, domain_, request_write_access_);
 }
@@ -17746,7 +15362,7 @@ ChannelLocation::ChannelLocation(TLObject geo_point_, std::string address_) {}
 
 ChannelLocation ChannelLocation::read(Reader reader)
 {
-    TLObject geo_point_ = TLObject::read(reader);
+    TLObject geo_point_ = std::get<TLObject>(TLObject::read(reader));
     std::string address_ = String::read(reader);
     return ChannelLocation(geo_point_, address_);
 }
@@ -17764,7 +15380,7 @@ PeerLocated::PeerLocated(TLObject peer_, int expires_, int distance_) {}
 
 PeerLocated PeerLocated::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int expires_ = Int::read(reader);
     int distance_ = Int::read(reader);
     return PeerLocated(peer_, expires_, distance_);
@@ -17850,41 +15466,25 @@ std::string InputThemeSlug::write()
     return buffer;
 }
 
-Theme::Theme(long id_, long access_hash_, std::string slug_, std::string title_, int installs_count_, std::optional<bool> creator_, std::optional<bool> default_, std::optional<TLObject> document_, std::optional<TLObject> settings_) {}
+Theme::Theme(long id_, long access_hash_, std::string slug_, std::string title_, int installs_count_, std::optional<bool> creator_, std::optional<bool> default__, std::optional<TLObject> document_, std::optional<TLObject> settings_) {}
 
 Theme Theme::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> creator_;
-
-    if (1 << 0)
-        creator_ = true;
-    else
-        creator_ = std::nullopt;
-    std::optional<bool> default_;
-
-    if (1 << 1)
-        default_ = true;
-    else
-        default_ = std::nullopt;
+    creator_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    std::optional<bool> default__;
+    default__ = (1 << 1) ? std::optional{true} : std::nullopt;
     long id_ = Long::read(reader);
     long access_hash_ = Long::read(reader);
     std::string slug_ = String::read(reader);
     std::string title_ = String::read(reader);
     std::optional<TLObject> document_;
-
-    if (1 << 2)
-        document_ = TLObject::read(reader);
-    else
-        document_ = std::nullopt;
+    document_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> settings_;
-
-    if (1 << 3)
-        settings_ = TLObject::read(reader);
-    else
-        settings_ = std::nullopt;
+    settings_ = (1 << 3) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     int installs_count_ = Int::read(reader);
-    return Theme(id_, access_hash_, slug_, title_, installs_count_, creator_, default_, document_, settings_);
+    return Theme(id_, access_hash_, slug_, title_, installs_count_, creator_, default__, document_, settings_);
 }
 
 std::string Theme::write()
@@ -17893,7 +15493,7 @@ std::string Theme::write()
     buffer += Int::write(__id);
     int flags = 0;
     flags |= creator ? 1 << 0 : 0;
-    flags |= default ? 1 << 1 : 0;
+    flags |= default_ ? 1 << 1 : 0;
     flags |= document ? 1 << 2 : 0;
     flags |= settings ? 1 << 3 : 0;
     buffer += Long::write(id);
@@ -17970,32 +15570,16 @@ InputThemeSettings::InputThemeSettings(TLObject base_theme_, int accent_color_, 
 InputThemeSettings InputThemeSettings::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject base_theme_ = TLObject::read(reader);
+    TLObject base_theme_ = std::get<TLObject>(TLObject::read(reader));
     int accent_color_ = Int::read(reader);
     std::optional<int> message_top_color_;
-
-    if (1 << 0)
-        message_top_color_ = Int::read(reader);
-    else
-        message_top_color_ = std::nullopt;
+    message_top_color_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> message_bottom_color_;
-
-    if (1 << 0)
-        message_bottom_color_ = Int::read(reader);
-    else
-        message_bottom_color_ = std::nullopt;
+    message_bottom_color_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<TLObject> wallpaper_;
-
-    if (1 << 1)
-        wallpaper_ = TLObject::read(reader);
-    else
-        wallpaper_ = std::nullopt;
+    wallpaper_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> wallpaper_settings_;
-
-    if (1 << 1)
-        wallpaper_settings_ = TLObject::read(reader);
-    else
-        wallpaper_settings_ = std::nullopt;
+    wallpaper_settings_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return InputThemeSettings(base_theme_, accent_color_, message_top_color_, message_bottom_color_, wallpaper_, wallpaper_settings_);
 }
 
@@ -18030,26 +15614,14 @@ ThemeSettings::ThemeSettings(TLObject base_theme_, int accent_color_, std::optio
 ThemeSettings ThemeSettings::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject base_theme_ = TLObject::read(reader);
+    TLObject base_theme_ = std::get<TLObject>(TLObject::read(reader));
     int accent_color_ = Int::read(reader);
     std::optional<int> message_top_color_;
-
-    if (1 << 0)
-        message_top_color_ = Int::read(reader);
-    else
-        message_top_color_ = std::nullopt;
+    message_top_color_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> message_bottom_color_;
-
-    if (1 << 0)
-        message_bottom_color_ = Int::read(reader);
-    else
-        message_bottom_color_ = std::nullopt;
+    message_bottom_color_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<TLObject> wallpaper_;
-
-    if (1 << 1)
-        wallpaper_ = TLObject::read(reader);
-    else
-        wallpaper_ = std::nullopt;
+    wallpaper_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return ThemeSettings(base_theme_, accent_color_, message_top_color_, message_bottom_color_, wallpaper_);
 }
 
@@ -18081,17 +15653,9 @@ WebPageAttributeTheme WebPageAttributeTheme::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<std::vector<TLObject>> documents_;
-
-    if (1 << 0)
-        documents_ = Vector<TLObject>::read(reader);
-    else
-        documents_ = std::nullopt;
+    documents_ = (1 << 0) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> settings_;
-
-    if (1 << 1)
-        settings_ = TLObject::read(reader);
-    else
-        settings_ = std::nullopt;
+    settings_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return WebPageAttributeTheme(documents_, settings_);
 }
 
@@ -18154,7 +15718,7 @@ MessageUserVoteMultiple::MessageUserVoteMultiple(int user_id_, std::vector<std::
 MessageUserVoteMultiple MessageUserVoteMultiple::read(Reader reader)
 {
     int user_id_ = Int::read(reader);
-    std::vector<std::string> options_ = Vector<std::string>::read(reader);
+    std::vector<std::string> options_ = std::get<std::vector<std::string>>(TLObject::read(reader));
     int date_ = Int::read(reader);
     return MessageUserVoteMultiple(user_id_, options_, date_);
 }
@@ -18193,64 +15757,28 @@ DialogFilter DialogFilter::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> contacts_;
-
-    if (1 << 0)
-        contacts_ = true;
-    else
-        contacts_ = std::nullopt;
+    contacts_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> non_contacts_;
-
-    if (1 << 1)
-        non_contacts_ = true;
-    else
-        non_contacts_ = std::nullopt;
+    non_contacts_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> groups_;
-
-    if (1 << 2)
-        groups_ = true;
-    else
-        groups_ = std::nullopt;
+    groups_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<bool> broadcasts_;
-
-    if (1 << 3)
-        broadcasts_ = true;
-    else
-        broadcasts_ = std::nullopt;
+    broadcasts_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::optional<bool> bots_;
-
-    if (1 << 4)
-        bots_ = true;
-    else
-        bots_ = std::nullopt;
+    bots_ = (1 << 4) ? std::optional{true} : std::nullopt;
     std::optional<bool> exclude_muted_;
-
-    if (1 << 11)
-        exclude_muted_ = true;
-    else
-        exclude_muted_ = std::nullopt;
+    exclude_muted_ = (1 << 11) ? std::optional{true} : std::nullopt;
     std::optional<bool> exclude_read_;
-
-    if (1 << 12)
-        exclude_read_ = true;
-    else
-        exclude_read_ = std::nullopt;
+    exclude_read_ = (1 << 12) ? std::optional{true} : std::nullopt;
     std::optional<bool> exclude_archived_;
-
-    if (1 << 13)
-        exclude_archived_ = true;
-    else
-        exclude_archived_ = std::nullopt;
+    exclude_archived_ = (1 << 13) ? std::optional{true} : std::nullopt;
     int id_ = Int::read(reader);
     std::string title_ = String::read(reader);
     std::optional<std::string> emoticon_;
-
-    if (1 << 25)
-        emoticon_ = String::read(reader);
-    else
-        emoticon_ = std::nullopt;
-    std::vector<TLObject> pinned_peers_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> include_peers_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> exclude_peers_ = Vector<TLObject>::read(reader);
+    emoticon_ = (1 << 25) ? std::optional{String::read(reader)} : std::nullopt;
+    std::vector<TLObject> pinned_peers_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> include_peers_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> exclude_peers_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return DialogFilter(id_, title_, pinned_peers_, include_peers_, exclude_peers_, contacts_, non_contacts_, groups_, broadcasts_, bots_, exclude_muted_, exclude_read_, exclude_archived_, emoticon_);
 }
 
@@ -18283,7 +15811,7 @@ DialogFilterSuggested::DialogFilterSuggested(TLObject filter_, std::string descr
 
 DialogFilterSuggested DialogFilterSuggested::read(Reader reader)
 {
-    TLObject filter_ = TLObject::read(reader);
+    TLObject filter_ = std::get<TLObject>(TLObject::read(reader));
     std::string description_ = String::read(reader);
     return DialogFilterSuggested(filter_, description_);
 }
@@ -18388,13 +15916,9 @@ StatsGraph::StatsGraph(TLObject json_, std::optional<std::string> zoom_token_) {
 StatsGraph StatsGraph::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject json_ = TLObject::read(reader);
+    TLObject json_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<std::string> zoom_token_;
-
-    if (1 << 0)
-        zoom_token_ = String::read(reader);
-    else
-        zoom_token_ = std::nullopt;
+    zoom_token_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
     return StatsGraph(json_, zoom_token_);
 }
 
@@ -18441,11 +15965,7 @@ VideoSize VideoSize::read(Reader reader)
     int h_ = Int::read(reader);
     int size_ = Int::read(reader);
     std::optional<double> video_start_ts_;
-
-    if (1 << 0)
-        video_start_ts_ = Double::read(reader);
-    else
-        video_start_ts_ = std::nullopt;
+    video_start_ts_ = (1 << 0) ? std::optional{Double::read(reader)} : std::nullopt;
     return VideoSize(type_, w_, h_, size_, video_start_ts_);
 }
 
@@ -18531,11 +16051,7 @@ GlobalPrivacySettings GlobalPrivacySettings::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> archive_and_mute_new_noncontact_peers_;
-
-    if (1 << 0)
-        archive_and_mute_new_noncontact_peers_ = true;
-    else
-        archive_and_mute_new_noncontact_peers_ = std::nullopt;
+    archive_and_mute_new_noncontact_peers_ = (1 << 0) ? std::optional{true} : std::nullopt;
     return GlobalPrivacySettings(archive_and_mute_new_noncontact_peers_);
 }
 
@@ -18554,23 +16070,11 @@ MessageViews MessageViews::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<int> views_;
-
-    if (1 << 0)
-        views_ = Int::read(reader);
-    else
-        views_ = std::nullopt;
+    views_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> forwards_;
-
-    if (1 << 1)
-        forwards_ = Int::read(reader);
-    else
-        forwards_ = std::nullopt;
+    forwards_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<TLObject> replies_;
-
-    if (1 << 2)
-        replies_ = TLObject::read(reader);
-    else
-        replies_ = std::nullopt;
+    replies_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return MessageViews(views_, forwards_, replies_);
 }
 
@@ -18601,17 +16105,9 @@ MessageReplyHeader MessageReplyHeader::read(Reader reader)
     int flags = Int::read(reader);
     int reply_to_msg_id_ = Int::read(reader);
     std::optional<TLObject> reply_to_peer_id_;
-
-    if (1 << 0)
-        reply_to_peer_id_ = TLObject::read(reader);
-    else
-        reply_to_peer_id_ = std::nullopt;
+    reply_to_peer_id_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> reply_to_top_id_;
-
-    if (1 << 1)
-        reply_to_top_id_ = Int::read(reader);
-    else
-        reply_to_top_id_ = std::nullopt;
+    reply_to_top_id_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     return MessageReplyHeader(reply_to_msg_id_, reply_to_peer_id_, reply_to_top_id_);
 }
 
@@ -18638,37 +16134,17 @@ MessageReplies MessageReplies::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> comments_;
-
-    if (1 << 0)
-        comments_ = true;
-    else
-        comments_ = std::nullopt;
+    comments_ = (1 << 0) ? std::optional{true} : std::nullopt;
     int replies_ = Int::read(reader);
     int replies_pts_ = Int::read(reader);
     std::optional<std::vector<TLObject>> recent_repliers_;
-
-    if (1 << 1)
-        recent_repliers_ = Vector<TLObject>::read(reader);
-    else
-        recent_repliers_ = std::nullopt;
+    recent_repliers_ = (1 << 1) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> channel_id_;
-
-    if (1 << 0)
-        channel_id_ = Int::read(reader);
-    else
-        channel_id_ = std::nullopt;
+    channel_id_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> max_id_;
-
-    if (1 << 2)
-        max_id_ = Int::read(reader);
-    else
-        max_id_ = std::nullopt;
+    max_id_ = (1 << 2) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> read_max_id_;
-
-    if (1 << 3)
-        read_max_id_ = Int::read(reader);
-    else
-        read_max_id_ = std::nullopt;
+    read_max_id_ = (1 << 3) ? std::optional{Int::read(reader)} : std::nullopt;
     return MessageReplies(replies_, replies_pts_, comments_, recent_repliers_, channel_id_, max_id_, read_max_id_);
 }
 
@@ -18703,7 +16179,7 @@ PeerBlocked::PeerBlocked(TLObject peer_id_, int date_) {}
 
 PeerBlocked PeerBlocked::read(Reader reader)
 {
-    TLObject peer_id_ = TLObject::read(reader);
+    TLObject peer_id_ = std::get<TLObject>(TLObject::read(reader));
     int date_ = Int::read(reader);
     return PeerBlocked(peer_id_, date_);
 }
@@ -18743,62 +16219,26 @@ GroupCall GroupCall::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> join_muted_;
-
-    if (1 << 1)
-        join_muted_ = true;
-    else
-        join_muted_ = std::nullopt;
+    join_muted_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> can_change_join_muted_;
-
-    if (1 << 2)
-        can_change_join_muted_ = true;
-    else
-        can_change_join_muted_ = std::nullopt;
+    can_change_join_muted_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<bool> join_date_asc_;
-
-    if (1 << 6)
-        join_date_asc_ = true;
-    else
-        join_date_asc_ = std::nullopt;
+    join_date_asc_ = (1 << 6) ? std::optional{true} : std::nullopt;
     std::optional<bool> schedule_start_subscribed_;
-
-    if (1 << 8)
-        schedule_start_subscribed_ = true;
-    else
-        schedule_start_subscribed_ = std::nullopt;
+    schedule_start_subscribed_ = (1 << 8) ? std::optional{true} : std::nullopt;
     std::optional<bool> can_start_video_;
-
-    if (1 << 9)
-        can_start_video_ = true;
-    else
-        can_start_video_ = std::nullopt;
+    can_start_video_ = (1 << 9) ? std::optional{true} : std::nullopt;
     long id_ = Long::read(reader);
     long access_hash_ = Long::read(reader);
     int participants_count_ = Int::read(reader);
     std::optional<std::string> title_;
-
-    if (1 << 3)
-        title_ = String::read(reader);
-    else
-        title_ = std::nullopt;
+    title_ = (1 << 3) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<int> stream_dc_id_;
-
-    if (1 << 4)
-        stream_dc_id_ = Int::read(reader);
-    else
-        stream_dc_id_ = std::nullopt;
+    stream_dc_id_ = (1 << 4) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> record_start_date_;
-
-    if (1 << 5)
-        record_start_date_ = Int::read(reader);
-    else
-        record_start_date_ = std::nullopt;
+    record_start_date_ = (1 << 5) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> schedule_date_;
-
-    if (1 << 7)
-        schedule_date_ = Int::read(reader);
-    else
-        schedule_date_ = std::nullopt;
+    schedule_date_ = (1 << 7) ? std::optional{Int::read(reader)} : std::nullopt;
     int version_ = Int::read(reader);
     return GroupCall(id_, access_hash_, participants_count_, version_, join_muted_, can_change_join_muted_, join_date_asc_, schedule_start_subscribed_, can_start_video_, title_, stream_dc_id_, record_start_date_, schedule_date_);
 }
@@ -18860,104 +16300,40 @@ GroupCallParticipant GroupCallParticipant::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> muted_;
-
-    if (1 << 0)
-        muted_ = true;
-    else
-        muted_ = std::nullopt;
+    muted_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> left_;
-
-    if (1 << 1)
-        left_ = true;
-    else
-        left_ = std::nullopt;
+    left_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> can_self_unmute_;
-
-    if (1 << 2)
-        can_self_unmute_ = true;
-    else
-        can_self_unmute_ = std::nullopt;
+    can_self_unmute_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<bool> just_joined_;
-
-    if (1 << 4)
-        just_joined_ = true;
-    else
-        just_joined_ = std::nullopt;
+    just_joined_ = (1 << 4) ? std::optional{true} : std::nullopt;
     std::optional<bool> versioned_;
-
-    if (1 << 5)
-        versioned_ = true;
-    else
-        versioned_ = std::nullopt;
+    versioned_ = (1 << 5) ? std::optional{true} : std::nullopt;
     std::optional<bool> min_;
-
-    if (1 << 8)
-        min_ = true;
-    else
-        min_ = std::nullopt;
+    min_ = (1 << 8) ? std::optional{true} : std::nullopt;
     std::optional<bool> muted_by_you_;
-
-    if (1 << 9)
-        muted_by_you_ = true;
-    else
-        muted_by_you_ = std::nullopt;
+    muted_by_you_ = (1 << 9) ? std::optional{true} : std::nullopt;
     std::optional<bool> volume_by_admin_;
-
-    if (1 << 10)
-        volume_by_admin_ = true;
-    else
-        volume_by_admin_ = std::nullopt;
+    volume_by_admin_ = (1 << 10) ? std::optional{true} : std::nullopt;
     std::optional<bool> self_;
-
-    if (1 << 12)
-        self_ = true;
-    else
-        self_ = std::nullopt;
+    self_ = (1 << 12) ? std::optional{true} : std::nullopt;
     std::optional<bool> video_joined_;
-
-    if (1 << 15)
-        video_joined_ = true;
-    else
-        video_joined_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    video_joined_ = (1 << 15) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int date_ = Int::read(reader);
     std::optional<int> active_date_;
-
-    if (1 << 3)
-        active_date_ = Int::read(reader);
-    else
-        active_date_ = std::nullopt;
+    active_date_ = (1 << 3) ? std::optional{Int::read(reader)} : std::nullopt;
     int source_ = Int::read(reader);
     std::optional<int> volume_;
-
-    if (1 << 7)
-        volume_ = Int::read(reader);
-    else
-        volume_ = std::nullopt;
+    volume_ = (1 << 7) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<std::string> about_;
-
-    if (1 << 11)
-        about_ = String::read(reader);
-    else
-        about_ = std::nullopt;
+    about_ = (1 << 11) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<long> raise_hand_rating_;
-
-    if (1 << 13)
-        raise_hand_rating_ = Long::read(reader);
-    else
-        raise_hand_rating_ = std::nullopt;
+    raise_hand_rating_ = (1 << 13) ? std::optional{Long::read(reader)} : std::nullopt;
     std::optional<TLObject> video_;
-
-    if (1 << 6)
-        video_ = TLObject::read(reader);
-    else
-        video_ = std::nullopt;
+    video_ = (1 << 6) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> presentation_;
-
-    if (1 << 14)
-        presentation_ = TLObject::read(reader);
-    else
-        presentation_ = std::nullopt;
+    presentation_ = (1 << 14) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return GroupCallParticipant(peer_, date_, source_, muted_, left_, can_self_unmute_, just_joined_, versioned_, min_, muted_by_you_, volume_by_admin_, self_, video_joined_, active_date_, volume_, about_, raise_hand_rating_, video_, presentation_);
 }
 
@@ -19104,7 +16480,7 @@ GroupCallParticipantVideoSourceGroup::GroupCallParticipantVideoSourceGroup(std::
 GroupCallParticipantVideoSourceGroup GroupCallParticipantVideoSourceGroup::read(Reader reader)
 {
     std::string semantics_ = String::read(reader);
-    std::vector<int> sources_ = Vector<int>::read(reader);
+    std::vector<int> sources_ = std::get<std::vector<int>>(TLObject::read(reader));
     return GroupCallParticipantVideoSourceGroup(semantics_, sources_);
 }
 
@@ -19123,13 +16499,9 @@ GroupCallParticipantVideo GroupCallParticipantVideo::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> paused_;
-
-    if (1 << 0)
-        paused_ = true;
-    else
-        paused_ = std::nullopt;
+    paused_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::string endpoint_ = String::read(reader);
-    std::vector<TLObject> source_groups_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> source_groups_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return GroupCallParticipantVideo(endpoint_, source_groups_, paused_);
 }
 
@@ -19192,7 +16564,7 @@ BotCommandScopePeer::BotCommandScopePeer(TLObject peer_) {}
 
 BotCommandScopePeer BotCommandScopePeer::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     return BotCommandScopePeer(peer_);
 }
 
@@ -19208,7 +16580,7 @@ BotCommandScopePeerAdmins::BotCommandScopePeerAdmins(TLObject peer_) {}
 
 BotCommandScopePeerAdmins BotCommandScopePeerAdmins::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     return BotCommandScopePeerAdmins(peer_);
 }
 
@@ -19224,8 +16596,8 @@ BotCommandScopePeerUser::BotCommandScopePeerUser(TLObject peer_, TLObject user_i
 
 BotCommandScopePeerUser BotCommandScopePeerUser::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    TLObject user_id_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject user_id_ = std::get<TLObject>(TLObject::read(reader));
     return BotCommandScopePeerUser(peer_, user_id_);
 }
 

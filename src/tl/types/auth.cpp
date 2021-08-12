@@ -1,3 +1,19 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "tl/types/auth.h"
 
 SentCode::SentCode(TLObject type_, std::string phone_code_hash_, std::optional<TLObject> next_type_, std::optional<int> timeout_) {}
@@ -5,20 +21,12 @@ SentCode::SentCode(TLObject type_, std::string phone_code_hash_, std::optional<T
 SentCode SentCode::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject type_ = TLObject::read(reader);
+    TLObject type_ = std::get<TLObject>(TLObject::read(reader));
     std::string phone_code_hash_ = String::read(reader);
     std::optional<TLObject> next_type_;
-
-    if (1 << 1)
-        next_type_ = TLObject::read(reader);
-    else
-        next_type_ = std::nullopt;
+    next_type_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<int> timeout_;
-
-    if (1 << 2)
-        timeout_ = Int::read(reader);
-    else
-        timeout_ = std::nullopt;
+    timeout_ = (1 << 2) ? std::optional{Int::read(reader)} : std::nullopt;
     return SentCode(type_, phone_code_hash_, next_type_, timeout_);
 }
 
@@ -46,12 +54,8 @@ Authorization Authorization::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<int> tmp_sessions_;
-
-    if (1 << 0)
-        tmp_sessions_ = Int::read(reader);
-    else
-        tmp_sessions_ = std::nullopt;
-    TLObject user_ = TLObject::read(reader);
+    tmp_sessions_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
+    TLObject user_ = std::get<TLObject>(TLObject::read(reader));
     return Authorization(user_, tmp_sessions_);
 }
 
@@ -74,11 +78,7 @@ AuthorizationSignUpRequired AuthorizationSignUpRequired::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<TLObject> terms_of_service_;
-
-    if (1 << 0)
-        terms_of_service_ = TLObject::read(reader);
-    else
-        terms_of_service_ = std::nullopt;
+    terms_of_service_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return AuthorizationSignUpRequired(terms_of_service_);
 }
 
@@ -265,7 +265,7 @@ LoginTokenSuccess::LoginTokenSuccess(TLObject authorization_) {}
 
 LoginTokenSuccess LoginTokenSuccess::read(Reader reader)
 {
-    TLObject authorization_ = TLObject::read(reader);
+    TLObject authorization_ = std::get<TLObject>(TLObject::read(reader));
     return LoginTokenSuccess(authorization_);
 }
 

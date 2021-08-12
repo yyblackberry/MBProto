@@ -1,25 +1,34 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "tl/functions/payments.h"
 
-template <class X>
-GetPaymentForm<X>::GetPaymentForm(TLObject peer_, int msg_id_, std::optional<TLObject> theme_params_) {}
+GetPaymentForm::GetPaymentForm(TLObject peer_, int msg_id_, std::optional<TLObject> theme_params_) {}
 
-template <class X>
-GetPaymentForm<X> GetPaymentForm<X>::read(Reader reader)
+GetPaymentForm GetPaymentForm::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int msg_id_ = Int::read(reader);
     std::optional<TLObject> theme_params_;
-
-    if (1 << 0)
-        theme_params_ = TLObject::read(reader);
-    else
-        theme_params_ = std::nullopt;
-    return GetPaymentForm<X>(peer_, msg_id_, theme_params_);
+    theme_params_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
+    return GetPaymentForm(peer_, msg_id_, theme_params_);
 }
 
-template <class X>
-std::string GetPaymentForm<X>::write()
+std::string GetPaymentForm::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -33,19 +42,16 @@ std::string GetPaymentForm<X>::write()
     return buffer;
 }
 
-template <class X>
-GetPaymentReceipt<X>::GetPaymentReceipt(TLObject peer_, int msg_id_) {}
+GetPaymentReceipt::GetPaymentReceipt(TLObject peer_, int msg_id_) {}
 
-template <class X>
-GetPaymentReceipt<X> GetPaymentReceipt<X>::read(Reader reader)
+GetPaymentReceipt GetPaymentReceipt::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int msg_id_ = Int::read(reader);
-    return GetPaymentReceipt<X>(peer_, msg_id_);
+    return GetPaymentReceipt(peer_, msg_id_);
 }
 
-template <class X>
-std::string GetPaymentReceipt<X>::write()
+std::string GetPaymentReceipt::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -54,27 +60,20 @@ std::string GetPaymentReceipt<X>::write()
     return buffer;
 }
 
-template <class X>
-ValidateRequestedInfo<X>::ValidateRequestedInfo(TLObject peer_, int msg_id_, TLObject info_, std::optional<bool> save_) {}
+ValidateRequestedInfo::ValidateRequestedInfo(TLObject peer_, int msg_id_, TLObject info_, std::optional<bool> save_) {}
 
-template <class X>
-ValidateRequestedInfo<X> ValidateRequestedInfo<X>::read(Reader reader)
+ValidateRequestedInfo ValidateRequestedInfo::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> save_;
-
-    if (1 << 0)
-        save_ = true;
-    else
-        save_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    save_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int msg_id_ = Int::read(reader);
-    TLObject info_ = TLObject::read(reader);
-    return ValidateRequestedInfo<X>(peer_, msg_id_, info_, save_);
+    TLObject info_ = std::get<TLObject>(TLObject::read(reader));
+    return ValidateRequestedInfo(peer_, msg_id_, info_, save_);
 }
 
-template <class X>
-std::string ValidateRequestedInfo<X>::write()
+std::string ValidateRequestedInfo::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -86,40 +85,25 @@ std::string ValidateRequestedInfo<X>::write()
     return buffer;
 }
 
-template <class X>
-SendPaymentForm<X>::SendPaymentForm(long form_id_, TLObject peer_, int msg_id_, TLObject credentials_, std::optional<std::string> requested_info_id_, std::optional<std::string> shipping_option_id_, std::optional<long> tip_amount_) {}
+SendPaymentForm::SendPaymentForm(long form_id_, TLObject peer_, int msg_id_, TLObject credentials_, std::optional<std::string> requested_info_id_, std::optional<std::string> shipping_option_id_, std::optional<long> tip_amount_) {}
 
-template <class X>
-SendPaymentForm<X> SendPaymentForm<X>::read(Reader reader)
+SendPaymentForm SendPaymentForm::read(Reader reader)
 {
     int flags = Int::read(reader);
     long form_id_ = Long::read(reader);
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int msg_id_ = Int::read(reader);
     std::optional<std::string> requested_info_id_;
-
-    if (1 << 0)
-        requested_info_id_ = String::read(reader);
-    else
-        requested_info_id_ = std::nullopt;
+    requested_info_id_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> shipping_option_id_;
-
-    if (1 << 1)
-        shipping_option_id_ = String::read(reader);
-    else
-        shipping_option_id_ = std::nullopt;
-    TLObject credentials_ = TLObject::read(reader);
+    shipping_option_id_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
+    TLObject credentials_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<long> tip_amount_;
-
-    if (1 << 2)
-        tip_amount_ = Long::read(reader);
-    else
-        tip_amount_ = std::nullopt;
-    return SendPaymentForm<X>(form_id_, peer_, msg_id_, credentials_, requested_info_id_, shipping_option_id_, tip_amount_);
+    tip_amount_ = (1 << 2) ? std::optional{Long::read(reader)} : std::nullopt;
+    return SendPaymentForm(form_id_, peer_, msg_id_, credentials_, requested_info_id_, shipping_option_id_, tip_amount_);
 }
 
-template <class X>
-std::string SendPaymentForm<X>::write()
+std::string SendPaymentForm::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -142,44 +126,31 @@ std::string SendPaymentForm<X>::write()
         buffer += Long::write(tip_amount.value());
     return buffer;
 }
-template <class X>
-GetSavedInfo<X> GetSavedInfo<X>::read(Reader reader)
+GetSavedInfo GetSavedInfo::read(Reader reader)
 {
-    return GetSavedInfo<X>();
+    return GetSavedInfo();
 }
 
-template <class X>
-std::string GetSavedInfo<X>::write()
+std::string GetSavedInfo::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     return buffer;
 }
 
-template <class X>
-ClearSavedInfo<X>::ClearSavedInfo(std::optional<bool> credentials_, std::optional<bool> info_) {}
+ClearSavedInfo::ClearSavedInfo(std::optional<bool> credentials_, std::optional<bool> info_) {}
 
-template <class X>
-ClearSavedInfo<X> ClearSavedInfo<X>::read(Reader reader)
+ClearSavedInfo ClearSavedInfo::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> credentials_;
-
-    if (1 << 0)
-        credentials_ = true;
-    else
-        credentials_ = std::nullopt;
+    credentials_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> info_;
-
-    if (1 << 1)
-        info_ = true;
-    else
-        info_ = std::nullopt;
-    return ClearSavedInfo<X>(credentials_, info_);
+    info_ = (1 << 1) ? std::optional{true} : std::nullopt;
+    return ClearSavedInfo(credentials_, info_);
 }
 
-template <class X>
-std::string ClearSavedInfo<X>::write()
+std::string ClearSavedInfo::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -189,18 +160,15 @@ std::string ClearSavedInfo<X>::write()
     return buffer;
 }
 
-template <class X>
-GetBankCardData<X>::GetBankCardData(std::string number_) {}
+GetBankCardData::GetBankCardData(std::string number_) {}
 
-template <class X>
-GetBankCardData<X> GetBankCardData<X>::read(Reader reader)
+GetBankCardData GetBankCardData::read(Reader reader)
 {
     std::string number_ = String::read(reader);
-    return GetBankCardData<X>(number_);
+    return GetBankCardData(number_);
 }
 
-template <class X>
-std::string GetBankCardData<X>::write()
+std::string GetBankCardData::write()
 {
     std::string buffer;
     buffer += Int::write(__id);

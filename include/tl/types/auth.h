@@ -1,9 +1,25 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #pragma once
 #include "tl/bare.h"
 #include "tl/TLObject.h"
 #include <optional>
 
-class SentCode
+class SentCode : public TLObject
 {
 private:
     int __id = 0x5e002502;
@@ -18,7 +34,7 @@ public:
     std::string write();
 };
 
-class Authorization
+class Authorization : public TLObject
 {
 private:
     int __id = 0xcd050916;
@@ -31,7 +47,7 @@ public:
     std::string write();
 };
 
-class AuthorizationSignUpRequired
+class AuthorizationSignUpRequired : public TLObject
 {
 private:
     int __id = 0x44747e9a;
@@ -43,7 +59,7 @@ public:
     std::string write();
 };
 
-class ExportedAuthorization
+class ExportedAuthorization : public TLObject
 {
 private:
     int __id = 0xdf969c2d;
@@ -56,7 +72,7 @@ public:
     std::string write();
 };
 
-class PasswordRecovery
+class PasswordRecovery : public TLObject
 {
 private:
     int __id = 0x137948a5;
@@ -68,7 +84,7 @@ public:
     std::string write();
 };
 
-class CodeTypeSms
+class CodeTypeSms : public TLObject
 {
 private:
     int __id = 0x72a3158c;
@@ -79,7 +95,7 @@ public:
     std::string write();
 };
 
-class CodeTypeCall
+class CodeTypeCall : public TLObject
 {
 private:
     int __id = 0x741cd3e3;
@@ -90,7 +106,7 @@ public:
     std::string write();
 };
 
-class CodeTypeFlashCall
+class CodeTypeFlashCall : public TLObject
 {
 private:
     int __id = 0x226ccefb;
@@ -101,7 +117,7 @@ public:
     std::string write();
 };
 
-class SentCodeTypeApp
+class SentCodeTypeApp : public TLObject
 {
 private:
     int __id = 0x3dbb5986;
@@ -113,7 +129,7 @@ public:
     std::string write();
 };
 
-class SentCodeTypeSms
+class SentCodeTypeSms : public TLObject
 {
 private:
     int __id = 0xc000bba2;
@@ -125,7 +141,7 @@ public:
     std::string write();
 };
 
-class SentCodeTypeCall
+class SentCodeTypeCall : public TLObject
 {
 private:
     int __id = 0x5353e5a7;
@@ -137,7 +153,7 @@ public:
     std::string write();
 };
 
-class SentCodeTypeFlashCall
+class SentCodeTypeFlashCall : public TLObject
 {
 private:
     int __id = 0xab03c6d9;
@@ -149,7 +165,7 @@ public:
     std::string write();
 };
 
-class LoginToken
+class LoginToken : public TLObject
 {
 private:
     int __id = 0x629f1980;
@@ -162,7 +178,7 @@ public:
     std::string write();
 };
 
-class LoginTokenMigrateTo
+class LoginTokenMigrateTo : public TLObject
 {
 private:
     int __id = 0x68e9916;
@@ -175,7 +191,7 @@ public:
     std::string write();
 };
 
-class LoginTokenSuccess
+class LoginTokenSuccess : public TLObject
 {
 private:
     int __id = 0x390d5c5e;

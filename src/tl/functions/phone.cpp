@@ -1,40 +1,47 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "tl/functions/phone.h"
-template <class X>
-GetCallConfig<X> GetCallConfig<X>::read(Reader reader)
+GetCallConfig GetCallConfig::read(Reader reader)
 {
-    return GetCallConfig<X>();
+    return GetCallConfig();
 }
 
-template <class X>
-std::string GetCallConfig<X>::write()
+std::string GetCallConfig::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     return buffer;
 }
 
-template <class X>
-RequestCall<X>::RequestCall(TLObject user_id_, int random_id_, std::string g_a_hash_, TLObject protocol_, std::optional<bool> video_) {}
+RequestCall::RequestCall(TLObject user_id_, int random_id_, std::string g_a_hash_, TLObject protocol_, std::optional<bool> video_) {}
 
-template <class X>
-RequestCall<X> RequestCall<X>::read(Reader reader)
+RequestCall RequestCall::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> video_;
-
-    if (1 << 0)
-        video_ = true;
-    else
-        video_ = std::nullopt;
-    TLObject user_id_ = TLObject::read(reader);
+    video_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject user_id_ = std::get<TLObject>(TLObject::read(reader));
     int random_id_ = Int::read(reader);
     std::string g_a_hash_ = Bytes::read(reader);
-    TLObject protocol_ = TLObject::read(reader);
-    return RequestCall<X>(user_id_, random_id_, g_a_hash_, protocol_, video_);
+    TLObject protocol_ = std::get<TLObject>(TLObject::read(reader));
+    return RequestCall(user_id_, random_id_, g_a_hash_, protocol_, video_);
 }
 
-template <class X>
-std::string RequestCall<X>::write()
+std::string RequestCall::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -47,20 +54,17 @@ std::string RequestCall<X>::write()
     return buffer;
 }
 
-template <class X>
-AcceptCall<X>::AcceptCall(TLObject peer_, std::string g_b_, TLObject protocol_) {}
+AcceptCall::AcceptCall(TLObject peer_, std::string g_b_, TLObject protocol_) {}
 
-template <class X>
-AcceptCall<X> AcceptCall<X>::read(Reader reader)
+AcceptCall AcceptCall::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::string g_b_ = Bytes::read(reader);
-    TLObject protocol_ = TLObject::read(reader);
-    return AcceptCall<X>(peer_, g_b_, protocol_);
+    TLObject protocol_ = std::get<TLObject>(TLObject::read(reader));
+    return AcceptCall(peer_, g_b_, protocol_);
 }
 
-template <class X>
-std::string AcceptCall<X>::write()
+std::string AcceptCall::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -70,21 +74,18 @@ std::string AcceptCall<X>::write()
     return buffer;
 }
 
-template <class X>
-ConfirmCall<X>::ConfirmCall(TLObject peer_, std::string g_a_, long key_fingerprint_, TLObject protocol_) {}
+ConfirmCall::ConfirmCall(TLObject peer_, std::string g_a_, long key_fingerprint_, TLObject protocol_) {}
 
-template <class X>
-ConfirmCall<X> ConfirmCall<X>::read(Reader reader)
+ConfirmCall ConfirmCall::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::string g_a_ = Bytes::read(reader);
     long key_fingerprint_ = Long::read(reader);
-    TLObject protocol_ = TLObject::read(reader);
-    return ConfirmCall<X>(peer_, g_a_, key_fingerprint_, protocol_);
+    TLObject protocol_ = std::get<TLObject>(TLObject::read(reader));
+    return ConfirmCall(peer_, g_a_, key_fingerprint_, protocol_);
 }
 
-template <class X>
-std::string ConfirmCall<X>::write()
+std::string ConfirmCall::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -95,18 +96,15 @@ std::string ConfirmCall<X>::write()
     return buffer;
 }
 
-template <class X>
-ReceivedCall<X>::ReceivedCall(TLObject peer_) {}
+ReceivedCall::ReceivedCall(TLObject peer_) {}
 
-template <class X>
-ReceivedCall<X> ReceivedCall<X>::read(Reader reader)
+ReceivedCall ReceivedCall::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    return ReceivedCall<X>(peer_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    return ReceivedCall(peer_);
 }
 
-template <class X>
-std::string ReceivedCall<X>::write()
+std::string ReceivedCall::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -114,28 +112,21 @@ std::string ReceivedCall<X>::write()
     return buffer;
 }
 
-template <class X>
-DiscardCall<X>::DiscardCall(TLObject peer_, int duration_, TLObject reason_, long connection_id_, std::optional<bool> video_) {}
+DiscardCall::DiscardCall(TLObject peer_, int duration_, TLObject reason_, long connection_id_, std::optional<bool> video_) {}
 
-template <class X>
-DiscardCall<X> DiscardCall<X>::read(Reader reader)
+DiscardCall DiscardCall::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> video_;
-
-    if (1 << 0)
-        video_ = true;
-    else
-        video_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    video_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int duration_ = Int::read(reader);
-    TLObject reason_ = TLObject::read(reader);
+    TLObject reason_ = std::get<TLObject>(TLObject::read(reader));
     long connection_id_ = Long::read(reader);
-    return DiscardCall<X>(peer_, duration_, reason_, connection_id_, video_);
+    return DiscardCall(peer_, duration_, reason_, connection_id_, video_);
 }
 
-template <class X>
-std::string DiscardCall<X>::write()
+std::string DiscardCall::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -148,27 +139,20 @@ std::string DiscardCall<X>::write()
     return buffer;
 }
 
-template <class X>
-SetCallRating<X>::SetCallRating(TLObject peer_, int rating_, std::string comment_, std::optional<bool> user_initiative_) {}
+SetCallRating::SetCallRating(TLObject peer_, int rating_, std::string comment_, std::optional<bool> user_initiative_) {}
 
-template <class X>
-SetCallRating<X> SetCallRating<X>::read(Reader reader)
+SetCallRating SetCallRating::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> user_initiative_;
-
-    if (1 << 0)
-        user_initiative_ = true;
-    else
-        user_initiative_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    user_initiative_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int rating_ = Int::read(reader);
     std::string comment_ = String::read(reader);
-    return SetCallRating<X>(peer_, rating_, comment_, user_initiative_);
+    return SetCallRating(peer_, rating_, comment_, user_initiative_);
 }
 
-template <class X>
-std::string SetCallRating<X>::write()
+std::string SetCallRating::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -180,19 +164,16 @@ std::string SetCallRating<X>::write()
     return buffer;
 }
 
-template <class X>
-SaveCallDebug<X>::SaveCallDebug(TLObject peer_, TLObject debug_) {}
+SaveCallDebug::SaveCallDebug(TLObject peer_, TLObject debug_) {}
 
-template <class X>
-SaveCallDebug<X> SaveCallDebug<X>::read(Reader reader)
+SaveCallDebug SaveCallDebug::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    TLObject debug_ = TLObject::read(reader);
-    return SaveCallDebug<X>(peer_, debug_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject debug_ = std::get<TLObject>(TLObject::read(reader));
+    return SaveCallDebug(peer_, debug_);
 }
 
-template <class X>
-std::string SaveCallDebug<X>::write()
+std::string SaveCallDebug::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -201,19 +182,16 @@ std::string SaveCallDebug<X>::write()
     return buffer;
 }
 
-template <class X>
-SendSignalingData<X>::SendSignalingData(TLObject peer_, std::string data_) {}
+SendSignalingData::SendSignalingData(TLObject peer_, std::string data_) {}
 
-template <class X>
-SendSignalingData<X> SendSignalingData<X>::read(Reader reader)
+SendSignalingData SendSignalingData::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     std::string data_ = Bytes::read(reader);
-    return SendSignalingData<X>(peer_, data_);
+    return SendSignalingData(peer_, data_);
 }
 
-template <class X>
-std::string SendSignalingData<X>::write()
+std::string SendSignalingData::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -222,32 +200,21 @@ std::string SendSignalingData<X>::write()
     return buffer;
 }
 
-template <class X>
-CreateGroupCall<X>::CreateGroupCall(TLObject peer_, int random_id_, std::optional<std::string> title_, std::optional<int> schedule_date_) {}
+CreateGroupCall::CreateGroupCall(TLObject peer_, int random_id_, std::optional<std::string> title_, std::optional<int> schedule_date_) {}
 
-template <class X>
-CreateGroupCall<X> CreateGroupCall<X>::read(Reader reader)
+CreateGroupCall CreateGroupCall::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject peer_ = TLObject::read(reader);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     int random_id_ = Int::read(reader);
     std::optional<std::string> title_;
-
-    if (1 << 0)
-        title_ = String::read(reader);
-    else
-        title_ = std::nullopt;
+    title_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<int> schedule_date_;
-
-    if (1 << 1)
-        schedule_date_ = Int::read(reader);
-    else
-        schedule_date_ = std::nullopt;
-    return CreateGroupCall<X>(peer_, random_id_, title_, schedule_date_);
+    schedule_date_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
+    return CreateGroupCall(peer_, random_id_, title_, schedule_date_);
 }
 
-template <class X>
-std::string CreateGroupCall<X>::write()
+std::string CreateGroupCall::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -265,39 +232,24 @@ std::string CreateGroupCall<X>::write()
     return buffer;
 }
 
-template <class X>
-JoinGroupCall<X>::JoinGroupCall(TLObject call_, TLObject join_as_, TLObject params_, std::optional<bool> muted_, std::optional<bool> video_stopped_, std::optional<std::string> invite_hash_) {}
+JoinGroupCall::JoinGroupCall(TLObject call_, TLObject join_as_, TLObject params_, std::optional<bool> muted_, std::optional<bool> video_stopped_, std::optional<std::string> invite_hash_) {}
 
-template <class X>
-JoinGroupCall<X> JoinGroupCall<X>::read(Reader reader)
+JoinGroupCall JoinGroupCall::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> muted_;
-
-    if (1 << 0)
-        muted_ = true;
-    else
-        muted_ = std::nullopt;
+    muted_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> video_stopped_;
-
-    if (1 << 2)
-        video_stopped_ = true;
-    else
-        video_stopped_ = std::nullopt;
-    TLObject call_ = TLObject::read(reader);
-    TLObject join_as_ = TLObject::read(reader);
+    video_stopped_ = (1 << 2) ? std::optional{true} : std::nullopt;
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject join_as_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<std::string> invite_hash_;
-
-    if (1 << 1)
-        invite_hash_ = String::read(reader);
-    else
-        invite_hash_ = std::nullopt;
-    TLObject params_ = TLObject::read(reader);
-    return JoinGroupCall<X>(call_, join_as_, params_, muted_, video_stopped_, invite_hash_);
+    invite_hash_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
+    TLObject params_ = std::get<TLObject>(TLObject::read(reader));
+    return JoinGroupCall(call_, join_as_, params_, muted_, video_stopped_, invite_hash_);
 }
 
-template <class X>
-std::string JoinGroupCall<X>::write()
+std::string JoinGroupCall::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -314,19 +266,16 @@ std::string JoinGroupCall<X>::write()
     return buffer;
 }
 
-template <class X>
-LeaveGroupCall<X>::LeaveGroupCall(TLObject call_, int source_) {}
+LeaveGroupCall::LeaveGroupCall(TLObject call_, int source_) {}
 
-template <class X>
-LeaveGroupCall<X> LeaveGroupCall<X>::read(Reader reader)
+LeaveGroupCall LeaveGroupCall::read(Reader reader)
 {
-    TLObject call_ = TLObject::read(reader);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
     int source_ = Int::read(reader);
-    return LeaveGroupCall<X>(call_, source_);
+    return LeaveGroupCall(call_, source_);
 }
 
-template <class X>
-std::string LeaveGroupCall<X>::write()
+std::string LeaveGroupCall::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -335,19 +284,16 @@ std::string LeaveGroupCall<X>::write()
     return buffer;
 }
 
-template <class X>
-InviteToGroupCall<X>::InviteToGroupCall(TLObject call_, std::vector<TLObject> users_) {}
+InviteToGroupCall::InviteToGroupCall(TLObject call_, std::vector<TLObject> users_) {}
 
-template <class X>
-InviteToGroupCall<X> InviteToGroupCall<X>::read(Reader reader)
+InviteToGroupCall InviteToGroupCall::read(Reader reader)
 {
-    TLObject call_ = TLObject::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
-    return InviteToGroupCall<X>(call_, users_);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    return InviteToGroupCall(call_, users_);
 }
 
-template <class X>
-std::string InviteToGroupCall<X>::write()
+std::string InviteToGroupCall::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -356,18 +302,15 @@ std::string InviteToGroupCall<X>::write()
     return buffer;
 }
 
-template <class X>
-DiscardGroupCall<X>::DiscardGroupCall(TLObject call_) {}
+DiscardGroupCall::DiscardGroupCall(TLObject call_) {}
 
-template <class X>
-DiscardGroupCall<X> DiscardGroupCall<X>::read(Reader reader)
+DiscardGroupCall DiscardGroupCall::read(Reader reader)
 {
-    TLObject call_ = TLObject::read(reader);
-    return DiscardGroupCall<X>(call_);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
+    return DiscardGroupCall(call_);
 }
 
-template <class X>
-std::string DiscardGroupCall<X>::write()
+std::string DiscardGroupCall::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -375,31 +318,20 @@ std::string DiscardGroupCall<X>::write()
     return buffer;
 }
 
-template <class X>
-ToggleGroupCallSettings<X>::ToggleGroupCallSettings(TLObject call_, std::optional<bool> reset_invite_hash_, std::optional<bool> join_muted_) {}
+ToggleGroupCallSettings::ToggleGroupCallSettings(TLObject call_, std::optional<bool> reset_invite_hash_, std::optional<bool> join_muted_) {}
 
-template <class X>
-ToggleGroupCallSettings<X> ToggleGroupCallSettings<X>::read(Reader reader)
+ToggleGroupCallSettings ToggleGroupCallSettings::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> reset_invite_hash_;
-
-    if (1 << 1)
-        reset_invite_hash_ = true;
-    else
-        reset_invite_hash_ = std::nullopt;
-    TLObject call_ = TLObject::read(reader);
+    reset_invite_hash_ = (1 << 1) ? std::optional{true} : std::nullopt;
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<bool> join_muted_;
-
-    if (1 << 0)
-        join_muted_ = true;
-    else
-        join_muted_ = std::nullopt;
-    return ToggleGroupCallSettings<X>(call_, reset_invite_hash_, join_muted_);
+    join_muted_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    return ToggleGroupCallSettings(call_, reset_invite_hash_, join_muted_);
 }
 
-template <class X>
-std::string ToggleGroupCallSettings<X>::write()
+std::string ToggleGroupCallSettings::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -410,18 +342,15 @@ std::string ToggleGroupCallSettings<X>::write()
     return buffer;
 }
 
-template <class X>
-GetGroupCall<X>::GetGroupCall(TLObject call_) {}
+GetGroupCall::GetGroupCall(TLObject call_) {}
 
-template <class X>
-GetGroupCall<X> GetGroupCall<X>::read(Reader reader)
+GetGroupCall GetGroupCall::read(Reader reader)
 {
-    TLObject call_ = TLObject::read(reader);
-    return GetGroupCall<X>(call_);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
+    return GetGroupCall(call_);
 }
 
-template <class X>
-std::string GetGroupCall<X>::write()
+std::string GetGroupCall::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -429,22 +358,19 @@ std::string GetGroupCall<X>::write()
     return buffer;
 }
 
-template <class X>
-GetGroupParticipants<X>::GetGroupParticipants(TLObject call_, std::vector<TLObject> ids_, std::vector<int> sources_, std::string offset_, int limit_) {}
+GetGroupParticipants::GetGroupParticipants(TLObject call_, std::vector<TLObject> ids_, std::vector<int> sources_, std::string offset_, int limit_) {}
 
-template <class X>
-GetGroupParticipants<X> GetGroupParticipants<X>::read(Reader reader)
+GetGroupParticipants GetGroupParticipants::read(Reader reader)
 {
-    TLObject call_ = TLObject::read(reader);
-    std::vector<TLObject> ids_ = Vector<TLObject>::read(reader);
-    std::vector<int> sources_ = Vector<int>::read(reader);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<TLObject> ids_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<int> sources_ = std::get<std::vector<int>>(TLObject::read(reader));
     std::string offset_ = String::read(reader);
     int limit_ = Int::read(reader);
-    return GetGroupParticipants<X>(call_, ids_, sources_, offset_, limit_);
+    return GetGroupParticipants(call_, ids_, sources_, offset_, limit_);
 }
 
-template <class X>
-std::string GetGroupParticipants<X>::write()
+std::string GetGroupParticipants::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -456,19 +382,16 @@ std::string GetGroupParticipants<X>::write()
     return buffer;
 }
 
-template <class X>
-CheckGroupCall<X>::CheckGroupCall(TLObject call_, std::vector<int> sources_) {}
+CheckGroupCall::CheckGroupCall(TLObject call_, std::vector<int> sources_) {}
 
-template <class X>
-CheckGroupCall<X> CheckGroupCall<X>::read(Reader reader)
+CheckGroupCall CheckGroupCall::read(Reader reader)
 {
-    TLObject call_ = TLObject::read(reader);
-    std::vector<int> sources_ = Vector<int>::read(reader);
-    return CheckGroupCall<X>(call_, sources_);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<int> sources_ = std::get<std::vector<int>>(TLObject::read(reader));
+    return CheckGroupCall(call_, sources_);
 }
 
-template <class X>
-std::string CheckGroupCall<X>::write()
+std::string CheckGroupCall::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -477,31 +400,20 @@ std::string CheckGroupCall<X>::write()
     return buffer;
 }
 
-template <class X>
-ToggleGroupCallRecord<X>::ToggleGroupCallRecord(TLObject call_, std::optional<bool> start_, std::optional<std::string> title_) {}
+ToggleGroupCallRecord::ToggleGroupCallRecord(TLObject call_, std::optional<bool> start_, std::optional<std::string> title_) {}
 
-template <class X>
-ToggleGroupCallRecord<X> ToggleGroupCallRecord<X>::read(Reader reader)
+ToggleGroupCallRecord ToggleGroupCallRecord::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> start_;
-
-    if (1 << 0)
-        start_ = true;
-    else
-        start_ = std::nullopt;
-    TLObject call_ = TLObject::read(reader);
+    start_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<std::string> title_;
-
-    if (1 << 1)
-        title_ = String::read(reader);
-    else
-        title_ = std::nullopt;
-    return ToggleGroupCallRecord<X>(call_, start_, title_);
+    title_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
+    return ToggleGroupCallRecord(call_, start_, title_);
 }
 
-template <class X>
-std::string ToggleGroupCallRecord<X>::write()
+std::string ToggleGroupCallRecord::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -515,56 +427,29 @@ std::string ToggleGroupCallRecord<X>::write()
     return buffer;
 }
 
-template <class X>
-EditGroupCallParticipant<X>::EditGroupCallParticipant(TLObject call_, TLObject participant_, std::optional<bool> muted_, std::optional<int> volume_, std::optional<bool> raise_hand_, std::optional<bool> video_stopped_, std::optional<bool> video_paused_, std::optional<bool> presentation_paused_) {}
+EditGroupCallParticipant::EditGroupCallParticipant(TLObject call_, TLObject participant_, std::optional<bool> muted_, std::optional<int> volume_, std::optional<bool> raise_hand_, std::optional<bool> video_stopped_, std::optional<bool> video_paused_, std::optional<bool> presentation_paused_) {}
 
-template <class X>
-EditGroupCallParticipant<X> EditGroupCallParticipant<X>::read(Reader reader)
+EditGroupCallParticipant EditGroupCallParticipant::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject call_ = TLObject::read(reader);
-    TLObject participant_ = TLObject::read(reader);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject participant_ = std::get<TLObject>(TLObject::read(reader));
     std::optional<bool> muted_;
-
-    if (1 << 0)
-        muted_ = true;
-    else
-        muted_ = std::nullopt;
+    muted_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<int> volume_;
-
-    if (1 << 1)
-        volume_ = Int::read(reader);
-    else
-        volume_ = std::nullopt;
+    volume_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<bool> raise_hand_;
-
-    if (1 << 2)
-        raise_hand_ = true;
-    else
-        raise_hand_ = std::nullopt;
+    raise_hand_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<bool> video_stopped_;
-
-    if (1 << 3)
-        video_stopped_ = true;
-    else
-        video_stopped_ = std::nullopt;
+    video_stopped_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::optional<bool> video_paused_;
-
-    if (1 << 4)
-        video_paused_ = true;
-    else
-        video_paused_ = std::nullopt;
+    video_paused_ = (1 << 4) ? std::optional{true} : std::nullopt;
     std::optional<bool> presentation_paused_;
-
-    if (1 << 5)
-        presentation_paused_ = true;
-    else
-        presentation_paused_ = std::nullopt;
-    return EditGroupCallParticipant<X>(call_, participant_, muted_, volume_, raise_hand_, video_stopped_, video_paused_, presentation_paused_);
+    presentation_paused_ = (1 << 5) ? std::optional{true} : std::nullopt;
+    return EditGroupCallParticipant(call_, participant_, muted_, volume_, raise_hand_, video_stopped_, video_paused_, presentation_paused_);
 }
 
-template <class X>
-std::string EditGroupCallParticipant<X>::write()
+std::string EditGroupCallParticipant::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -583,19 +468,16 @@ std::string EditGroupCallParticipant<X>::write()
     return buffer;
 }
 
-template <class X>
-EditGroupCallTitle<X>::EditGroupCallTitle(TLObject call_, std::string title_) {}
+EditGroupCallTitle::EditGroupCallTitle(TLObject call_, std::string title_) {}
 
-template <class X>
-EditGroupCallTitle<X> EditGroupCallTitle<X>::read(Reader reader)
+EditGroupCallTitle EditGroupCallTitle::read(Reader reader)
 {
-    TLObject call_ = TLObject::read(reader);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
     std::string title_ = String::read(reader);
-    return EditGroupCallTitle<X>(call_, title_);
+    return EditGroupCallTitle(call_, title_);
 }
 
-template <class X>
-std::string EditGroupCallTitle<X>::write()
+std::string EditGroupCallTitle::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -604,18 +486,15 @@ std::string EditGroupCallTitle<X>::write()
     return buffer;
 }
 
-template <class X>
-GetGroupCallJoinAs<X>::GetGroupCallJoinAs(TLObject peer_) {}
+GetGroupCallJoinAs::GetGroupCallJoinAs(TLObject peer_) {}
 
-template <class X>
-GetGroupCallJoinAs<X> GetGroupCallJoinAs<X>::read(Reader reader)
+GetGroupCallJoinAs GetGroupCallJoinAs::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    return GetGroupCallJoinAs<X>(peer_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    return GetGroupCallJoinAs(peer_);
 }
 
-template <class X>
-std::string GetGroupCallJoinAs<X>::write()
+std::string GetGroupCallJoinAs::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -623,25 +502,18 @@ std::string GetGroupCallJoinAs<X>::write()
     return buffer;
 }
 
-template <class X>
-ExportGroupCallInvite<X>::ExportGroupCallInvite(TLObject call_, std::optional<bool> can_self_unmute_) {}
+ExportGroupCallInvite::ExportGroupCallInvite(TLObject call_, std::optional<bool> can_self_unmute_) {}
 
-template <class X>
-ExportGroupCallInvite<X> ExportGroupCallInvite<X>::read(Reader reader)
+ExportGroupCallInvite ExportGroupCallInvite::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> can_self_unmute_;
-
-    if (1 << 0)
-        can_self_unmute_ = true;
-    else
-        can_self_unmute_ = std::nullopt;
-    TLObject call_ = TLObject::read(reader);
-    return ExportGroupCallInvite<X>(call_, can_self_unmute_);
+    can_self_unmute_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
+    return ExportGroupCallInvite(call_, can_self_unmute_);
 }
 
-template <class X>
-std::string ExportGroupCallInvite<X>::write()
+std::string ExportGroupCallInvite::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -651,19 +523,16 @@ std::string ExportGroupCallInvite<X>::write()
     return buffer;
 }
 
-template <class X>
-ToggleGroupCallStartSubscription<X>::ToggleGroupCallStartSubscription(TLObject call_, bool subscribed_) {}
+ToggleGroupCallStartSubscription::ToggleGroupCallStartSubscription(TLObject call_, bool subscribed_) {}
 
-template <class X>
-ToggleGroupCallStartSubscription<X> ToggleGroupCallStartSubscription<X>::read(Reader reader)
+ToggleGroupCallStartSubscription ToggleGroupCallStartSubscription::read(Reader reader)
 {
-    TLObject call_ = TLObject::read(reader);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
     bool subscribed_ = Bool::read(reader);
-    return ToggleGroupCallStartSubscription<X>(call_, subscribed_);
+    return ToggleGroupCallStartSubscription(call_, subscribed_);
 }
 
-template <class X>
-std::string ToggleGroupCallStartSubscription<X>::write()
+std::string ToggleGroupCallStartSubscription::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -672,18 +541,15 @@ std::string ToggleGroupCallStartSubscription<X>::write()
     return buffer;
 }
 
-template <class X>
-StartScheduledGroupCall<X>::StartScheduledGroupCall(TLObject call_) {}
+StartScheduledGroupCall::StartScheduledGroupCall(TLObject call_) {}
 
-template <class X>
-StartScheduledGroupCall<X> StartScheduledGroupCall<X>::read(Reader reader)
+StartScheduledGroupCall StartScheduledGroupCall::read(Reader reader)
 {
-    TLObject call_ = TLObject::read(reader);
-    return StartScheduledGroupCall<X>(call_);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
+    return StartScheduledGroupCall(call_);
 }
 
-template <class X>
-std::string StartScheduledGroupCall<X>::write()
+std::string StartScheduledGroupCall::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -691,19 +557,16 @@ std::string StartScheduledGroupCall<X>::write()
     return buffer;
 }
 
-template <class X>
-SaveDefaultGroupCallJoinAs<X>::SaveDefaultGroupCallJoinAs(TLObject peer_, TLObject join_as_) {}
+SaveDefaultGroupCallJoinAs::SaveDefaultGroupCallJoinAs(TLObject peer_, TLObject join_as_) {}
 
-template <class X>
-SaveDefaultGroupCallJoinAs<X> SaveDefaultGroupCallJoinAs<X>::read(Reader reader)
+SaveDefaultGroupCallJoinAs SaveDefaultGroupCallJoinAs::read(Reader reader)
 {
-    TLObject peer_ = TLObject::read(reader);
-    TLObject join_as_ = TLObject::read(reader);
-    return SaveDefaultGroupCallJoinAs<X>(peer_, join_as_);
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject join_as_ = std::get<TLObject>(TLObject::read(reader));
+    return SaveDefaultGroupCallJoinAs(peer_, join_as_);
 }
 
-template <class X>
-std::string SaveDefaultGroupCallJoinAs<X>::write()
+std::string SaveDefaultGroupCallJoinAs::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -712,19 +575,16 @@ std::string SaveDefaultGroupCallJoinAs<X>::write()
     return buffer;
 }
 
-template <class X>
-JoinGroupCallPresentation<X>::JoinGroupCallPresentation(TLObject call_, TLObject params_) {}
+JoinGroupCallPresentation::JoinGroupCallPresentation(TLObject call_, TLObject params_) {}
 
-template <class X>
-JoinGroupCallPresentation<X> JoinGroupCallPresentation<X>::read(Reader reader)
+JoinGroupCallPresentation JoinGroupCallPresentation::read(Reader reader)
 {
-    TLObject call_ = TLObject::read(reader);
-    TLObject params_ = TLObject::read(reader);
-    return JoinGroupCallPresentation<X>(call_, params_);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject params_ = std::get<TLObject>(TLObject::read(reader));
+    return JoinGroupCallPresentation(call_, params_);
 }
 
-template <class X>
-std::string JoinGroupCallPresentation<X>::write()
+std::string JoinGroupCallPresentation::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -733,18 +593,15 @@ std::string JoinGroupCallPresentation<X>::write()
     return buffer;
 }
 
-template <class X>
-LeaveGroupCallPresentation<X>::LeaveGroupCallPresentation(TLObject call_) {}
+LeaveGroupCallPresentation::LeaveGroupCallPresentation(TLObject call_) {}
 
-template <class X>
-LeaveGroupCallPresentation<X> LeaveGroupCallPresentation<X>::read(Reader reader)
+LeaveGroupCallPresentation LeaveGroupCallPresentation::read(Reader reader)
 {
-    TLObject call_ = TLObject::read(reader);
-    return LeaveGroupCallPresentation<X>(call_);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
+    return LeaveGroupCallPresentation(call_);
 }
 
-template <class X>
-std::string LeaveGroupCallPresentation<X>::write()
+std::string LeaveGroupCallPresentation::write()
 {
     std::string buffer;
     buffer += Int::write(__id);

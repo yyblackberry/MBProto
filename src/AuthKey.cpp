@@ -14,31 +14,4 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
-#include "tl/bare.h"
-#include "tl/TLObject.h"
-#include <optional>
-
-class EditPeerFolders : public TLObject
-{
-private:
-    int __id = 0x6847d0ab;
-
-public:
-    std::vector<TLObject> folder_peers;
-    EditPeerFolders(std::vector<TLObject> folder_peers_);
-    static EditPeerFolders read(Reader reader);
-    std::string write();
-};
-
-class DeleteFolder : public TLObject
-{
-private:
-    int __id = 0x1c295881;
-
-public:
-    int folder_id;
-    DeleteFolder(int folder_id_);
-    static DeleteFolder read(Reader reader);
-    std::string write();
-};
+#include "AuthKey.h"

@@ -1,9 +1,25 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #pragma once
 #include "tl/bare.h"
 #include "tl/TLObject.h"
 #include <optional>
 
-class PaymentForm
+class PaymentForm : public TLObject
 {
 private:
     int __id = 0x8d0b2415;
@@ -26,7 +42,7 @@ public:
     std::string write();
 };
 
-class ValidatedRequestedInfo
+class ValidatedRequestedInfo : public TLObject
 {
 private:
     int __id = 0xd1451883;
@@ -39,7 +55,7 @@ public:
     std::string write();
 };
 
-class PaymentResult
+class PaymentResult : public TLObject
 {
 private:
     int __id = 0x4e5f810d;
@@ -51,7 +67,7 @@ public:
     std::string write();
 };
 
-class PaymentVerificationNeeded
+class PaymentVerificationNeeded : public TLObject
 {
 private:
     int __id = 0xd8411139;
@@ -63,7 +79,7 @@ public:
     std::string write();
 };
 
-class PaymentReceipt
+class PaymentReceipt : public TLObject
 {
 private:
     int __id = 0x10b555d0;
@@ -88,7 +104,7 @@ public:
     std::string write();
 };
 
-class SavedInfo
+class SavedInfo : public TLObject
 {
 private:
     int __id = 0xfb8fe43c;
@@ -101,7 +117,7 @@ public:
     std::string write();
 };
 
-class BankCardData
+class BankCardData : public TLObject
 {
 private:
     int __id = 0x3e24e573;

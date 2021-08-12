@@ -1,18 +1,31 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "tl/functions/langpack.h"
 
-template <class X>
-GetLangPack<X>::GetLangPack(std::string lang_pack_, std::string lang_code_) {}
+GetLangPack::GetLangPack(std::string lang_pack_, std::string lang_code_) {}
 
-template <class X>
-GetLangPack<X> GetLangPack<X>::read(Reader reader)
+GetLangPack GetLangPack::read(Reader reader)
 {
     std::string lang_pack_ = String::read(reader);
     std::string lang_code_ = String::read(reader);
-    return GetLangPack<X>(lang_pack_, lang_code_);
+    return GetLangPack(lang_pack_, lang_code_);
 }
 
-template <class X>
-std::string GetLangPack<X>::write()
+std::string GetLangPack::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -21,20 +34,17 @@ std::string GetLangPack<X>::write()
     return buffer;
 }
 
-template <class X>
-GetStrings<X>::GetStrings(std::string lang_pack_, std::string lang_code_, std::vector<std::string> keys_) {}
+GetStrings::GetStrings(std::string lang_pack_, std::string lang_code_, std::vector<std::string> keys_) {}
 
-template <class X>
-GetStrings<X> GetStrings<X>::read(Reader reader)
+GetStrings GetStrings::read(Reader reader)
 {
     std::string lang_pack_ = String::read(reader);
     std::string lang_code_ = String::read(reader);
-    std::vector<std::string> keys_ = Vector<std::string>::read(reader);
-    return GetStrings<X>(lang_pack_, lang_code_, keys_);
+    std::vector<std::string> keys_ = std::get<std::vector<std::string>>(TLObject::read(reader));
+    return GetStrings(lang_pack_, lang_code_, keys_);
 }
 
-template <class X>
-std::string GetStrings<X>::write()
+std::string GetStrings::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -44,20 +54,17 @@ std::string GetStrings<X>::write()
     return buffer;
 }
 
-template <class X>
-GetDifference<X>::GetDifference(std::string lang_pack_, std::string lang_code_, int from_version_) {}
+GetDifference::GetDifference(std::string lang_pack_, std::string lang_code_, int from_version_) {}
 
-template <class X>
-GetDifference<X> GetDifference<X>::read(Reader reader)
+GetDifference GetDifference::read(Reader reader)
 {
     std::string lang_pack_ = String::read(reader);
     std::string lang_code_ = String::read(reader);
     int from_version_ = Int::read(reader);
-    return GetDifference<X>(lang_pack_, lang_code_, from_version_);
+    return GetDifference(lang_pack_, lang_code_, from_version_);
 }
 
-template <class X>
-std::string GetDifference<X>::write()
+std::string GetDifference::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -67,18 +74,15 @@ std::string GetDifference<X>::write()
     return buffer;
 }
 
-template <class X>
-GetLanguages<X>::GetLanguages(std::string lang_pack_) {}
+GetLanguages::GetLanguages(std::string lang_pack_) {}
 
-template <class X>
-GetLanguages<X> GetLanguages<X>::read(Reader reader)
+GetLanguages GetLanguages::read(Reader reader)
 {
     std::string lang_pack_ = String::read(reader);
-    return GetLanguages<X>(lang_pack_);
+    return GetLanguages(lang_pack_);
 }
 
-template <class X>
-std::string GetLanguages<X>::write()
+std::string GetLanguages::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -86,19 +90,16 @@ std::string GetLanguages<X>::write()
     return buffer;
 }
 
-template <class X>
-GetLanguage<X>::GetLanguage(std::string lang_pack_, std::string lang_code_) {}
+GetLanguage::GetLanguage(std::string lang_pack_, std::string lang_code_) {}
 
-template <class X>
-GetLanguage<X> GetLanguage<X>::read(Reader reader)
+GetLanguage GetLanguage::read(Reader reader)
 {
     std::string lang_pack_ = String::read(reader);
     std::string lang_code_ = String::read(reader);
-    return GetLanguage<X>(lang_pack_, lang_code_);
+    return GetLanguage(lang_pack_, lang_code_);
 }
 
-template <class X>
-std::string GetLanguage<X>::write()
+std::string GetLanguage::write()
 {
     std::string buffer;
     buffer += Int::write(__id);

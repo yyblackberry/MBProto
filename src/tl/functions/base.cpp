@@ -1,3 +1,19 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "tl/functions/base.h"
 
 ReqPqMulti::ReqPqMulti(uint128_t nonce_) {}
@@ -174,50 +190,6 @@ std::string DestroyAuthKey::write()
     buffer += Int::write(__id);
     return buffer;
 }
-True True::read(Reader reader)
-{
-    return True();
-}
-
-std::string True::write()
-{
-    std::string buffer;
-    buffer += Int::write(__id);
-    return buffer;
-}
-BoolFalse BoolFalse::read(Reader reader)
-{
-    return BoolFalse();
-}
-
-std::string BoolFalse::write()
-{
-    std::string buffer;
-    buffer += Int::write(__id);
-    return buffer;
-}
-BoolTrue BoolTrue::read(Reader reader)
-{
-    return BoolTrue();
-}
-
-std::string BoolTrue::write()
-{
-    std::string buffer;
-    buffer += Int::write(__id);
-    return buffer;
-}
-Vector Vector::read(Reader reader)
-{
-    return Vector();
-}
-
-std::string Vector::write()
-{
-    std::string buffer;
-    buffer += Int::write(__id);
-    return buffer;
-}
 
 Error::Error(int code_, std::string text_) {}
 
@@ -281,7 +253,7 @@ AccessPointRule AccessPointRule::read(Reader reader)
 {
     std::string phone_prefix_rules_ = String::read(reader);
     int dc_id_ = Int::read(reader);
-    std::vector<TLObject> ips_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> ips_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return AccessPointRule(phone_prefix_rules_, dc_id_, ips_);
 }
 
@@ -301,12 +273,8 @@ InputPeerPhotoFileLocationLegacy InputPeerPhotoFileLocationLegacy::read(Reader r
 {
     int flags = Int::read(reader);
     std::optional<bool> big_;
-
-    if (1 << 0)
-        big_ = true;
-    else
-        big_ = std::nullopt;
-    TLObject peer_ = TLObject::read(reader);
+    big_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject peer_ = std::get<TLObject>(TLObject::read(reader));
     long volume_id_ = Long::read(reader);
     int local_id_ = Int::read(reader);
     return InputPeerPhotoFileLocationLegacy(peer_, volume_id_, local_id_, big_);
@@ -328,7 +296,7 @@ InputStickerSetThumbLegacy::InputStickerSetThumbLegacy(TLObject stickerset_, lon
 
 InputStickerSetThumbLegacy InputStickerSetThumbLegacy::read(Reader reader)
 {
-    TLObject stickerset_ = TLObject::read(reader);
+    TLObject stickerset_ = std::get<TLObject>(TLObject::read(reader));
     long volume_id_ = Long::read(reader);
     int local_id_ = Int::read(reader);
     return InputStickerSetThumbLegacy(stickerset_, volume_id_, local_id_);
@@ -371,7 +339,7 @@ InvokeAfterMsgs<X>::InvokeAfterMsgs(std::vector<long> msg_ids_, X query_) {}
 template <class X>
 InvokeAfterMsgs<X> InvokeAfterMsgs<X>::read(Reader reader)
 {
-    std::vector<long> msg_ids_ = Vector<long>::read(reader);
+    std::vector<long> msg_ids_ = std::get<std::vector<long>>(TLObject::read(reader));
     X query_ = X::read(reader);
     return InvokeAfterMsgs<X>(msg_ids_, query_);
 }
@@ -401,17 +369,9 @@ InitConnection<X> InitConnection<X>::read(Reader reader)
     std::string lang_pack_ = String::read(reader);
     std::string lang_code_ = String::read(reader);
     std::optional<TLObject> proxy_;
-
-    if (1 << 0)
-        proxy_ = TLObject::read(reader);
-    else
-        proxy_ = std::nullopt;
+    proxy_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<TLObject> params_;
-
-    if (1 << 1)
-        params_ = TLObject::read(reader);
-    else
-        params_ = std::nullopt;
+    params_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     X query_ = X::read(reader);
     return InitConnection<X>(api_id_, device_model_, system_version_, app_version_, system_lang_code_, lang_pack_, lang_code_, query_, proxy_, params_);
 }
@@ -487,7 +447,7 @@ InvokeWithMessagesRange<X>::InvokeWithMessagesRange(TLObject range_, X query_) {
 template <class X>
 InvokeWithMessagesRange<X> InvokeWithMessagesRange<X>::read(Reader reader)
 {
-    TLObject range_ = TLObject::read(reader);
+    TLObject range_ = std::get<TLObject>(TLObject::read(reader));
     X query_ = X::read(reader);
     return InvokeWithMessagesRange<X>(range_, query_);
 }

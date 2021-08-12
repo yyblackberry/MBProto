@@ -1,10 +1,25 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #pragma once
 #include "tl/bare.h"
 #include "tl/TLObject.h"
 #include <optional>
 
-template <class X>
-class GetUsers
+class GetUsers : public TLObject
 {
 private:
     int __id = 0xd91a548;
@@ -12,12 +27,11 @@ private:
 public:
     std::vector<TLObject> id;
     GetUsers(std::vector<TLObject> id_);
-    static GetUsers<X> read(Reader reader);
+    static GetUsers read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetFullUser
+class GetFullUser : public TLObject
 {
 private:
     int __id = 0xca30a5b1;
@@ -25,12 +39,11 @@ private:
 public:
     TLObject id;
     GetFullUser(TLObject id_);
-    static GetFullUser<X> read(Reader reader);
+    static GetFullUser read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SetSecureValueErrors
+class SetSecureValueErrors : public TLObject
 {
 private:
     int __id = 0x90c894b5;
@@ -39,6 +52,6 @@ public:
     TLObject id;
     std::vector<TLObject> errors;
     SetSecureValueErrors(TLObject id_, std::vector<TLObject> errors_);
-    static SetSecureValueErrors<X> read(Reader reader);
+    static SetSecureValueErrors read(Reader reader);
     std::string write();
 };

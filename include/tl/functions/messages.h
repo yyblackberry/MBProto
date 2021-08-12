@@ -1,10 +1,25 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #pragma once
 #include "tl/bare.h"
 #include "tl/TLObject.h"
 #include <optional>
 
-template <class X>
-class GetMessages
+class GetMessages : public TLObject
 {
 private:
     int __id = 0x63c66506;
@@ -12,12 +27,11 @@ private:
 public:
     std::vector<TLObject> id;
     GetMessages(std::vector<TLObject> id_);
-    static GetMessages<X> read(Reader reader);
+    static GetMessages read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetDialogs
+class GetDialogs : public TLObject
 {
 private:
     int __id = 0xa0ee3b73;
@@ -31,12 +45,11 @@ public:
     int limit;
     int hash;
     GetDialogs(int offset_date_, int offset_id_, TLObject offset_peer_, int limit_, int hash_, std::optional<bool> exclude_pinned_ = std::nullopt, std::optional<int> folder_id_ = std::nullopt);
-    static GetDialogs<X> read(Reader reader);
+    static GetDialogs read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetHistory
+class GetHistory : public TLObject
 {
 private:
     int __id = 0xdcbb8260;
@@ -51,12 +64,11 @@ public:
     int min_id;
     int hash;
     GetHistory(TLObject peer_, int offset_id_, int offset_date_, int add_offset_, int limit_, int max_id_, int min_id_, int hash_);
-    static GetHistory<X> read(Reader reader);
+    static GetHistory read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class Search
+class Search : public TLObject
 {
 private:
     int __id = 0xc352eec;
@@ -76,12 +88,11 @@ public:
     int min_id;
     int hash;
     Search(TLObject peer_, std::string q_, TLObject filter_, int min_date_, int max_date_, int offset_id_, int add_offset_, int limit_, int max_id_, int min_id_, int hash_, std::optional<TLObject> from_id_ = std::nullopt, std::optional<int> top_msg_id_ = std::nullopt);
-    static Search<X> read(Reader reader);
+    static Search read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ReadHistory
+class ReadHistory : public TLObject
 {
 private:
     int __id = 0xe306d3a;
@@ -90,12 +101,11 @@ public:
     TLObject peer;
     int max_id;
     ReadHistory(TLObject peer_, int max_id_);
-    static ReadHistory<X> read(Reader reader);
+    static ReadHistory read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class DeleteHistory
+class DeleteHistory : public TLObject
 {
 private:
     int __id = 0x1c015b09;
@@ -106,12 +116,11 @@ public:
     TLObject peer;
     int max_id;
     DeleteHistory(TLObject peer_, int max_id_, std::optional<bool> just_clear_ = std::nullopt, std::optional<bool> revoke_ = std::nullopt);
-    static DeleteHistory<X> read(Reader reader);
+    static DeleteHistory read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class DeleteMessages
+class DeleteMessages : public TLObject
 {
 private:
     int __id = 0xe58e95d2;
@@ -120,12 +129,11 @@ public:
     std::optional<bool> revoke;
     std::vector<int> id;
     DeleteMessages(std::vector<int> id_, std::optional<bool> revoke_ = std::nullopt);
-    static DeleteMessages<X> read(Reader reader);
+    static DeleteMessages read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ReceivedMessages
+class ReceivedMessages : public TLObject
 {
 private:
     int __id = 0x5a954c0;
@@ -133,12 +141,11 @@ private:
 public:
     int max_id;
     ReceivedMessages(int max_id_);
-    static ReceivedMessages<X> read(Reader reader);
+    static ReceivedMessages read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SetTyping
+class SetTyping : public TLObject
 {
 private:
     int __id = 0x58943ee2;
@@ -148,12 +155,11 @@ public:
     std::optional<int> top_msg_id;
     TLObject action;
     SetTyping(TLObject peer_, TLObject action_, std::optional<int> top_msg_id_ = std::nullopt);
-    static SetTyping<X> read(Reader reader);
+    static SetTyping read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SendMessage
+class SendMessage : public TLObject
 {
 private:
     int __id = 0x520c3870;
@@ -171,12 +177,11 @@ public:
     std::optional<std::vector<TLObject>> entities;
     std::optional<int> schedule_date;
     SendMessage(TLObject peer_, std::string message_, long random_id_, std::optional<bool> no_webpage_ = std::nullopt, std::optional<bool> silent_ = std::nullopt, std::optional<bool> background_ = std::nullopt, std::optional<bool> clear_draft_ = std::nullopt, std::optional<int> reply_to_msg_id_ = std::nullopt, std::optional<TLObject> reply_markup_ = std::nullopt, std::optional<std::vector<TLObject>> entities_ = std::nullopt, std::optional<int> schedule_date_ = std::nullopt);
-    static SendMessage<X> read(Reader reader);
+    static SendMessage read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SendMedia
+class SendMedia : public TLObject
 {
 private:
     int __id = 0x3491eba9;
@@ -194,12 +199,11 @@ public:
     std::optional<std::vector<TLObject>> entities;
     std::optional<int> schedule_date;
     SendMedia(TLObject peer_, TLObject media_, std::string message_, long random_id_, std::optional<bool> silent_ = std::nullopt, std::optional<bool> background_ = std::nullopt, std::optional<bool> clear_draft_ = std::nullopt, std::optional<int> reply_to_msg_id_ = std::nullopt, std::optional<TLObject> reply_markup_ = std::nullopt, std::optional<std::vector<TLObject>> entities_ = std::nullopt, std::optional<int> schedule_date_ = std::nullopt);
-    static SendMedia<X> read(Reader reader);
+    static SendMedia read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ForwardMessages
+class ForwardMessages : public TLObject
 {
 private:
     int __id = 0xd9fee60e;
@@ -214,12 +218,11 @@ public:
     TLObject to_peer;
     std::optional<int> schedule_date;
     ForwardMessages(TLObject from_peer_, std::vector<int> id_, std::vector<long> random_id_, TLObject to_peer_, std::optional<bool> silent_ = std::nullopt, std::optional<bool> background_ = std::nullopt, std::optional<bool> with_my_score_ = std::nullopt, std::optional<int> schedule_date_ = std::nullopt);
-    static ForwardMessages<X> read(Reader reader);
+    static ForwardMessages read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ReportSpam
+class ReportSpam : public TLObject
 {
 private:
     int __id = 0xcf1592db;
@@ -227,12 +230,11 @@ private:
 public:
     TLObject peer;
     ReportSpam(TLObject peer_);
-    static ReportSpam<X> read(Reader reader);
+    static ReportSpam read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetPeerSettings
+class GetPeerSettings : public TLObject
 {
 private:
     int __id = 0x3672e09c;
@@ -240,12 +242,11 @@ private:
 public:
     TLObject peer;
     GetPeerSettings(TLObject peer_);
-    static GetPeerSettings<X> read(Reader reader);
+    static GetPeerSettings read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class Report
+class Report : public TLObject
 {
 private:
     int __id = 0x8953ab4e;
@@ -256,12 +257,11 @@ public:
     TLObject reason;
     std::string message;
     Report(TLObject peer_, std::vector<int> id_, TLObject reason_, std::string message_);
-    static Report<X> read(Reader reader);
+    static Report read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetChats
+class GetChats : public TLObject
 {
 private:
     int __id = 0x3c6aa187;
@@ -269,12 +269,11 @@ private:
 public:
     std::vector<int> id;
     GetChats(std::vector<int> id_);
-    static GetChats<X> read(Reader reader);
+    static GetChats read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetFullChat
+class GetFullChat : public TLObject
 {
 private:
     int __id = 0x3b831c66;
@@ -282,12 +281,11 @@ private:
 public:
     int chat_id;
     GetFullChat(int chat_id_);
-    static GetFullChat<X> read(Reader reader);
+    static GetFullChat read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class EditChatTitle
+class EditChatTitle : public TLObject
 {
 private:
     int __id = 0xdc452855;
@@ -296,12 +294,11 @@ public:
     int chat_id;
     std::string title;
     EditChatTitle(int chat_id_, std::string title_);
-    static EditChatTitle<X> read(Reader reader);
+    static EditChatTitle read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class EditChatPhoto
+class EditChatPhoto : public TLObject
 {
 private:
     int __id = 0xca4c79d8;
@@ -310,12 +307,11 @@ public:
     int chat_id;
     TLObject photo;
     EditChatPhoto(int chat_id_, TLObject photo_);
-    static EditChatPhoto<X> read(Reader reader);
+    static EditChatPhoto read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class AddChatUser
+class AddChatUser : public TLObject
 {
 private:
     int __id = 0xf9a0aa09;
@@ -325,12 +321,11 @@ public:
     TLObject user_id;
     int fwd_limit;
     AddChatUser(int chat_id_, TLObject user_id_, int fwd_limit_);
-    static AddChatUser<X> read(Reader reader);
+    static AddChatUser read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class DeleteChatUser
+class DeleteChatUser : public TLObject
 {
 private:
     int __id = 0xc534459a;
@@ -340,12 +335,11 @@ public:
     int chat_id;
     TLObject user_id;
     DeleteChatUser(int chat_id_, TLObject user_id_, std::optional<bool> revoke_history_ = std::nullopt);
-    static DeleteChatUser<X> read(Reader reader);
+    static DeleteChatUser read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class CreateChat
+class CreateChat : public TLObject
 {
 private:
     int __id = 0x9cb126e;
@@ -354,12 +348,11 @@ public:
     std::vector<TLObject> users;
     std::string title;
     CreateChat(std::vector<TLObject> users_, std::string title_);
-    static CreateChat<X> read(Reader reader);
+    static CreateChat read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetDhConfig
+class GetDhConfig : public TLObject
 {
 private:
     int __id = 0x26cf8950;
@@ -368,12 +361,11 @@ public:
     int version;
     int random_length;
     GetDhConfig(int version_, int random_length_);
-    static GetDhConfig<X> read(Reader reader);
+    static GetDhConfig read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class RequestEncryption
+class RequestEncryption : public TLObject
 {
 private:
     int __id = 0xf64daf43;
@@ -383,12 +375,11 @@ public:
     int random_id;
     std::string g_a;
     RequestEncryption(TLObject user_id_, int random_id_, std::string g_a_);
-    static RequestEncryption<X> read(Reader reader);
+    static RequestEncryption read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class AcceptEncryption
+class AcceptEncryption : public TLObject
 {
 private:
     int __id = 0x3dbc0415;
@@ -398,12 +389,11 @@ public:
     std::string g_b;
     long key_fingerprint;
     AcceptEncryption(TLObject peer_, std::string g_b_, long key_fingerprint_);
-    static AcceptEncryption<X> read(Reader reader);
+    static AcceptEncryption read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class DiscardEncryption
+class DiscardEncryption : public TLObject
 {
 private:
     int __id = 0xf393aea0;
@@ -412,12 +402,11 @@ public:
     std::optional<bool> delete_history;
     int chat_id;
     DiscardEncryption(int chat_id_, std::optional<bool> delete_history_ = std::nullopt);
-    static DiscardEncryption<X> read(Reader reader);
+    static DiscardEncryption read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SetEncryptedTyping
+class SetEncryptedTyping : public TLObject
 {
 private:
     int __id = 0x791451ed;
@@ -426,12 +415,11 @@ public:
     TLObject peer;
     bool typing;
     SetEncryptedTyping(TLObject peer_, bool typing_);
-    static SetEncryptedTyping<X> read(Reader reader);
+    static SetEncryptedTyping read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ReadEncryptedHistory
+class ReadEncryptedHistory : public TLObject
 {
 private:
     int __id = 0x7f4b690a;
@@ -440,12 +428,11 @@ public:
     TLObject peer;
     int max_date;
     ReadEncryptedHistory(TLObject peer_, int max_date_);
-    static ReadEncryptedHistory<X> read(Reader reader);
+    static ReadEncryptedHistory read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SendEncrypted
+class SendEncrypted : public TLObject
 {
 private:
     int __id = 0x44fa7a15;
@@ -456,12 +443,11 @@ public:
     long random_id;
     std::string data;
     SendEncrypted(TLObject peer_, long random_id_, std::string data_, std::optional<bool> silent_ = std::nullopt);
-    static SendEncrypted<X> read(Reader reader);
+    static SendEncrypted read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SendEncryptedFile
+class SendEncryptedFile : public TLObject
 {
 private:
     int __id = 0x5559481d;
@@ -473,12 +459,11 @@ public:
     std::string data;
     TLObject file;
     SendEncryptedFile(TLObject peer_, long random_id_, std::string data_, TLObject file_, std::optional<bool> silent_ = std::nullopt);
-    static SendEncryptedFile<X> read(Reader reader);
+    static SendEncryptedFile read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SendEncryptedService
+class SendEncryptedService : public TLObject
 {
 private:
     int __id = 0x32d439a4;
@@ -488,12 +473,11 @@ public:
     long random_id;
     std::string data;
     SendEncryptedService(TLObject peer_, long random_id_, std::string data_);
-    static SendEncryptedService<X> read(Reader reader);
+    static SendEncryptedService read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ReceivedQueue
+class ReceivedQueue : public TLObject
 {
 private:
     int __id = 0x55a5bb66;
@@ -501,12 +485,11 @@ private:
 public:
     int max_qts;
     ReceivedQueue(int max_qts_);
-    static ReceivedQueue<X> read(Reader reader);
+    static ReceivedQueue read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ReportEncryptedSpam
+class ReportEncryptedSpam : public TLObject
 {
 private:
     int __id = 0x4b0c8c0f;
@@ -514,12 +497,11 @@ private:
 public:
     TLObject peer;
     ReportEncryptedSpam(TLObject peer_);
-    static ReportEncryptedSpam<X> read(Reader reader);
+    static ReportEncryptedSpam read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ReadMessageContents
+class ReadMessageContents : public TLObject
 {
 private:
     int __id = 0x36a73f77;
@@ -527,12 +509,11 @@ private:
 public:
     std::vector<int> id;
     ReadMessageContents(std::vector<int> id_);
-    static ReadMessageContents<X> read(Reader reader);
+    static ReadMessageContents read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetStickers
+class GetStickers : public TLObject
 {
 private:
     int __id = 0x43d4f2c;
@@ -541,12 +522,11 @@ public:
     std::string emoticon;
     int hash;
     GetStickers(std::string emoticon_, int hash_);
-    static GetStickers<X> read(Reader reader);
+    static GetStickers read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetAllStickers
+class GetAllStickers : public TLObject
 {
 private:
     int __id = 0x1c9618b1;
@@ -554,12 +534,11 @@ private:
 public:
     int hash;
     GetAllStickers(int hash_);
-    static GetAllStickers<X> read(Reader reader);
+    static GetAllStickers read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetWebPagePreview
+class GetWebPagePreview : public TLObject
 {
 private:
     int __id = 0x8b68b0cc;
@@ -568,12 +547,11 @@ public:
     std::string message;
     std::optional<std::vector<TLObject>> entities;
     GetWebPagePreview(std::string message_, std::optional<std::vector<TLObject>> entities_ = std::nullopt);
-    static GetWebPagePreview<X> read(Reader reader);
+    static GetWebPagePreview read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ExportChatInvite
+class ExportChatInvite : public TLObject
 {
 private:
     int __id = 0x14b9bcd7;
@@ -584,12 +562,11 @@ public:
     std::optional<int> expire_date;
     std::optional<int> usage_limit;
     ExportChatInvite(TLObject peer_, std::optional<bool> legacy_revoke_permanent_ = std::nullopt, std::optional<int> expire_date_ = std::nullopt, std::optional<int> usage_limit_ = std::nullopt);
-    static ExportChatInvite<X> read(Reader reader);
+    static ExportChatInvite read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class CheckChatInvite
+class CheckChatInvite : public TLObject
 {
 private:
     int __id = 0x3eadb1bb;
@@ -597,12 +574,11 @@ private:
 public:
     std::string hash;
     CheckChatInvite(std::string hash_);
-    static CheckChatInvite<X> read(Reader reader);
+    static CheckChatInvite read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ImportChatInvite
+class ImportChatInvite : public TLObject
 {
 private:
     int __id = 0x6c50051c;
@@ -610,12 +586,11 @@ private:
 public:
     std::string hash;
     ImportChatInvite(std::string hash_);
-    static ImportChatInvite<X> read(Reader reader);
+    static ImportChatInvite read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetStickerSet
+class GetStickerSet : public TLObject
 {
 private:
     int __id = 0x2619a90e;
@@ -623,12 +598,11 @@ private:
 public:
     TLObject stickerset;
     GetStickerSet(TLObject stickerset_);
-    static GetStickerSet<X> read(Reader reader);
+    static GetStickerSet read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class InstallStickerSet
+class InstallStickerSet : public TLObject
 {
 private:
     int __id = 0xc78fe460;
@@ -637,12 +611,11 @@ public:
     TLObject stickerset;
     bool archived;
     InstallStickerSet(TLObject stickerset_, bool archived_);
-    static InstallStickerSet<X> read(Reader reader);
+    static InstallStickerSet read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class UninstallStickerSet
+class UninstallStickerSet : public TLObject
 {
 private:
     int __id = 0xf96e55de;
@@ -650,12 +623,11 @@ private:
 public:
     TLObject stickerset;
     UninstallStickerSet(TLObject stickerset_);
-    static UninstallStickerSet<X> read(Reader reader);
+    static UninstallStickerSet read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class StartBot
+class StartBot : public TLObject
 {
 private:
     int __id = 0xe6df7378;
@@ -666,12 +638,11 @@ public:
     long random_id;
     std::string start_param;
     StartBot(TLObject bot_, TLObject peer_, long random_id_, std::string start_param_);
-    static StartBot<X> read(Reader reader);
+    static StartBot read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetMessagesViews
+class GetMessagesViews : public TLObject
 {
 private:
     int __id = 0x5784d3e1;
@@ -681,12 +652,11 @@ public:
     std::vector<int> id;
     bool increment;
     GetMessagesViews(TLObject peer_, std::vector<int> id_, bool increment_);
-    static GetMessagesViews<X> read(Reader reader);
+    static GetMessagesViews read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class EditChatAdmin
+class EditChatAdmin : public TLObject
 {
 private:
     int __id = 0xa9e69f2e;
@@ -696,12 +666,11 @@ public:
     TLObject user_id;
     bool is_admin;
     EditChatAdmin(int chat_id_, TLObject user_id_, bool is_admin_);
-    static EditChatAdmin<X> read(Reader reader);
+    static EditChatAdmin read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class MigrateChat
+class MigrateChat : public TLObject
 {
 private:
     int __id = 0x15a3b8e3;
@@ -709,12 +678,11 @@ private:
 public:
     int chat_id;
     MigrateChat(int chat_id_);
-    static MigrateChat<X> read(Reader reader);
+    static MigrateChat read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SearchGlobal
+class SearchGlobal : public TLObject
 {
 private:
     int __id = 0x4bc6589a;
@@ -730,12 +698,11 @@ public:
     int offset_id;
     int limit;
     SearchGlobal(std::string q_, TLObject filter_, int min_date_, int max_date_, int offset_rate_, TLObject offset_peer_, int offset_id_, int limit_, std::optional<int> folder_id_ = std::nullopt);
-    static SearchGlobal<X> read(Reader reader);
+    static SearchGlobal read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ReorderStickerSets
+class ReorderStickerSets : public TLObject
 {
 private:
     int __id = 0x78337739;
@@ -744,12 +711,11 @@ public:
     std::optional<bool> masks;
     std::vector<long> order;
     ReorderStickerSets(std::vector<long> order_, std::optional<bool> masks_ = std::nullopt);
-    static ReorderStickerSets<X> read(Reader reader);
+    static ReorderStickerSets read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetDocumentByHash
+class GetDocumentByHash : public TLObject
 {
 private:
     int __id = 0x338e2464;
@@ -759,12 +725,11 @@ public:
     int size;
     std::string mime_type;
     GetDocumentByHash(std::string sha256_, int size_, std::string mime_type_);
-    static GetDocumentByHash<X> read(Reader reader);
+    static GetDocumentByHash read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetSavedGifs
+class GetSavedGifs : public TLObject
 {
 private:
     int __id = 0x83bf3d52;
@@ -772,12 +737,11 @@ private:
 public:
     int hash;
     GetSavedGifs(int hash_);
-    static GetSavedGifs<X> read(Reader reader);
+    static GetSavedGifs read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SaveGif
+class SaveGif : public TLObject
 {
 private:
     int __id = 0x327a30cb;
@@ -786,12 +750,11 @@ public:
     TLObject id;
     bool unsave;
     SaveGif(TLObject id_, bool unsave_);
-    static SaveGif<X> read(Reader reader);
+    static SaveGif read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetInlineBotResults
+class GetInlineBotResults : public TLObject
 {
 private:
     int __id = 0x514e999d;
@@ -803,12 +766,11 @@ public:
     std::string query;
     std::string offset;
     GetInlineBotResults(TLObject bot_, TLObject peer_, std::string query_, std::string offset_, std::optional<TLObject> geo_point_ = std::nullopt);
-    static GetInlineBotResults<X> read(Reader reader);
+    static GetInlineBotResults read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SetInlineBotResults
+class SetInlineBotResults : public TLObject
 {
 private:
     int __id = 0xeb5ea206;
@@ -822,12 +784,11 @@ public:
     std::optional<std::string> next_offset;
     std::optional<TLObject> switch_pm;
     SetInlineBotResults(long query_id_, std::vector<TLObject> results_, int cache_time_, std::optional<bool> gallery_ = std::nullopt, std::optional<bool> private_ = std::nullopt, std::optional<std::string> next_offset_ = std::nullopt, std::optional<TLObject> switch_pm_ = std::nullopt);
-    static SetInlineBotResults<X> read(Reader reader);
+    static SetInlineBotResults read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SendInlineBotResult
+class SendInlineBotResult : public TLObject
 {
 private:
     int __id = 0x220815b0;
@@ -844,12 +805,11 @@ public:
     std::string id;
     std::optional<int> schedule_date;
     SendInlineBotResult(TLObject peer_, long random_id_, long query_id_, std::string id_, std::optional<bool> silent_ = std::nullopt, std::optional<bool> background_ = std::nullopt, std::optional<bool> clear_draft_ = std::nullopt, std::optional<bool> hide_via_ = std::nullopt, std::optional<int> reply_to_msg_id_ = std::nullopt, std::optional<int> schedule_date_ = std::nullopt);
-    static SendInlineBotResult<X> read(Reader reader);
+    static SendInlineBotResult read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetMessageEditData
+class GetMessageEditData : public TLObject
 {
 private:
     int __id = 0xfda68d36;
@@ -858,12 +818,11 @@ public:
     TLObject peer;
     int id;
     GetMessageEditData(TLObject peer_, int id_);
-    static GetMessageEditData<X> read(Reader reader);
+    static GetMessageEditData read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class EditMessage
+class EditMessage : public TLObject
 {
 private:
     int __id = 0x48f71778;
@@ -878,12 +837,11 @@ public:
     std::optional<std::vector<TLObject>> entities;
     std::optional<int> schedule_date;
     EditMessage(TLObject peer_, int id_, std::optional<bool> no_webpage_ = std::nullopt, std::optional<std::string> message_ = std::nullopt, std::optional<TLObject> media_ = std::nullopt, std::optional<TLObject> reply_markup_ = std::nullopt, std::optional<std::vector<TLObject>> entities_ = std::nullopt, std::optional<int> schedule_date_ = std::nullopt);
-    static EditMessage<X> read(Reader reader);
+    static EditMessage read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class EditInlineBotMessage
+class EditInlineBotMessage : public TLObject
 {
 private:
     int __id = 0x83557dba;
@@ -896,12 +854,11 @@ public:
     std::optional<TLObject> reply_markup;
     std::optional<std::vector<TLObject>> entities;
     EditInlineBotMessage(TLObject id_, std::optional<bool> no_webpage_ = std::nullopt, std::optional<std::string> message_ = std::nullopt, std::optional<TLObject> media_ = std::nullopt, std::optional<TLObject> reply_markup_ = std::nullopt, std::optional<std::vector<TLObject>> entities_ = std::nullopt);
-    static EditInlineBotMessage<X> read(Reader reader);
+    static EditInlineBotMessage read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetBotCallbackAnswer
+class GetBotCallbackAnswer : public TLObject
 {
 private:
     int __id = 0x9342ca07;
@@ -913,12 +870,11 @@ public:
     std::optional<std::string> data;
     std::optional<TLObject> password;
     GetBotCallbackAnswer(TLObject peer_, int msg_id_, std::optional<bool> game_ = std::nullopt, std::optional<std::string> data_ = std::nullopt, std::optional<TLObject> password_ = std::nullopt);
-    static GetBotCallbackAnswer<X> read(Reader reader);
+    static GetBotCallbackAnswer read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SetBotCallbackAnswer
+class SetBotCallbackAnswer : public TLObject
 {
 private:
     int __id = 0xd58f130a;
@@ -930,12 +886,11 @@ public:
     std::optional<std::string> url;
     int cache_time;
     SetBotCallbackAnswer(long query_id_, int cache_time_, std::optional<bool> alert_ = std::nullopt, std::optional<std::string> message_ = std::nullopt, std::optional<std::string> url_ = std::nullopt);
-    static SetBotCallbackAnswer<X> read(Reader reader);
+    static SetBotCallbackAnswer read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetPeerDialogs
+class GetPeerDialogs : public TLObject
 {
 private:
     int __id = 0xe470bcfd;
@@ -943,12 +898,11 @@ private:
 public:
     std::vector<TLObject> peers;
     GetPeerDialogs(std::vector<TLObject> peers_);
-    static GetPeerDialogs<X> read(Reader reader);
+    static GetPeerDialogs read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SaveDraft
+class SaveDraft : public TLObject
 {
 private:
     int __id = 0xbc39e14b;
@@ -960,24 +914,22 @@ public:
     std::string message;
     std::optional<std::vector<TLObject>> entities;
     SaveDraft(TLObject peer_, std::string message_, std::optional<bool> no_webpage_ = std::nullopt, std::optional<int> reply_to_msg_id_ = std::nullopt, std::optional<std::vector<TLObject>> entities_ = std::nullopt);
-    static SaveDraft<X> read(Reader reader);
+    static SaveDraft read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetAllDrafts
+class GetAllDrafts : public TLObject
 {
 private:
     int __id = 0x6a3f8d65;
 
 public:
     GetAllDrafts() = default;
-    static GetAllDrafts<X> read(Reader reader);
+    static GetAllDrafts read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetFeaturedStickers
+class GetFeaturedStickers : public TLObject
 {
 private:
     int __id = 0x2dacca4f;
@@ -985,12 +937,11 @@ private:
 public:
     int hash;
     GetFeaturedStickers(int hash_);
-    static GetFeaturedStickers<X> read(Reader reader);
+    static GetFeaturedStickers read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ReadFeaturedStickers
+class ReadFeaturedStickers : public TLObject
 {
 private:
     int __id = 0x5b118126;
@@ -998,12 +949,11 @@ private:
 public:
     std::vector<long> id;
     ReadFeaturedStickers(std::vector<long> id_);
-    static ReadFeaturedStickers<X> read(Reader reader);
+    static ReadFeaturedStickers read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetRecentStickers
+class GetRecentStickers : public TLObject
 {
 private:
     int __id = 0x5ea192c9;
@@ -1012,12 +962,11 @@ public:
     std::optional<bool> attached;
     int hash;
     GetRecentStickers(int hash_, std::optional<bool> attached_ = std::nullopt);
-    static GetRecentStickers<X> read(Reader reader);
+    static GetRecentStickers read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SaveRecentSticker
+class SaveRecentSticker : public TLObject
 {
 private:
     int __id = 0x392718f8;
@@ -1027,12 +976,11 @@ public:
     TLObject id;
     bool unsave;
     SaveRecentSticker(TLObject id_, bool unsave_, std::optional<bool> attached_ = std::nullopt);
-    static SaveRecentSticker<X> read(Reader reader);
+    static SaveRecentSticker read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ClearRecentStickers
+class ClearRecentStickers : public TLObject
 {
 private:
     int __id = 0x8999602d;
@@ -1040,12 +988,11 @@ private:
 public:
     std::optional<bool> attached;
     ClearRecentStickers(std::optional<bool> attached_ = std::nullopt);
-    static ClearRecentStickers<X> read(Reader reader);
+    static ClearRecentStickers read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetArchivedStickers
+class GetArchivedStickers : public TLObject
 {
 private:
     int __id = 0x57f17692;
@@ -1055,12 +1002,11 @@ public:
     long offset_id;
     int limit;
     GetArchivedStickers(long offset_id_, int limit_, std::optional<bool> masks_ = std::nullopt);
-    static GetArchivedStickers<X> read(Reader reader);
+    static GetArchivedStickers read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetMaskStickers
+class GetMaskStickers : public TLObject
 {
 private:
     int __id = 0x65b8c79f;
@@ -1068,12 +1014,11 @@ private:
 public:
     int hash;
     GetMaskStickers(int hash_);
-    static GetMaskStickers<X> read(Reader reader);
+    static GetMaskStickers read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetAttachedStickers
+class GetAttachedStickers : public TLObject
 {
 private:
     int __id = 0xcc5b67cc;
@@ -1081,12 +1026,11 @@ private:
 public:
     TLObject media;
     GetAttachedStickers(TLObject media_);
-    static GetAttachedStickers<X> read(Reader reader);
+    static GetAttachedStickers read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SetGameScore
+class SetGameScore : public TLObject
 {
 private:
     int __id = 0x8ef8ecc0;
@@ -1099,12 +1043,11 @@ public:
     TLObject user_id;
     int score;
     SetGameScore(TLObject peer_, int id_, TLObject user_id_, int score_, std::optional<bool> edit_message_ = std::nullopt, std::optional<bool> force_ = std::nullopt);
-    static SetGameScore<X> read(Reader reader);
+    static SetGameScore read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SetInlineGameScore
+class SetInlineGameScore : public TLObject
 {
 private:
     int __id = 0x15ad9f64;
@@ -1116,12 +1059,11 @@ public:
     TLObject user_id;
     int score;
     SetInlineGameScore(TLObject id_, TLObject user_id_, int score_, std::optional<bool> edit_message_ = std::nullopt, std::optional<bool> force_ = std::nullopt);
-    static SetInlineGameScore<X> read(Reader reader);
+    static SetInlineGameScore read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetGameHighScores
+class GetGameHighScores : public TLObject
 {
 private:
     int __id = 0xe822649d;
@@ -1131,12 +1073,11 @@ public:
     int id;
     TLObject user_id;
     GetGameHighScores(TLObject peer_, int id_, TLObject user_id_);
-    static GetGameHighScores<X> read(Reader reader);
+    static GetGameHighScores read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetInlineGameHighScores
+class GetInlineGameHighScores : public TLObject
 {
 private:
     int __id = 0xf635e1b;
@@ -1145,12 +1086,11 @@ public:
     TLObject id;
     TLObject user_id;
     GetInlineGameHighScores(TLObject id_, TLObject user_id_);
-    static GetInlineGameHighScores<X> read(Reader reader);
+    static GetInlineGameHighScores read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetCommonChats
+class GetCommonChats : public TLObject
 {
 private:
     int __id = 0xd0a48c4;
@@ -1160,12 +1100,11 @@ public:
     int max_id;
     int limit;
     GetCommonChats(TLObject user_id_, int max_id_, int limit_);
-    static GetCommonChats<X> read(Reader reader);
+    static GetCommonChats read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetAllChats
+class GetAllChats : public TLObject
 {
 private:
     int __id = 0xeba80ff0;
@@ -1173,12 +1112,11 @@ private:
 public:
     std::vector<int> except_ids;
     GetAllChats(std::vector<int> except_ids_);
-    static GetAllChats<X> read(Reader reader);
+    static GetAllChats read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetWebPage
+class GetWebPage : public TLObject
 {
 private:
     int __id = 0x32ca8f91;
@@ -1187,12 +1125,11 @@ public:
     std::string url;
     int hash;
     GetWebPage(std::string url_, int hash_);
-    static GetWebPage<X> read(Reader reader);
+    static GetWebPage read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ToggleDialogPin
+class ToggleDialogPin : public TLObject
 {
 private:
     int __id = 0xa731e257;
@@ -1201,12 +1138,11 @@ public:
     std::optional<bool> pinned;
     TLObject peer;
     ToggleDialogPin(TLObject peer_, std::optional<bool> pinned_ = std::nullopt);
-    static ToggleDialogPin<X> read(Reader reader);
+    static ToggleDialogPin read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ReorderPinnedDialogs
+class ReorderPinnedDialogs : public TLObject
 {
 private:
     int __id = 0x3b1adf37;
@@ -1216,12 +1152,11 @@ public:
     int folder_id;
     std::vector<TLObject> order;
     ReorderPinnedDialogs(int folder_id_, std::vector<TLObject> order_, std::optional<bool> force_ = std::nullopt);
-    static ReorderPinnedDialogs<X> read(Reader reader);
+    static ReorderPinnedDialogs read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetPinnedDialogs
+class GetPinnedDialogs : public TLObject
 {
 private:
     int __id = 0xd6b94df2;
@@ -1229,12 +1164,11 @@ private:
 public:
     int folder_id;
     GetPinnedDialogs(int folder_id_);
-    static GetPinnedDialogs<X> read(Reader reader);
+    static GetPinnedDialogs read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SetBotShippingResults
+class SetBotShippingResults : public TLObject
 {
 private:
     int __id = 0xe5f672fa;
@@ -1244,12 +1178,11 @@ public:
     std::optional<std::string> error;
     std::optional<std::vector<TLObject>> shipping_options;
     SetBotShippingResults(long query_id_, std::optional<std::string> error_ = std::nullopt, std::optional<std::vector<TLObject>> shipping_options_ = std::nullopt);
-    static SetBotShippingResults<X> read(Reader reader);
+    static SetBotShippingResults read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SetBotPrecheckoutResults
+class SetBotPrecheckoutResults : public TLObject
 {
 private:
     int __id = 0x9c2dd95;
@@ -1259,12 +1192,11 @@ public:
     long query_id;
     std::optional<std::string> error;
     SetBotPrecheckoutResults(long query_id_, std::optional<bool> success_ = std::nullopt, std::optional<std::string> error_ = std::nullopt);
-    static SetBotPrecheckoutResults<X> read(Reader reader);
+    static SetBotPrecheckoutResults read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class UploadMedia
+class UploadMedia : public TLObject
 {
 private:
     int __id = 0x519bc2b1;
@@ -1273,12 +1205,11 @@ public:
     TLObject peer;
     TLObject media;
     UploadMedia(TLObject peer_, TLObject media_);
-    static UploadMedia<X> read(Reader reader);
+    static UploadMedia read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SendScreenshotNotification
+class SendScreenshotNotification : public TLObject
 {
 private:
     int __id = 0xc97df020;
@@ -1288,12 +1219,11 @@ public:
     int reply_to_msg_id;
     long random_id;
     SendScreenshotNotification(TLObject peer_, int reply_to_msg_id_, long random_id_);
-    static SendScreenshotNotification<X> read(Reader reader);
+    static SendScreenshotNotification read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetFavedStickers
+class GetFavedStickers : public TLObject
 {
 private:
     int __id = 0x21ce0b0e;
@@ -1301,12 +1231,11 @@ private:
 public:
     int hash;
     GetFavedStickers(int hash_);
-    static GetFavedStickers<X> read(Reader reader);
+    static GetFavedStickers read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class FaveSticker
+class FaveSticker : public TLObject
 {
 private:
     int __id = 0xb9ffc55b;
@@ -1315,12 +1244,11 @@ public:
     TLObject id;
     bool unfave;
     FaveSticker(TLObject id_, bool unfave_);
-    static FaveSticker<X> read(Reader reader);
+    static FaveSticker read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetUnreadMentions
+class GetUnreadMentions : public TLObject
 {
 private:
     int __id = 0x46578472;
@@ -1333,12 +1261,11 @@ public:
     int max_id;
     int min_id;
     GetUnreadMentions(TLObject peer_, int offset_id_, int add_offset_, int limit_, int max_id_, int min_id_);
-    static GetUnreadMentions<X> read(Reader reader);
+    static GetUnreadMentions read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ReadMentions
+class ReadMentions : public TLObject
 {
 private:
     int __id = 0xf0189d3;
@@ -1346,12 +1273,11 @@ private:
 public:
     TLObject peer;
     ReadMentions(TLObject peer_);
-    static ReadMentions<X> read(Reader reader);
+    static ReadMentions read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetRecentLocations
+class GetRecentLocations : public TLObject
 {
 private:
     int __id = 0xbbc45b09;
@@ -1361,12 +1287,11 @@ public:
     int limit;
     int hash;
     GetRecentLocations(TLObject peer_, int limit_, int hash_);
-    static GetRecentLocations<X> read(Reader reader);
+    static GetRecentLocations read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SendMultiMedia
+class SendMultiMedia : public TLObject
 {
 private:
     int __id = 0xcc0110cb;
@@ -1380,12 +1305,11 @@ public:
     std::vector<TLObject> multi_media;
     std::optional<int> schedule_date;
     SendMultiMedia(TLObject peer_, std::vector<TLObject> multi_media_, std::optional<bool> silent_ = std::nullopt, std::optional<bool> background_ = std::nullopt, std::optional<bool> clear_draft_ = std::nullopt, std::optional<int> reply_to_msg_id_ = std::nullopt, std::optional<int> schedule_date_ = std::nullopt);
-    static SendMultiMedia<X> read(Reader reader);
+    static SendMultiMedia read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class UploadEncryptedFile
+class UploadEncryptedFile : public TLObject
 {
 private:
     int __id = 0x5057c497;
@@ -1394,12 +1318,11 @@ public:
     TLObject peer;
     TLObject file;
     UploadEncryptedFile(TLObject peer_, TLObject file_);
-    static UploadEncryptedFile<X> read(Reader reader);
+    static UploadEncryptedFile read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SearchStickerSets
+class SearchStickerSets : public TLObject
 {
 private:
     int __id = 0xc2b7d08b;
@@ -1409,24 +1332,22 @@ public:
     std::string q;
     int hash;
     SearchStickerSets(std::string q_, int hash_, std::optional<bool> exclude_featured_ = std::nullopt);
-    static SearchStickerSets<X> read(Reader reader);
+    static SearchStickerSets read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetSplitRanges
+class GetSplitRanges : public TLObject
 {
 private:
     int __id = 0x1cff7e08;
 
 public:
     GetSplitRanges() = default;
-    static GetSplitRanges<X> read(Reader reader);
+    static GetSplitRanges read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class MarkDialogUnread
+class MarkDialogUnread : public TLObject
 {
 private:
     int __id = 0xc286d98f;
@@ -1435,36 +1356,33 @@ public:
     std::optional<bool> unread;
     TLObject peer;
     MarkDialogUnread(TLObject peer_, std::optional<bool> unread_ = std::nullopt);
-    static MarkDialogUnread<X> read(Reader reader);
+    static MarkDialogUnread read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetDialogUnreadMarks
+class GetDialogUnreadMarks : public TLObject
 {
 private:
     int __id = 0x22e24e22;
 
 public:
     GetDialogUnreadMarks() = default;
-    static GetDialogUnreadMarks<X> read(Reader reader);
+    static GetDialogUnreadMarks read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ClearAllDrafts
+class ClearAllDrafts : public TLObject
 {
 private:
     int __id = 0x7e58ee9c;
 
 public:
     ClearAllDrafts() = default;
-    static ClearAllDrafts<X> read(Reader reader);
+    static ClearAllDrafts read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class UpdatePinnedMessage
+class UpdatePinnedMessage : public TLObject
 {
 private:
     int __id = 0xd2aaf7ec;
@@ -1476,12 +1394,11 @@ public:
     TLObject peer;
     int id;
     UpdatePinnedMessage(TLObject peer_, int id_, std::optional<bool> silent_ = std::nullopt, std::optional<bool> unpin_ = std::nullopt, std::optional<bool> pm_oneside_ = std::nullopt);
-    static UpdatePinnedMessage<X> read(Reader reader);
+    static UpdatePinnedMessage read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SendVote
+class SendVote : public TLObject
 {
 private:
     int __id = 0x10ea6184;
@@ -1491,12 +1408,11 @@ public:
     int msg_id;
     std::vector<std::string> options;
     SendVote(TLObject peer_, int msg_id_, std::vector<std::string> options_);
-    static SendVote<X> read(Reader reader);
+    static SendVote read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetPollResults
+class GetPollResults : public TLObject
 {
 private:
     int __id = 0x73bb643b;
@@ -1505,12 +1421,11 @@ public:
     TLObject peer;
     int msg_id;
     GetPollResults(TLObject peer_, int msg_id_);
-    static GetPollResults<X> read(Reader reader);
+    static GetPollResults read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetOnlines
+class GetOnlines : public TLObject
 {
 private:
     int __id = 0x6e2be050;
@@ -1518,12 +1433,11 @@ private:
 public:
     TLObject peer;
     GetOnlines(TLObject peer_);
-    static GetOnlines<X> read(Reader reader);
+    static GetOnlines read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetStatsURL
+class GetStatsURL : public TLObject
 {
 private:
     int __id = 0x812c2ae6;
@@ -1533,12 +1447,11 @@ public:
     TLObject peer;
     std::string params;
     GetStatsURL(TLObject peer_, std::string params_, std::optional<bool> dark_ = std::nullopt);
-    static GetStatsURL<X> read(Reader reader);
+    static GetStatsURL read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class EditChatAbout
+class EditChatAbout : public TLObject
 {
 private:
     int __id = 0xdef60797;
@@ -1547,12 +1460,11 @@ public:
     TLObject peer;
     std::string about;
     EditChatAbout(TLObject peer_, std::string about_);
-    static EditChatAbout<X> read(Reader reader);
+    static EditChatAbout read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class EditChatDefaultBannedRights
+class EditChatDefaultBannedRights : public TLObject
 {
 private:
     int __id = 0xa5866b41;
@@ -1561,12 +1473,11 @@ public:
     TLObject peer;
     TLObject banned_rights;
     EditChatDefaultBannedRights(TLObject peer_, TLObject banned_rights_);
-    static EditChatDefaultBannedRights<X> read(Reader reader);
+    static EditChatDefaultBannedRights read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetEmojiKeywords
+class GetEmojiKeywords : public TLObject
 {
 private:
     int __id = 0x35a0e062;
@@ -1574,12 +1485,11 @@ private:
 public:
     std::string lang_code;
     GetEmojiKeywords(std::string lang_code_);
-    static GetEmojiKeywords<X> read(Reader reader);
+    static GetEmojiKeywords read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetEmojiKeywordsDifference
+class GetEmojiKeywordsDifference : public TLObject
 {
 private:
     int __id = 0x1508b6af;
@@ -1588,12 +1498,11 @@ public:
     std::string lang_code;
     int from_version;
     GetEmojiKeywordsDifference(std::string lang_code_, int from_version_);
-    static GetEmojiKeywordsDifference<X> read(Reader reader);
+    static GetEmojiKeywordsDifference read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetEmojiKeywordsLanguages
+class GetEmojiKeywordsLanguages : public TLObject
 {
 private:
     int __id = 0x4e9963b2;
@@ -1601,12 +1510,11 @@ private:
 public:
     std::vector<std::string> lang_codes;
     GetEmojiKeywordsLanguages(std::vector<std::string> lang_codes_);
-    static GetEmojiKeywordsLanguages<X> read(Reader reader);
+    static GetEmojiKeywordsLanguages read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetEmojiURL
+class GetEmojiURL : public TLObject
 {
 private:
     int __id = 0xd5b10c26;
@@ -1614,12 +1522,11 @@ private:
 public:
     std::string lang_code;
     GetEmojiURL(std::string lang_code_);
-    static GetEmojiURL<X> read(Reader reader);
+    static GetEmojiURL read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetSearchCounters
+class GetSearchCounters : public TLObject
 {
 private:
     int __id = 0x732eef00;
@@ -1628,12 +1535,11 @@ public:
     TLObject peer;
     std::vector<TLObject> filters;
     GetSearchCounters(TLObject peer_, std::vector<TLObject> filters_);
-    static GetSearchCounters<X> read(Reader reader);
+    static GetSearchCounters read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class RequestUrlAuth
+class RequestUrlAuth : public TLObject
 {
 private:
     int __id = 0x198fb446;
@@ -1644,12 +1550,11 @@ public:
     std::optional<int> button_id;
     std::optional<std::string> url;
     RequestUrlAuth(std::optional<TLObject> peer_ = std::nullopt, std::optional<int> msg_id_ = std::nullopt, std::optional<int> button_id_ = std::nullopt, std::optional<std::string> url_ = std::nullopt);
-    static RequestUrlAuth<X> read(Reader reader);
+    static RequestUrlAuth read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class AcceptUrlAuth
+class AcceptUrlAuth : public TLObject
 {
 private:
     int __id = 0xb12c7125;
@@ -1661,12 +1566,11 @@ public:
     std::optional<int> button_id;
     std::optional<std::string> url;
     AcceptUrlAuth(std::optional<bool> write_allowed_ = std::nullopt, std::optional<TLObject> peer_ = std::nullopt, std::optional<int> msg_id_ = std::nullopt, std::optional<int> button_id_ = std::nullopt, std::optional<std::string> url_ = std::nullopt);
-    static AcceptUrlAuth<X> read(Reader reader);
+    static AcceptUrlAuth read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class HidePeerSettingsBar
+class HidePeerSettingsBar : public TLObject
 {
 private:
     int __id = 0x4facb138;
@@ -1674,12 +1578,11 @@ private:
 public:
     TLObject peer;
     HidePeerSettingsBar(TLObject peer_);
-    static HidePeerSettingsBar<X> read(Reader reader);
+    static HidePeerSettingsBar read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetScheduledHistory
+class GetScheduledHistory : public TLObject
 {
 private:
     int __id = 0xe2c2685b;
@@ -1688,12 +1591,11 @@ public:
     TLObject peer;
     int hash;
     GetScheduledHistory(TLObject peer_, int hash_);
-    static GetScheduledHistory<X> read(Reader reader);
+    static GetScheduledHistory read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetScheduledMessages
+class GetScheduledMessages : public TLObject
 {
 private:
     int __id = 0xbdbb0464;
@@ -1702,12 +1604,11 @@ public:
     TLObject peer;
     std::vector<int> id;
     GetScheduledMessages(TLObject peer_, std::vector<int> id_);
-    static GetScheduledMessages<X> read(Reader reader);
+    static GetScheduledMessages read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SendScheduledMessages
+class SendScheduledMessages : public TLObject
 {
 private:
     int __id = 0xbd38850a;
@@ -1716,12 +1617,11 @@ public:
     TLObject peer;
     std::vector<int> id;
     SendScheduledMessages(TLObject peer_, std::vector<int> id_);
-    static SendScheduledMessages<X> read(Reader reader);
+    static SendScheduledMessages read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class DeleteScheduledMessages
+class DeleteScheduledMessages : public TLObject
 {
 private:
     int __id = 0x59ae2b16;
@@ -1730,12 +1630,11 @@ public:
     TLObject peer;
     std::vector<int> id;
     DeleteScheduledMessages(TLObject peer_, std::vector<int> id_);
-    static DeleteScheduledMessages<X> read(Reader reader);
+    static DeleteScheduledMessages read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetPollVotes
+class GetPollVotes : public TLObject
 {
 private:
     int __id = 0xb86e380e;
@@ -1747,12 +1646,11 @@ public:
     std::optional<std::string> offset;
     int limit;
     GetPollVotes(TLObject peer_, int id_, int limit_, std::optional<std::string> option_ = std::nullopt, std::optional<std::string> offset_ = std::nullopt);
-    static GetPollVotes<X> read(Reader reader);
+    static GetPollVotes read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ToggleStickerSets
+class ToggleStickerSets : public TLObject
 {
 private:
     int __id = 0xb5052fea;
@@ -1763,36 +1661,33 @@ public:
     std::optional<bool> unarchive;
     std::vector<TLObject> stickersets;
     ToggleStickerSets(std::vector<TLObject> stickersets_, std::optional<bool> uninstall_ = std::nullopt, std::optional<bool> archive_ = std::nullopt, std::optional<bool> unarchive_ = std::nullopt);
-    static ToggleStickerSets<X> read(Reader reader);
+    static ToggleStickerSets read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetDialogFilters
+class GetDialogFilters : public TLObject
 {
 private:
     int __id = 0xf19ed96d;
 
 public:
     GetDialogFilters() = default;
-    static GetDialogFilters<X> read(Reader reader);
+    static GetDialogFilters read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetSuggestedDialogFilters
+class GetSuggestedDialogFilters : public TLObject
 {
 private:
     int __id = 0xa29cd42c;
 
 public:
     GetSuggestedDialogFilters() = default;
-    static GetSuggestedDialogFilters<X> read(Reader reader);
+    static GetSuggestedDialogFilters read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class UpdateDialogFilter
+class UpdateDialogFilter : public TLObject
 {
 private:
     int __id = 0x1ad4a04a;
@@ -1801,12 +1696,11 @@ public:
     int id;
     std::optional<TLObject> filter;
     UpdateDialogFilter(int id_, std::optional<TLObject> filter_ = std::nullopt);
-    static UpdateDialogFilter<X> read(Reader reader);
+    static UpdateDialogFilter read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class UpdateDialogFiltersOrder
+class UpdateDialogFiltersOrder : public TLObject
 {
 private:
     int __id = 0xc563c1e4;
@@ -1814,12 +1708,11 @@ private:
 public:
     std::vector<int> order;
     UpdateDialogFiltersOrder(std::vector<int> order_);
-    static UpdateDialogFiltersOrder<X> read(Reader reader);
+    static UpdateDialogFiltersOrder read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetOldFeaturedStickers
+class GetOldFeaturedStickers : public TLObject
 {
 private:
     int __id = 0x5fe7025b;
@@ -1829,12 +1722,11 @@ public:
     int limit;
     int hash;
     GetOldFeaturedStickers(int offset_, int limit_, int hash_);
-    static GetOldFeaturedStickers<X> read(Reader reader);
+    static GetOldFeaturedStickers read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetReplies
+class GetReplies : public TLObject
 {
 private:
     int __id = 0x24b581ba;
@@ -1850,12 +1742,11 @@ public:
     int min_id;
     int hash;
     GetReplies(TLObject peer_, int msg_id_, int offset_id_, int offset_date_, int add_offset_, int limit_, int max_id_, int min_id_, int hash_);
-    static GetReplies<X> read(Reader reader);
+    static GetReplies read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetDiscussionMessage
+class GetDiscussionMessage : public TLObject
 {
 private:
     int __id = 0x446972fd;
@@ -1864,12 +1755,11 @@ public:
     TLObject peer;
     int msg_id;
     GetDiscussionMessage(TLObject peer_, int msg_id_);
-    static GetDiscussionMessage<X> read(Reader reader);
+    static GetDiscussionMessage read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ReadDiscussion
+class ReadDiscussion : public TLObject
 {
 private:
     int __id = 0xf731a9f4;
@@ -1879,12 +1769,11 @@ public:
     int msg_id;
     int read_max_id;
     ReadDiscussion(TLObject peer_, int msg_id_, int read_max_id_);
-    static ReadDiscussion<X> read(Reader reader);
+    static ReadDiscussion read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class UnpinAllMessages
+class UnpinAllMessages : public TLObject
 {
 private:
     int __id = 0xf025bc8b;
@@ -1892,12 +1781,11 @@ private:
 public:
     TLObject peer;
     UnpinAllMessages(TLObject peer_);
-    static UnpinAllMessages<X> read(Reader reader);
+    static UnpinAllMessages read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class DeleteChat
+class DeleteChat : public TLObject
 {
 private:
     int __id = 0x83247d11;
@@ -1905,12 +1793,11 @@ private:
 public:
     int chat_id;
     DeleteChat(int chat_id_);
-    static DeleteChat<X> read(Reader reader);
+    static DeleteChat read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class DeletePhoneCallHistory
+class DeletePhoneCallHistory : public TLObject
 {
 private:
     int __id = 0xf9cbe409;
@@ -1918,12 +1805,11 @@ private:
 public:
     std::optional<bool> revoke;
     DeletePhoneCallHistory(std::optional<bool> revoke_ = std::nullopt);
-    static DeletePhoneCallHistory<X> read(Reader reader);
+    static DeletePhoneCallHistory read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class CheckHistoryImport
+class CheckHistoryImport : public TLObject
 {
 private:
     int __id = 0x43fe19f3;
@@ -1931,12 +1817,11 @@ private:
 public:
     std::string import_head;
     CheckHistoryImport(std::string import_head_);
-    static CheckHistoryImport<X> read(Reader reader);
+    static CheckHistoryImport read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class InitHistoryImport
+class InitHistoryImport : public TLObject
 {
 private:
     int __id = 0x34090c3b;
@@ -1946,12 +1831,11 @@ public:
     TLObject file;
     int media_count;
     InitHistoryImport(TLObject peer_, TLObject file_, int media_count_);
-    static InitHistoryImport<X> read(Reader reader);
+    static InitHistoryImport read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class UploadImportedMedia
+class UploadImportedMedia : public TLObject
 {
 private:
     int __id = 0x2a862092;
@@ -1962,12 +1846,11 @@ public:
     std::string file_name;
     TLObject media;
     UploadImportedMedia(TLObject peer_, long import_id_, std::string file_name_, TLObject media_);
-    static UploadImportedMedia<X> read(Reader reader);
+    static UploadImportedMedia read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class StartHistoryImport
+class StartHistoryImport : public TLObject
 {
 private:
     int __id = 0xb43df344;
@@ -1976,12 +1859,11 @@ public:
     TLObject peer;
     long import_id;
     StartHistoryImport(TLObject peer_, long import_id_);
-    static StartHistoryImport<X> read(Reader reader);
+    static StartHistoryImport read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetExportedChatInvites
+class GetExportedChatInvites : public TLObject
 {
 private:
     int __id = 0xa2b5a3f6;
@@ -1994,12 +1876,11 @@ public:
     std::optional<std::string> offset_link;
     int limit;
     GetExportedChatInvites(TLObject peer_, TLObject admin_id_, int limit_, std::optional<bool> revoked_ = std::nullopt, std::optional<int> offset_date_ = std::nullopt, std::optional<std::string> offset_link_ = std::nullopt);
-    static GetExportedChatInvites<X> read(Reader reader);
+    static GetExportedChatInvites read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetExportedChatInvite
+class GetExportedChatInvite : public TLObject
 {
 private:
     int __id = 0x73746f5c;
@@ -2008,12 +1889,11 @@ public:
     TLObject peer;
     std::string link;
     GetExportedChatInvite(TLObject peer_, std::string link_);
-    static GetExportedChatInvite<X> read(Reader reader);
+    static GetExportedChatInvite read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class EditExportedChatInvite
+class EditExportedChatInvite : public TLObject
 {
 private:
     int __id = 0x2e4ffbe;
@@ -2025,12 +1905,11 @@ public:
     std::optional<int> expire_date;
     std::optional<int> usage_limit;
     EditExportedChatInvite(TLObject peer_, std::string link_, std::optional<bool> revoked_ = std::nullopt, std::optional<int> expire_date_ = std::nullopt, std::optional<int> usage_limit_ = std::nullopt);
-    static EditExportedChatInvite<X> read(Reader reader);
+    static EditExportedChatInvite read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class DeleteRevokedExportedChatInvites
+class DeleteRevokedExportedChatInvites : public TLObject
 {
 private:
     int __id = 0x56987bd5;
@@ -2039,12 +1918,11 @@ public:
     TLObject peer;
     TLObject admin_id;
     DeleteRevokedExportedChatInvites(TLObject peer_, TLObject admin_id_);
-    static DeleteRevokedExportedChatInvites<X> read(Reader reader);
+    static DeleteRevokedExportedChatInvites read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class DeleteExportedChatInvite
+class DeleteExportedChatInvite : public TLObject
 {
 private:
     int __id = 0xd464a42b;
@@ -2053,12 +1931,11 @@ public:
     TLObject peer;
     std::string link;
     DeleteExportedChatInvite(TLObject peer_, std::string link_);
-    static DeleteExportedChatInvite<X> read(Reader reader);
+    static DeleteExportedChatInvite read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetAdminsWithInvites
+class GetAdminsWithInvites : public TLObject
 {
 private:
     int __id = 0x3920e6ef;
@@ -2066,12 +1943,11 @@ private:
 public:
     TLObject peer;
     GetAdminsWithInvites(TLObject peer_);
-    static GetAdminsWithInvites<X> read(Reader reader);
+    static GetAdminsWithInvites read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetChatInviteImporters
+class GetChatInviteImporters : public TLObject
 {
 private:
     int __id = 0x26fb7289;
@@ -2083,12 +1959,11 @@ public:
     TLObject offset_user;
     int limit;
     GetChatInviteImporters(TLObject peer_, std::string link_, int offset_date_, TLObject offset_user_, int limit_);
-    static GetChatInviteImporters<X> read(Reader reader);
+    static GetChatInviteImporters read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SetHistoryTTL
+class SetHistoryTTL : public TLObject
 {
 private:
     int __id = 0xb80e5fe4;
@@ -2097,12 +1972,11 @@ public:
     TLObject peer;
     int period;
     SetHistoryTTL(TLObject peer_, int period_);
-    static SetHistoryTTL<X> read(Reader reader);
+    static SetHistoryTTL read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class CheckHistoryImportPeer
+class CheckHistoryImportPeer : public TLObject
 {
 private:
     int __id = 0x5dc60f03;
@@ -2110,6 +1984,6 @@ private:
 public:
     TLObject peer;
     CheckHistoryImportPeer(TLObject peer_);
-    static CheckHistoryImportPeer<X> read(Reader reader);
+    static CheckHistoryImportPeer read(Reader reader);
     std::string write();
 };

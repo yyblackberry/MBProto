@@ -1,3 +1,3 @@
 * text=auto
-sqlite3/src/*.c linguist-vendored=false
-sqlite3/src/*.h linguist-vendored=false
+sqlite3/src/*.c linguist-vendored
+sqlite3/include/*.h linguist-vendored

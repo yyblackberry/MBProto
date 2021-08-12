@@ -1,18 +1,31 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "tl/functions/channels.h"
 
-template <class X>
-ReadHistory<X>::ReadHistory(TLObject channel_, int max_id_) {}
+ReadHistory::ReadHistory(TLObject channel_, int max_id_) {}
 
-template <class X>
-ReadHistory<X> ReadHistory<X>::read(Reader reader)
+ReadHistory ReadHistory::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
     int max_id_ = Int::read(reader);
-    return ReadHistory<X>(channel_, max_id_);
+    return ReadHistory(channel_, max_id_);
 }
 
-template <class X>
-std::string ReadHistory<X>::write()
+std::string ReadHistory::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -21,19 +34,16 @@ std::string ReadHistory<X>::write()
     return buffer;
 }
 
-template <class X>
-DeleteMessages<X>::DeleteMessages(TLObject channel_, std::vector<int> id_) {}
+DeleteMessages::DeleteMessages(TLObject channel_, std::vector<int> id_) {}
 
-template <class X>
-DeleteMessages<X> DeleteMessages<X>::read(Reader reader)
+DeleteMessages DeleteMessages::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
-    std::vector<int> id_ = Vector<int>::read(reader);
-    return DeleteMessages<X>(channel_, id_);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<int> id_ = std::get<std::vector<int>>(TLObject::read(reader));
+    return DeleteMessages(channel_, id_);
 }
 
-template <class X>
-std::string DeleteMessages<X>::write()
+std::string DeleteMessages::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -42,19 +52,16 @@ std::string DeleteMessages<X>::write()
     return buffer;
 }
 
-template <class X>
-DeleteUserHistory<X>::DeleteUserHistory(TLObject channel_, TLObject user_id_) {}
+DeleteUserHistory::DeleteUserHistory(TLObject channel_, TLObject user_id_) {}
 
-template <class X>
-DeleteUserHistory<X> DeleteUserHistory<X>::read(Reader reader)
+DeleteUserHistory DeleteUserHistory::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
-    TLObject user_id_ = TLObject::read(reader);
-    return DeleteUserHistory<X>(channel_, user_id_);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject user_id_ = std::get<TLObject>(TLObject::read(reader));
+    return DeleteUserHistory(channel_, user_id_);
 }
 
-template <class X>
-std::string DeleteUserHistory<X>::write()
+std::string DeleteUserHistory::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -63,20 +70,17 @@ std::string DeleteUserHistory<X>::write()
     return buffer;
 }
 
-template <class X>
-ReportSpam<X>::ReportSpam(TLObject channel_, TLObject user_id_, std::vector<int> id_) {}
+ReportSpam::ReportSpam(TLObject channel_, TLObject user_id_, std::vector<int> id_) {}
 
-template <class X>
-ReportSpam<X> ReportSpam<X>::read(Reader reader)
+ReportSpam ReportSpam::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
-    TLObject user_id_ = TLObject::read(reader);
-    std::vector<int> id_ = Vector<int>::read(reader);
-    return ReportSpam<X>(channel_, user_id_, id_);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject user_id_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<int> id_ = std::get<std::vector<int>>(TLObject::read(reader));
+    return ReportSpam(channel_, user_id_, id_);
 }
 
-template <class X>
-std::string ReportSpam<X>::write()
+std::string ReportSpam::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -86,19 +90,16 @@ std::string ReportSpam<X>::write()
     return buffer;
 }
 
-template <class X>
-GetMessages<X>::GetMessages(TLObject channel_, std::vector<TLObject> id_) {}
+GetMessages::GetMessages(TLObject channel_, std::vector<TLObject> id_) {}
 
-template <class X>
-GetMessages<X> GetMessages<X>::read(Reader reader)
+GetMessages GetMessages::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
-    std::vector<TLObject> id_ = Vector<TLObject>::read(reader);
-    return GetMessages<X>(channel_, id_);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<TLObject> id_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    return GetMessages(channel_, id_);
 }
 
-template <class X>
-std::string GetMessages<X>::write()
+std::string GetMessages::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -107,22 +108,19 @@ std::string GetMessages<X>::write()
     return buffer;
 }
 
-template <class X>
-GetParticipants<X>::GetParticipants(TLObject channel_, TLObject filter_, int offset_, int limit_, int hash_) {}
+GetParticipants::GetParticipants(TLObject channel_, TLObject filter_, int offset_, int limit_, int hash_) {}
 
-template <class X>
-GetParticipants<X> GetParticipants<X>::read(Reader reader)
+GetParticipants GetParticipants::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
-    TLObject filter_ = TLObject::read(reader);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject filter_ = std::get<TLObject>(TLObject::read(reader));
     int offset_ = Int::read(reader);
     int limit_ = Int::read(reader);
     int hash_ = Int::read(reader);
-    return GetParticipants<X>(channel_, filter_, offset_, limit_, hash_);
+    return GetParticipants(channel_, filter_, offset_, limit_, hash_);
 }
 
-template <class X>
-std::string GetParticipants<X>::write()
+std::string GetParticipants::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -134,19 +132,16 @@ std::string GetParticipants<X>::write()
     return buffer;
 }
 
-template <class X>
-GetParticipant<X>::GetParticipant(TLObject channel_, TLObject participant_) {}
+GetParticipant::GetParticipant(TLObject channel_, TLObject participant_) {}
 
-template <class X>
-GetParticipant<X> GetParticipant<X>::read(Reader reader)
+GetParticipant GetParticipant::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
-    TLObject participant_ = TLObject::read(reader);
-    return GetParticipant<X>(channel_, participant_);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject participant_ = std::get<TLObject>(TLObject::read(reader));
+    return GetParticipant(channel_, participant_);
 }
 
-template <class X>
-std::string GetParticipant<X>::write()
+std::string GetParticipant::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -155,18 +150,15 @@ std::string GetParticipant<X>::write()
     return buffer;
 }
 
-template <class X>
-GetChannels<X>::GetChannels(std::vector<TLObject> id_) {}
+GetChannels::GetChannels(std::vector<TLObject> id_) {}
 
-template <class X>
-GetChannels<X> GetChannels<X>::read(Reader reader)
+GetChannels GetChannels::read(Reader reader)
 {
-    std::vector<TLObject> id_ = Vector<TLObject>::read(reader);
-    return GetChannels<X>(id_);
+    std::vector<TLObject> id_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    return GetChannels(id_);
 }
 
-template <class X>
-std::string GetChannels<X>::write()
+std::string GetChannels::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -174,18 +166,15 @@ std::string GetChannels<X>::write()
     return buffer;
 }
 
-template <class X>
-GetFullChannel<X>::GetFullChannel(TLObject channel_) {}
+GetFullChannel::GetFullChannel(TLObject channel_) {}
 
-template <class X>
-GetFullChannel<X> GetFullChannel<X>::read(Reader reader)
+GetFullChannel GetFullChannel::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
-    return GetFullChannel<X>(channel_);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    return GetFullChannel(channel_);
 }
 
-template <class X>
-std::string GetFullChannel<X>::write()
+std::string GetFullChannel::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -193,50 +182,27 @@ std::string GetFullChannel<X>::write()
     return buffer;
 }
 
-template <class X>
-CreateChannel<X>::CreateChannel(std::string title_, std::string about_, std::optional<bool> broadcast_, std::optional<bool> megagroup_, std::optional<bool> for_import_, std::optional<TLObject> geo_point_, std::optional<std::string> address_) {}
+CreateChannel::CreateChannel(std::string title_, std::string about_, std::optional<bool> broadcast_, std::optional<bool> megagroup_, std::optional<bool> for_import_, std::optional<TLObject> geo_point_, std::optional<std::string> address_) {}
 
-template <class X>
-CreateChannel<X> CreateChannel<X>::read(Reader reader)
+CreateChannel CreateChannel::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> broadcast_;
-
-    if (1 << 0)
-        broadcast_ = true;
-    else
-        broadcast_ = std::nullopt;
+    broadcast_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> megagroup_;
-
-    if (1 << 1)
-        megagroup_ = true;
-    else
-        megagroup_ = std::nullopt;
+    megagroup_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> for_import_;
-
-    if (1 << 3)
-        for_import_ = true;
-    else
-        for_import_ = std::nullopt;
+    for_import_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::string title_ = String::read(reader);
     std::string about_ = String::read(reader);
     std::optional<TLObject> geo_point_;
-
-    if (1 << 2)
-        geo_point_ = TLObject::read(reader);
-    else
-        geo_point_ = std::nullopt;
+    geo_point_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::string> address_;
-
-    if (1 << 2)
-        address_ = String::read(reader);
-    else
-        address_ = std::nullopt;
-    return CreateChannel<X>(title_, about_, broadcast_, megagroup_, for_import_, geo_point_, address_);
+    address_ = (1 << 2) ? std::optional{String::read(reader)} : std::nullopt;
+    return CreateChannel(title_, about_, broadcast_, megagroup_, for_import_, geo_point_, address_);
 }
 
-template <class X>
-std::string CreateChannel<X>::write()
+std::string CreateChannel::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -257,21 +223,18 @@ std::string CreateChannel<X>::write()
     return buffer;
 }
 
-template <class X>
-EditAdmin<X>::EditAdmin(TLObject channel_, TLObject user_id_, TLObject admin_rights_, std::string rank_) {}
+EditAdmin::EditAdmin(TLObject channel_, TLObject user_id_, TLObject admin_rights_, std::string rank_) {}
 
-template <class X>
-EditAdmin<X> EditAdmin<X>::read(Reader reader)
+EditAdmin EditAdmin::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
-    TLObject user_id_ = TLObject::read(reader);
-    TLObject admin_rights_ = TLObject::read(reader);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject user_id_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject admin_rights_ = std::get<TLObject>(TLObject::read(reader));
     std::string rank_ = String::read(reader);
-    return EditAdmin<X>(channel_, user_id_, admin_rights_, rank_);
+    return EditAdmin(channel_, user_id_, admin_rights_, rank_);
 }
 
-template <class X>
-std::string EditAdmin<X>::write()
+std::string EditAdmin::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -282,19 +245,16 @@ std::string EditAdmin<X>::write()
     return buffer;
 }
 
-template <class X>
-EditTitle<X>::EditTitle(TLObject channel_, std::string title_) {}
+EditTitle::EditTitle(TLObject channel_, std::string title_) {}
 
-template <class X>
-EditTitle<X> EditTitle<X>::read(Reader reader)
+EditTitle EditTitle::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
     std::string title_ = String::read(reader);
-    return EditTitle<X>(channel_, title_);
+    return EditTitle(channel_, title_);
 }
 
-template <class X>
-std::string EditTitle<X>::write()
+std::string EditTitle::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -303,19 +263,16 @@ std::string EditTitle<X>::write()
     return buffer;
 }
 
-template <class X>
-EditPhoto<X>::EditPhoto(TLObject channel_, TLObject photo_) {}
+EditPhoto::EditPhoto(TLObject channel_, TLObject photo_) {}
 
-template <class X>
-EditPhoto<X> EditPhoto<X>::read(Reader reader)
+EditPhoto EditPhoto::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
-    TLObject photo_ = TLObject::read(reader);
-    return EditPhoto<X>(channel_, photo_);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject photo_ = std::get<TLObject>(TLObject::read(reader));
+    return EditPhoto(channel_, photo_);
 }
 
-template <class X>
-std::string EditPhoto<X>::write()
+std::string EditPhoto::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -324,19 +281,16 @@ std::string EditPhoto<X>::write()
     return buffer;
 }
 
-template <class X>
-CheckUsername<X>::CheckUsername(TLObject channel_, std::string username_) {}
+CheckUsername::CheckUsername(TLObject channel_, std::string username_) {}
 
-template <class X>
-CheckUsername<X> CheckUsername<X>::read(Reader reader)
+CheckUsername CheckUsername::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
     std::string username_ = String::read(reader);
-    return CheckUsername<X>(channel_, username_);
+    return CheckUsername(channel_, username_);
 }
 
-template <class X>
-std::string CheckUsername<X>::write()
+std::string CheckUsername::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -345,19 +299,16 @@ std::string CheckUsername<X>::write()
     return buffer;
 }
 
-template <class X>
-UpdateUsername<X>::UpdateUsername(TLObject channel_, std::string username_) {}
+UpdateUsername::UpdateUsername(TLObject channel_, std::string username_) {}
 
-template <class X>
-UpdateUsername<X> UpdateUsername<X>::read(Reader reader)
+UpdateUsername UpdateUsername::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
     std::string username_ = String::read(reader);
-    return UpdateUsername<X>(channel_, username_);
+    return UpdateUsername(channel_, username_);
 }
 
-template <class X>
-std::string UpdateUsername<X>::write()
+std::string UpdateUsername::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -366,18 +317,15 @@ std::string UpdateUsername<X>::write()
     return buffer;
 }
 
-template <class X>
-JoinChannel<X>::JoinChannel(TLObject channel_) {}
+JoinChannel::JoinChannel(TLObject channel_) {}
 
-template <class X>
-JoinChannel<X> JoinChannel<X>::read(Reader reader)
+JoinChannel JoinChannel::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
-    return JoinChannel<X>(channel_);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    return JoinChannel(channel_);
 }
 
-template <class X>
-std::string JoinChannel<X>::write()
+std::string JoinChannel::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -385,18 +333,15 @@ std::string JoinChannel<X>::write()
     return buffer;
 }
 
-template <class X>
-LeaveChannel<X>::LeaveChannel(TLObject channel_) {}
+LeaveChannel::LeaveChannel(TLObject channel_) {}
 
-template <class X>
-LeaveChannel<X> LeaveChannel<X>::read(Reader reader)
+LeaveChannel LeaveChannel::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
-    return LeaveChannel<X>(channel_);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    return LeaveChannel(channel_);
 }
 
-template <class X>
-std::string LeaveChannel<X>::write()
+std::string LeaveChannel::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -404,19 +349,16 @@ std::string LeaveChannel<X>::write()
     return buffer;
 }
 
-template <class X>
-InviteToChannel<X>::InviteToChannel(TLObject channel_, std::vector<TLObject> users_) {}
+InviteToChannel::InviteToChannel(TLObject channel_, std::vector<TLObject> users_) {}
 
-template <class X>
-InviteToChannel<X> InviteToChannel<X>::read(Reader reader)
+InviteToChannel InviteToChannel::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
-    return InviteToChannel<X>(channel_, users_);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    return InviteToChannel(channel_, users_);
 }
 
-template <class X>
-std::string InviteToChannel<X>::write()
+std::string InviteToChannel::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -425,18 +367,15 @@ std::string InviteToChannel<X>::write()
     return buffer;
 }
 
-template <class X>
-DeleteChannel<X>::DeleteChannel(TLObject channel_) {}
+DeleteChannel::DeleteChannel(TLObject channel_) {}
 
-template <class X>
-DeleteChannel<X> DeleteChannel<X>::read(Reader reader)
+DeleteChannel DeleteChannel::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
-    return DeleteChannel<X>(channel_);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    return DeleteChannel(channel_);
 }
 
-template <class X>
-std::string DeleteChannel<X>::write()
+std::string DeleteChannel::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -444,32 +383,21 @@ std::string DeleteChannel<X>::write()
     return buffer;
 }
 
-template <class X>
-ExportMessageLink<X>::ExportMessageLink(TLObject channel_, int id_, std::optional<bool> grouped_, std::optional<bool> thread_) {}
+ExportMessageLink::ExportMessageLink(TLObject channel_, int id_, std::optional<bool> grouped_, std::optional<bool> thread_) {}
 
-template <class X>
-ExportMessageLink<X> ExportMessageLink<X>::read(Reader reader)
+ExportMessageLink ExportMessageLink::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> grouped_;
-
-    if (1 << 0)
-        grouped_ = true;
-    else
-        grouped_ = std::nullopt;
+    grouped_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> thread_;
-
-    if (1 << 1)
-        thread_ = true;
-    else
-        thread_ = std::nullopt;
-    TLObject channel_ = TLObject::read(reader);
+    thread_ = (1 << 1) ? std::optional{true} : std::nullopt;
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
     int id_ = Int::read(reader);
-    return ExportMessageLink<X>(channel_, id_, grouped_, thread_);
+    return ExportMessageLink(channel_, id_, grouped_, thread_);
 }
 
-template <class X>
-std::string ExportMessageLink<X>::write()
+std::string ExportMessageLink::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -481,19 +409,16 @@ std::string ExportMessageLink<X>::write()
     return buffer;
 }
 
-template <class X>
-ToggleSignatures<X>::ToggleSignatures(TLObject channel_, bool enabled_) {}
+ToggleSignatures::ToggleSignatures(TLObject channel_, bool enabled_) {}
 
-template <class X>
-ToggleSignatures<X> ToggleSignatures<X>::read(Reader reader)
+ToggleSignatures ToggleSignatures::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
     bool enabled_ = Bool::read(reader);
-    return ToggleSignatures<X>(channel_, enabled_);
+    return ToggleSignatures(channel_, enabled_);
 }
 
-template <class X>
-std::string ToggleSignatures<X>::write()
+std::string ToggleSignatures::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -502,30 +427,19 @@ std::string ToggleSignatures<X>::write()
     return buffer;
 }
 
-template <class X>
-GetAdminedPublicChannels<X>::GetAdminedPublicChannels(std::optional<bool> by_location_, std::optional<bool> check_limit_) {}
+GetAdminedPublicChannels::GetAdminedPublicChannels(std::optional<bool> by_location_, std::optional<bool> check_limit_) {}
 
-template <class X>
-GetAdminedPublicChannels<X> GetAdminedPublicChannels<X>::read(Reader reader)
+GetAdminedPublicChannels GetAdminedPublicChannels::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> by_location_;
-
-    if (1 << 0)
-        by_location_ = true;
-    else
-        by_location_ = std::nullopt;
+    by_location_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> check_limit_;
-
-    if (1 << 1)
-        check_limit_ = true;
-    else
-        check_limit_ = std::nullopt;
-    return GetAdminedPublicChannels<X>(by_location_, check_limit_);
+    check_limit_ = (1 << 1) ? std::optional{true} : std::nullopt;
+    return GetAdminedPublicChannels(by_location_, check_limit_);
 }
 
-template <class X>
-std::string GetAdminedPublicChannels<X>::write()
+std::string GetAdminedPublicChannels::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -535,20 +449,17 @@ std::string GetAdminedPublicChannels<X>::write()
     return buffer;
 }
 
-template <class X>
-EditBanned<X>::EditBanned(TLObject channel_, TLObject participant_, TLObject banned_rights_) {}
+EditBanned::EditBanned(TLObject channel_, TLObject participant_, TLObject banned_rights_) {}
 
-template <class X>
-EditBanned<X> EditBanned<X>::read(Reader reader)
+EditBanned EditBanned::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
-    TLObject participant_ = TLObject::read(reader);
-    TLObject banned_rights_ = TLObject::read(reader);
-    return EditBanned<X>(channel_, participant_, banned_rights_);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject participant_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject banned_rights_ = std::get<TLObject>(TLObject::read(reader));
+    return EditBanned(channel_, participant_, banned_rights_);
 }
 
-template <class X>
-std::string EditBanned<X>::write()
+std::string EditBanned::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -558,35 +469,24 @@ std::string EditBanned<X>::write()
     return buffer;
 }
 
-template <class X>
-GetAdminLog<X>::GetAdminLog(TLObject channel_, std::string q_, long max_id_, long min_id_, int limit_, std::optional<TLObject> events_filter_, std::optional<std::vector<TLObject>> admins_) {}
+GetAdminLog::GetAdminLog(TLObject channel_, std::string q_, long max_id_, long min_id_, int limit_, std::optional<TLObject> events_filter_, std::optional<std::vector<TLObject>> admins_) {}
 
-template <class X>
-GetAdminLog<X> GetAdminLog<X>::read(Reader reader)
+GetAdminLog GetAdminLog::read(Reader reader)
 {
     int flags = Int::read(reader);
-    TLObject channel_ = TLObject::read(reader);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
     std::string q_ = String::read(reader);
     std::optional<TLObject> events_filter_;
-
-    if (1 << 0)
-        events_filter_ = TLObject::read(reader);
-    else
-        events_filter_ = std::nullopt;
+    events_filter_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::vector<TLObject>> admins_;
-
-    if (1 << 1)
-        admins_ = Vector<TLObject>::read(reader);
-    else
-        admins_ = std::nullopt;
+    admins_ = (1 << 1) ? std::optional{std::get<std::vector<TLObject>>(TLObject::read(reader))} : std::nullopt;
     long max_id_ = Long::read(reader);
     long min_id_ = Long::read(reader);
     int limit_ = Int::read(reader);
-    return GetAdminLog<X>(channel_, q_, max_id_, min_id_, limit_, events_filter_, admins_);
+    return GetAdminLog(channel_, q_, max_id_, min_id_, limit_, events_filter_, admins_);
 }
 
-template <class X>
-std::string GetAdminLog<X>::write()
+std::string GetAdminLog::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -607,19 +507,16 @@ std::string GetAdminLog<X>::write()
     return buffer;
 }
 
-template <class X>
-SetStickers<X>::SetStickers(TLObject channel_, TLObject stickerset_) {}
+SetStickers::SetStickers(TLObject channel_, TLObject stickerset_) {}
 
-template <class X>
-SetStickers<X> SetStickers<X>::read(Reader reader)
+SetStickers SetStickers::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
-    TLObject stickerset_ = TLObject::read(reader);
-    return SetStickers<X>(channel_, stickerset_);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject stickerset_ = std::get<TLObject>(TLObject::read(reader));
+    return SetStickers(channel_, stickerset_);
 }
 
-template <class X>
-std::string SetStickers<X>::write()
+std::string SetStickers::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -628,19 +525,16 @@ std::string SetStickers<X>::write()
     return buffer;
 }
 
-template <class X>
-ReadMessageContents<X>::ReadMessageContents(TLObject channel_, std::vector<int> id_) {}
+ReadMessageContents::ReadMessageContents(TLObject channel_, std::vector<int> id_) {}
 
-template <class X>
-ReadMessageContents<X> ReadMessageContents<X>::read(Reader reader)
+ReadMessageContents ReadMessageContents::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
-    std::vector<int> id_ = Vector<int>::read(reader);
-    return ReadMessageContents<X>(channel_, id_);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<int> id_ = std::get<std::vector<int>>(TLObject::read(reader));
+    return ReadMessageContents(channel_, id_);
 }
 
-template <class X>
-std::string ReadMessageContents<X>::write()
+std::string ReadMessageContents::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -649,19 +543,16 @@ std::string ReadMessageContents<X>::write()
     return buffer;
 }
 
-template <class X>
-DeleteHistory<X>::DeleteHistory(TLObject channel_, int max_id_) {}
+DeleteHistory::DeleteHistory(TLObject channel_, int max_id_) {}
 
-template <class X>
-DeleteHistory<X> DeleteHistory<X>::read(Reader reader)
+DeleteHistory DeleteHistory::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
     int max_id_ = Int::read(reader);
-    return DeleteHistory<X>(channel_, max_id_);
+    return DeleteHistory(channel_, max_id_);
 }
 
-template <class X>
-std::string DeleteHistory<X>::write()
+std::string DeleteHistory::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -670,19 +561,16 @@ std::string DeleteHistory<X>::write()
     return buffer;
 }
 
-template <class X>
-TogglePreHistoryHidden<X>::TogglePreHistoryHidden(TLObject channel_, bool enabled_) {}
+TogglePreHistoryHidden::TogglePreHistoryHidden(TLObject channel_, bool enabled_) {}
 
-template <class X>
-TogglePreHistoryHidden<X> TogglePreHistoryHidden<X>::read(Reader reader)
+TogglePreHistoryHidden TogglePreHistoryHidden::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
     bool enabled_ = Bool::read(reader);
-    return TogglePreHistoryHidden<X>(channel_, enabled_);
+    return TogglePreHistoryHidden(channel_, enabled_);
 }
 
-template <class X>
-std::string TogglePreHistoryHidden<X>::write()
+std::string TogglePreHistoryHidden::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -691,51 +579,43 @@ std::string TogglePreHistoryHidden<X>::write()
     return buffer;
 }
 
-template <class X>
-GetLeftChannels<X>::GetLeftChannels(int offset_) {}
+GetLeftChannels::GetLeftChannels(int offset_) {}
 
-template <class X>
-GetLeftChannels<X> GetLeftChannels<X>::read(Reader reader)
+GetLeftChannels GetLeftChannels::read(Reader reader)
 {
     int offset_ = Int::read(reader);
-    return GetLeftChannels<X>(offset_);
+    return GetLeftChannels(offset_);
 }
 
-template <class X>
-std::string GetLeftChannels<X>::write()
+std::string GetLeftChannels::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     buffer += Int::write(offset);
     return buffer;
 }
-template <class X>
-GetGroupsForDiscussion<X> GetGroupsForDiscussion<X>::read(Reader reader)
+GetGroupsForDiscussion GetGroupsForDiscussion::read(Reader reader)
 {
-    return GetGroupsForDiscussion<X>();
+    return GetGroupsForDiscussion();
 }
 
-template <class X>
-std::string GetGroupsForDiscussion<X>::write()
+std::string GetGroupsForDiscussion::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     return buffer;
 }
 
-template <class X>
-SetDiscussionGroup<X>::SetDiscussionGroup(TLObject broadcast_, TLObject group_) {}
+SetDiscussionGroup::SetDiscussionGroup(TLObject broadcast_, TLObject group_) {}
 
-template <class X>
-SetDiscussionGroup<X> SetDiscussionGroup<X>::read(Reader reader)
+SetDiscussionGroup SetDiscussionGroup::read(Reader reader)
 {
-    TLObject broadcast_ = TLObject::read(reader);
-    TLObject group_ = TLObject::read(reader);
-    return SetDiscussionGroup<X>(broadcast_, group_);
+    TLObject broadcast_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject group_ = std::get<TLObject>(TLObject::read(reader));
+    return SetDiscussionGroup(broadcast_, group_);
 }
 
-template <class X>
-std::string SetDiscussionGroup<X>::write()
+std::string SetDiscussionGroup::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -744,20 +624,17 @@ std::string SetDiscussionGroup<X>::write()
     return buffer;
 }
 
-template <class X>
-EditCreator<X>::EditCreator(TLObject channel_, TLObject user_id_, TLObject password_) {}
+EditCreator::EditCreator(TLObject channel_, TLObject user_id_, TLObject password_) {}
 
-template <class X>
-EditCreator<X> EditCreator<X>::read(Reader reader)
+EditCreator EditCreator::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
-    TLObject user_id_ = TLObject::read(reader);
-    TLObject password_ = TLObject::read(reader);
-    return EditCreator<X>(channel_, user_id_, password_);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject user_id_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject password_ = std::get<TLObject>(TLObject::read(reader));
+    return EditCreator(channel_, user_id_, password_);
 }
 
-template <class X>
-std::string EditCreator<X>::write()
+std::string EditCreator::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -767,20 +644,17 @@ std::string EditCreator<X>::write()
     return buffer;
 }
 
-template <class X>
-EditLocation<X>::EditLocation(TLObject channel_, TLObject geo_point_, std::string address_) {}
+EditLocation::EditLocation(TLObject channel_, TLObject geo_point_, std::string address_) {}
 
-template <class X>
-EditLocation<X> EditLocation<X>::read(Reader reader)
+EditLocation EditLocation::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
-    TLObject geo_point_ = TLObject::read(reader);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject geo_point_ = std::get<TLObject>(TLObject::read(reader));
     std::string address_ = String::read(reader);
-    return EditLocation<X>(channel_, geo_point_, address_);
+    return EditLocation(channel_, geo_point_, address_);
 }
 
-template <class X>
-std::string EditLocation<X>::write()
+std::string EditLocation::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -790,19 +664,16 @@ std::string EditLocation<X>::write()
     return buffer;
 }
 
-template <class X>
-ToggleSlowMode<X>::ToggleSlowMode(TLObject channel_, int seconds_) {}
+ToggleSlowMode::ToggleSlowMode(TLObject channel_, int seconds_) {}
 
-template <class X>
-ToggleSlowMode<X> ToggleSlowMode<X>::read(Reader reader)
+ToggleSlowMode ToggleSlowMode::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
     int seconds_ = Int::read(reader);
-    return ToggleSlowMode<X>(channel_, seconds_);
+    return ToggleSlowMode(channel_, seconds_);
 }
 
-template <class X>
-std::string ToggleSlowMode<X>::write()
+std::string ToggleSlowMode::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -810,32 +681,27 @@ std::string ToggleSlowMode<X>::write()
     buffer += Int::write(seconds);
     return buffer;
 }
-template <class X>
-GetInactiveChannels<X> GetInactiveChannels<X>::read(Reader reader)
+GetInactiveChannels GetInactiveChannels::read(Reader reader)
 {
-    return GetInactiveChannels<X>();
+    return GetInactiveChannels();
 }
 
-template <class X>
-std::string GetInactiveChannels<X>::write()
+std::string GetInactiveChannels::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     return buffer;
 }
 
-template <class X>
-ConvertToGigagroup<X>::ConvertToGigagroup(TLObject channel_) {}
+ConvertToGigagroup::ConvertToGigagroup(TLObject channel_) {}
 
-template <class X>
-ConvertToGigagroup<X> ConvertToGigagroup<X>::read(Reader reader)
+ConvertToGigagroup ConvertToGigagroup::read(Reader reader)
 {
-    TLObject channel_ = TLObject::read(reader);
-    return ConvertToGigagroup<X>(channel_);
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    return ConvertToGigagroup(channel_);
 }
 
-template <class X>
-std::string ConvertToGigagroup<X>::write()
+std::string ConvertToGigagroup::write()
 {
     std::string buffer;
     buffer += Int::write(__id);

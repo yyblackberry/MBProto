@@ -1,18 +1,31 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "tl/functions/bots.h"
 
-template <class X>
-SendCustomRequest<X>::SendCustomRequest(std::string custom_method_, TLObject params_) {}
+SendCustomRequest::SendCustomRequest(std::string custom_method_, TLObject params_) {}
 
-template <class X>
-SendCustomRequest<X> SendCustomRequest<X>::read(Reader reader)
+SendCustomRequest SendCustomRequest::read(Reader reader)
 {
     std::string custom_method_ = String::read(reader);
-    TLObject params_ = TLObject::read(reader);
-    return SendCustomRequest<X>(custom_method_, params_);
+    TLObject params_ = std::get<TLObject>(TLObject::read(reader));
+    return SendCustomRequest(custom_method_, params_);
 }
 
-template <class X>
-std::string SendCustomRequest<X>::write()
+std::string SendCustomRequest::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -21,19 +34,16 @@ std::string SendCustomRequest<X>::write()
     return buffer;
 }
 
-template <class X>
-AnswerWebhookJSONQuery<X>::AnswerWebhookJSONQuery(long query_id_, TLObject data_) {}
+AnswerWebhookJSONQuery::AnswerWebhookJSONQuery(long query_id_, TLObject data_) {}
 
-template <class X>
-AnswerWebhookJSONQuery<X> AnswerWebhookJSONQuery<X>::read(Reader reader)
+AnswerWebhookJSONQuery AnswerWebhookJSONQuery::read(Reader reader)
 {
     long query_id_ = Long::read(reader);
-    TLObject data_ = TLObject::read(reader);
-    return AnswerWebhookJSONQuery<X>(query_id_, data_);
+    TLObject data_ = std::get<TLObject>(TLObject::read(reader));
+    return AnswerWebhookJSONQuery(query_id_, data_);
 }
 
-template <class X>
-std::string AnswerWebhookJSONQuery<X>::write()
+std::string AnswerWebhookJSONQuery::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -42,20 +52,17 @@ std::string AnswerWebhookJSONQuery<X>::write()
     return buffer;
 }
 
-template <class X>
-SetBotCommands<X>::SetBotCommands(TLObject scope_, std::string lang_code_, std::vector<TLObject> commands_) {}
+SetBotCommands::SetBotCommands(TLObject scope_, std::string lang_code_, std::vector<TLObject> commands_) {}
 
-template <class X>
-SetBotCommands<X> SetBotCommands<X>::read(Reader reader)
+SetBotCommands SetBotCommands::read(Reader reader)
 {
-    TLObject scope_ = TLObject::read(reader);
+    TLObject scope_ = std::get<TLObject>(TLObject::read(reader));
     std::string lang_code_ = String::read(reader);
-    std::vector<TLObject> commands_ = Vector<TLObject>::read(reader);
-    return SetBotCommands<X>(scope_, lang_code_, commands_);
+    std::vector<TLObject> commands_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    return SetBotCommands(scope_, lang_code_, commands_);
 }
 
-template <class X>
-std::string SetBotCommands<X>::write()
+std::string SetBotCommands::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -65,19 +72,16 @@ std::string SetBotCommands<X>::write()
     return buffer;
 }
 
-template <class X>
-ResetBotCommands<X>::ResetBotCommands(TLObject scope_, std::string lang_code_) {}
+ResetBotCommands::ResetBotCommands(TLObject scope_, std::string lang_code_) {}
 
-template <class X>
-ResetBotCommands<X> ResetBotCommands<X>::read(Reader reader)
+ResetBotCommands ResetBotCommands::read(Reader reader)
 {
-    TLObject scope_ = TLObject::read(reader);
+    TLObject scope_ = std::get<TLObject>(TLObject::read(reader));
     std::string lang_code_ = String::read(reader);
-    return ResetBotCommands<X>(scope_, lang_code_);
+    return ResetBotCommands(scope_, lang_code_);
 }
 
-template <class X>
-std::string ResetBotCommands<X>::write()
+std::string ResetBotCommands::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -86,19 +90,16 @@ std::string ResetBotCommands<X>::write()
     return buffer;
 }
 
-template <class X>
-GetBotCommands<X>::GetBotCommands(TLObject scope_, std::string lang_code_) {}
+GetBotCommands::GetBotCommands(TLObject scope_, std::string lang_code_) {}
 
-template <class X>
-GetBotCommands<X> GetBotCommands<X>::read(Reader reader)
+GetBotCommands GetBotCommands::read(Reader reader)
 {
-    TLObject scope_ = TLObject::read(reader);
+    TLObject scope_ = std::get<TLObject>(TLObject::read(reader));
     std::string lang_code_ = String::read(reader);
-    return GetBotCommands<X>(scope_, lang_code_);
+    return GetBotCommands(scope_, lang_code_);
 }
 
-template <class X>
-std::string GetBotCommands<X>::write()
+std::string GetBotCommands::write()
 {
     std::string buffer;
     buffer += Int::write(__id);

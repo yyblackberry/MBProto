@@ -1,9 +1,25 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #pragma once
 #include "tl/bare.h"
 #include "tl/TLObject.h"
 #include <optional>
 
-class ContactsNotModified
+class ContactsNotModified : public TLObject
 {
 private:
     int __id = 0xb74ba9d2;
@@ -14,7 +30,7 @@ public:
     std::string write();
 };
 
-class Contacts
+class Contacts : public TLObject
 {
 private:
     int __id = 0xeae87e42;
@@ -28,7 +44,7 @@ public:
     std::string write();
 };
 
-class ImportedContacts
+class ImportedContacts : public TLObject
 {
 private:
     int __id = 0x77d01c3b;
@@ -43,7 +59,7 @@ public:
     std::string write();
 };
 
-class Blocked
+class Blocked : public TLObject
 {
 private:
     int __id = 0xade1591;
@@ -57,7 +73,7 @@ public:
     std::string write();
 };
 
-class BlockedSlice
+class BlockedSlice : public TLObject
 {
 private:
     int __id = 0xe1664194;
@@ -72,7 +88,7 @@ public:
     std::string write();
 };
 
-class Found
+class Found : public TLObject
 {
 private:
     int __id = 0xb3134d9d;
@@ -87,7 +103,7 @@ public:
     std::string write();
 };
 
-class ResolvedPeer
+class ResolvedPeer : public TLObject
 {
 private:
     int __id = 0x7f077ad9;
@@ -101,7 +117,7 @@ public:
     std::string write();
 };
 
-class TopPeersNotModified
+class TopPeersNotModified : public TLObject
 {
 private:
     int __id = 0xde266ef5;
@@ -112,7 +128,7 @@ public:
     std::string write();
 };
 
-class TopPeers
+class TopPeers : public TLObject
 {
 private:
     int __id = 0x70b772a8;
@@ -126,7 +142,7 @@ public:
     std::string write();
 };
 
-class TopPeersDisabled
+class TopPeersDisabled : public TLObject
 {
 private:
     int __id = 0xb52c939d;

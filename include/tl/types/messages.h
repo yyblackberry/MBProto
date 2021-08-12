@@ -1,9 +1,25 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #pragma once
 #include "tl/bare.h"
 #include "tl/TLObject.h"
 #include <optional>
 
-class Dialogs
+class Dialogs : public TLObject
 {
 private:
     int __id = 0x15ba6c40;
@@ -18,7 +34,7 @@ public:
     std::string write();
 };
 
-class DialogsSlice
+class DialogsSlice : public TLObject
 {
 private:
     int __id = 0x71e094f3;
@@ -34,7 +50,7 @@ public:
     std::string write();
 };
 
-class DialogsNotModified
+class DialogsNotModified : public TLObject
 {
 private:
     int __id = 0xf0e3e596;
@@ -46,7 +62,7 @@ public:
     std::string write();
 };
 
-class Messages
+class Messages : public TLObject
 {
 private:
     int __id = 0x8c718e87;
@@ -60,7 +76,7 @@ public:
     std::string write();
 };
 
-class MessagesSlice
+class MessagesSlice : public TLObject
 {
 private:
     int __id = 0x3a54685e;
@@ -78,7 +94,7 @@ public:
     std::string write();
 };
 
-class ChannelMessages
+class ChannelMessages : public TLObject
 {
 private:
     int __id = 0x64479808;
@@ -96,7 +112,7 @@ public:
     std::string write();
 };
 
-class MessagesNotModified
+class MessagesNotModified : public TLObject
 {
 private:
     int __id = 0x74535f21;
@@ -108,7 +124,7 @@ public:
     std::string write();
 };
 
-class Chats
+class Chats : public TLObject
 {
 private:
     int __id = 0x64ff9fd5;
@@ -120,7 +136,7 @@ public:
     std::string write();
 };
 
-class ChatsSlice
+class ChatsSlice : public TLObject
 {
 private:
     int __id = 0x9cd81144;
@@ -133,7 +149,7 @@ public:
     std::string write();
 };
 
-class ChatFull
+class ChatFull : public TLObject
 {
 private:
     int __id = 0xe5d7d19c;
@@ -147,7 +163,7 @@ public:
     std::string write();
 };
 
-class AffectedHistory
+class AffectedHistory : public TLObject
 {
 private:
     int __id = 0xb45c69d1;
@@ -161,7 +177,7 @@ public:
     std::string write();
 };
 
-class DhConfigNotModified
+class DhConfigNotModified : public TLObject
 {
 private:
     int __id = 0xc0e24635;
@@ -173,7 +189,7 @@ public:
     std::string write();
 };
 
-class DhConfig
+class DhConfig : public TLObject
 {
 private:
     int __id = 0x2c221edd;
@@ -188,7 +204,7 @@ public:
     std::string write();
 };
 
-class SentEncryptedMessage
+class SentEncryptedMessage : public TLObject
 {
 private:
     int __id = 0x560f8935;
@@ -200,7 +216,7 @@ public:
     std::string write();
 };
 
-class SentEncryptedFile
+class SentEncryptedFile : public TLObject
 {
 private:
     int __id = 0x9493ff32;
@@ -213,7 +229,7 @@ public:
     std::string write();
 };
 
-class StickersNotModified
+class StickersNotModified : public TLObject
 {
 private:
     int __id = 0xf1749a22;
@@ -224,7 +240,7 @@ public:
     std::string write();
 };
 
-class Stickers
+class Stickers : public TLObject
 {
 private:
     int __id = 0xe4599bbd;
@@ -237,7 +253,7 @@ public:
     std::string write();
 };
 
-class AllStickersNotModified
+class AllStickersNotModified : public TLObject
 {
 private:
     int __id = 0xe86602c3;
@@ -248,7 +264,7 @@ public:
     std::string write();
 };
 
-class AllStickers
+class AllStickers : public TLObject
 {
 private:
     int __id = 0xedfd405f;
@@ -261,7 +277,7 @@ public:
     std::string write();
 };
 
-class AffectedMessages
+class AffectedMessages : public TLObject
 {
 private:
     int __id = 0x84d19185;
@@ -274,7 +290,7 @@ public:
     std::string write();
 };
 
-class StickerSet
+class StickerSet : public TLObject
 {
 private:
     int __id = 0xb60a24a6;
@@ -288,7 +304,7 @@ public:
     std::string write();
 };
 
-class SavedGifsNotModified
+class SavedGifsNotModified : public TLObject
 {
 private:
     int __id = 0xe8025ca2;
@@ -299,7 +315,7 @@ public:
     std::string write();
 };
 
-class SavedGifs
+class SavedGifs : public TLObject
 {
 private:
     int __id = 0x2e0709a5;
@@ -312,7 +328,7 @@ public:
     std::string write();
 };
 
-class BotResults
+class BotResults : public TLObject
 {
 private:
     int __id = 0x947ca848;
@@ -330,7 +346,7 @@ public:
     std::string write();
 };
 
-class BotCallbackAnswer
+class BotCallbackAnswer : public TLObject
 {
 private:
     int __id = 0x36585ea4;
@@ -347,7 +363,7 @@ public:
     std::string write();
 };
 
-class MessageEditData
+class MessageEditData : public TLObject
 {
 private:
     int __id = 0x26b5dde6;
@@ -359,7 +375,7 @@ public:
     std::string write();
 };
 
-class PeerDialogs
+class PeerDialogs : public TLObject
 {
 private:
     int __id = 0x3371c354;
@@ -375,7 +391,7 @@ public:
     std::string write();
 };
 
-class FeaturedStickersNotModified
+class FeaturedStickersNotModified : public TLObject
 {
 private:
     int __id = 0xc6dc0c66;
@@ -387,7 +403,7 @@ public:
     std::string write();
 };
 
-class FeaturedStickers
+class FeaturedStickers : public TLObject
 {
 private:
     int __id = 0xb6abc341;
@@ -402,7 +418,7 @@ public:
     std::string write();
 };
 
-class RecentStickersNotModified
+class RecentStickersNotModified : public TLObject
 {
 private:
     int __id = 0xb17f890;
@@ -413,7 +429,7 @@ public:
     std::string write();
 };
 
-class RecentStickers
+class RecentStickers : public TLObject
 {
 private:
     int __id = 0x22f3afb3;
@@ -428,7 +444,7 @@ public:
     std::string write();
 };
 
-class ArchivedStickers
+class ArchivedStickers : public TLObject
 {
 private:
     int __id = 0x4fcba9c8;
@@ -441,7 +457,7 @@ public:
     std::string write();
 };
 
-class StickerSetInstallResultSuccess
+class StickerSetInstallResultSuccess : public TLObject
 {
 private:
     int __id = 0x38641628;
@@ -452,7 +468,7 @@ public:
     std::string write();
 };
 
-class StickerSetInstallResultArchive
+class StickerSetInstallResultArchive : public TLObject
 {
 private:
     int __id = 0x35e410a8;
@@ -464,7 +480,7 @@ public:
     std::string write();
 };
 
-class HighScores
+class HighScores : public TLObject
 {
 private:
     int __id = 0x9a3bfd99;
@@ -477,7 +493,7 @@ public:
     std::string write();
 };
 
-class FavedStickersNotModified
+class FavedStickersNotModified : public TLObject
 {
 private:
     int __id = 0x9e8fa6d3;
@@ -488,7 +504,7 @@ public:
     std::string write();
 };
 
-class FavedStickers
+class FavedStickers : public TLObject
 {
 private:
     int __id = 0xf37f2f16;
@@ -502,7 +518,7 @@ public:
     std::string write();
 };
 
-class FoundStickerSetsNotModified
+class FoundStickerSetsNotModified : public TLObject
 {
 private:
     int __id = 0xd54b65d;
@@ -513,7 +529,7 @@ public:
     std::string write();
 };
 
-class FoundStickerSets
+class FoundStickerSets : public TLObject
 {
 private:
     int __id = 0x5108d648;
@@ -526,7 +542,7 @@ public:
     std::string write();
 };
 
-class SearchCounter
+class SearchCounter : public TLObject
 {
 private:
     int __id = 0xe844ebff;
@@ -540,7 +556,7 @@ public:
     std::string write();
 };
 
-class InactiveChats
+class InactiveChats : public TLObject
 {
 private:
     int __id = 0xa927fec5;
@@ -554,7 +570,7 @@ public:
     std::string write();
 };
 
-class VotesList
+class VotesList : public TLObject
 {
 private:
     int __id = 0x823f649;
@@ -569,7 +585,7 @@ public:
     std::string write();
 };
 
-class MessageViews
+class MessageViews : public TLObject
 {
 private:
     int __id = 0xb6c4f543;
@@ -583,7 +599,7 @@ public:
     std::string write();
 };
 
-class DiscussionMessage
+class DiscussionMessage : public TLObject
 {
 private:
     int __id = 0xf5dd8f9d;
@@ -600,7 +616,7 @@ public:
     std::string write();
 };
 
-class HistoryImport
+class HistoryImport : public TLObject
 {
 private:
     int __id = 0x1662af0b;
@@ -612,7 +628,7 @@ public:
     std::string write();
 };
 
-class HistoryImportParsed
+class HistoryImportParsed : public TLObject
 {
 private:
     int __id = 0x5e0fb7b9;
@@ -626,7 +642,7 @@ public:
     std::string write();
 };
 
-class AffectedFoundMessages
+class AffectedFoundMessages : public TLObject
 {
 private:
     int __id = 0xef8d3e6c;
@@ -641,7 +657,7 @@ public:
     std::string write();
 };
 
-class ExportedChatInvites
+class ExportedChatInvites : public TLObject
 {
 private:
     int __id = 0xbdc62dcc;
@@ -655,7 +671,7 @@ public:
     std::string write();
 };
 
-class ExportedChatInvite
+class ExportedChatInvite : public TLObject
 {
 private:
     int __id = 0x1871be50;
@@ -668,7 +684,7 @@ public:
     std::string write();
 };
 
-class ExportedChatInviteReplaced
+class ExportedChatInviteReplaced : public TLObject
 {
 private:
     int __id = 0x222600ef;
@@ -682,7 +698,7 @@ public:
     std::string write();
 };
 
-class ChatInviteImporters
+class ChatInviteImporters : public TLObject
 {
 private:
     int __id = 0x81b6b00a;
@@ -696,7 +712,7 @@ public:
     std::string write();
 };
 
-class ChatAdminsWithInvites
+class ChatAdminsWithInvites : public TLObject
 {
 private:
     int __id = 0xb69b72d7;
@@ -709,7 +725,7 @@ public:
     std::string write();
 };
 
-class CheckedHistoryImportPeer
+class CheckedHistoryImportPeer : public TLObject
 {
 private:
     int __id = 0xa24de717;

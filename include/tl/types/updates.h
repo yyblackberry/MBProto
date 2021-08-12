@@ -1,9 +1,25 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #pragma once
 #include "tl/bare.h"
 #include "tl/TLObject.h"
 #include <optional>
 
-class State
+class State : public TLObject
 {
 private:
     int __id = 0xa56c2a3e;
@@ -19,7 +35,7 @@ public:
     std::string write();
 };
 
-class DifferenceEmpty
+class DifferenceEmpty : public TLObject
 {
 private:
     int __id = 0x5d75a138;
@@ -32,7 +48,7 @@ public:
     std::string write();
 };
 
-class Difference
+class Difference : public TLObject
 {
 private:
     int __id = 0xf49ca0;
@@ -49,7 +65,7 @@ public:
     std::string write();
 };
 
-class DifferenceSlice
+class DifferenceSlice : public TLObject
 {
 private:
     int __id = 0xa8fb1981;
@@ -66,7 +82,7 @@ public:
     std::string write();
 };
 
-class DifferenceTooLong
+class DifferenceTooLong : public TLObject
 {
 private:
     int __id = 0x4afe8f6d;
@@ -78,7 +94,7 @@ public:
     std::string write();
 };
 
-class ChannelDifferenceEmpty
+class ChannelDifferenceEmpty : public TLObject
 {
 private:
     int __id = 0x3e11affb;
@@ -92,7 +108,7 @@ public:
     std::string write();
 };
 
-class ChannelDifferenceTooLong
+class ChannelDifferenceTooLong : public TLObject
 {
 private:
     int __id = 0xa4bcc6fe;
@@ -109,7 +125,7 @@ public:
     std::string write();
 };
 
-class ChannelDifference
+class ChannelDifference : public TLObject
 {
 private:
     int __id = 0x2064674e;

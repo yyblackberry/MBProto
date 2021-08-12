@@ -1,39 +1,46 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "tl/functions/updates.h"
-template <class X>
-GetState<X> GetState<X>::read(Reader reader)
+GetState GetState::read(Reader reader)
 {
-    return GetState<X>();
+    return GetState();
 }
 
-template <class X>
-std::string GetState<X>::write()
+std::string GetState::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
     return buffer;
 }
 
-template <class X>
-GetDifference<X>::GetDifference(int pts_, int date_, int qts_, std::optional<int> pts_total_limit_) {}
+GetDifference::GetDifference(int pts_, int date_, int qts_, std::optional<int> pts_total_limit_) {}
 
-template <class X>
-GetDifference<X> GetDifference<X>::read(Reader reader)
+GetDifference GetDifference::read(Reader reader)
 {
     int flags = Int::read(reader);
     int pts_ = Int::read(reader);
     std::optional<int> pts_total_limit_;
-
-    if (1 << 0)
-        pts_total_limit_ = Int::read(reader);
-    else
-        pts_total_limit_ = std::nullopt;
+    pts_total_limit_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     int date_ = Int::read(reader);
     int qts_ = Int::read(reader);
-    return GetDifference<X>(pts_, date_, qts_, pts_total_limit_);
+    return GetDifference(pts_, date_, qts_, pts_total_limit_);
 }
 
-template <class X>
-std::string GetDifference<X>::write()
+std::string GetDifference::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -48,28 +55,21 @@ std::string GetDifference<X>::write()
     return buffer;
 }
 
-template <class X>
-GetChannelDifference<X>::GetChannelDifference(TLObject channel_, TLObject filter_, int pts_, int limit_, std::optional<bool> force_) {}
+GetChannelDifference::GetChannelDifference(TLObject channel_, TLObject filter_, int pts_, int limit_, std::optional<bool> force_) {}
 
-template <class X>
-GetChannelDifference<X> GetChannelDifference<X>::read(Reader reader)
+GetChannelDifference GetChannelDifference::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> force_;
-
-    if (1 << 0)
-        force_ = true;
-    else
-        force_ = std::nullopt;
-    TLObject channel_ = TLObject::read(reader);
-    TLObject filter_ = TLObject::read(reader);
+    force_ = (1 << 0) ? std::optional{true} : std::nullopt;
+    TLObject channel_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject filter_ = std::get<TLObject>(TLObject::read(reader));
     int pts_ = Int::read(reader);
     int limit_ = Int::read(reader);
-    return GetChannelDifference<X>(channel_, filter_, pts_, limit_, force_);
+    return GetChannelDifference(channel_, filter_, pts_, limit_, force_);
 }
 
-template <class X>
-std::string GetChannelDifference<X>::write()
+std::string GetChannelDifference::write()
 {
     std::string buffer;
     buffer += Int::write(__id);

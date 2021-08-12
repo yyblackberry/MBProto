@@ -1,17 +1,30 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "tl/functions/users.h"
 
-template <class X>
-GetUsers<X>::GetUsers(std::vector<TLObject> id_) {}
+GetUsers::GetUsers(std::vector<TLObject> id_) {}
 
-template <class X>
-GetUsers<X> GetUsers<X>::read(Reader reader)
+GetUsers GetUsers::read(Reader reader)
 {
-    std::vector<TLObject> id_ = Vector<TLObject>::read(reader);
-    return GetUsers<X>(id_);
+    std::vector<TLObject> id_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    return GetUsers(id_);
 }
 
-template <class X>
-std::string GetUsers<X>::write()
+std::string GetUsers::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -19,18 +32,15 @@ std::string GetUsers<X>::write()
     return buffer;
 }
 
-template <class X>
-GetFullUser<X>::GetFullUser(TLObject id_) {}
+GetFullUser::GetFullUser(TLObject id_) {}
 
-template <class X>
-GetFullUser<X> GetFullUser<X>::read(Reader reader)
+GetFullUser GetFullUser::read(Reader reader)
 {
-    TLObject id_ = TLObject::read(reader);
-    return GetFullUser<X>(id_);
+    TLObject id_ = std::get<TLObject>(TLObject::read(reader));
+    return GetFullUser(id_);
 }
 
-template <class X>
-std::string GetFullUser<X>::write()
+std::string GetFullUser::write()
 {
     std::string buffer;
     buffer += Int::write(__id);
@@ -38,19 +48,16 @@ std::string GetFullUser<X>::write()
     return buffer;
 }
 
-template <class X>
-SetSecureValueErrors<X>::SetSecureValueErrors(TLObject id_, std::vector<TLObject> errors_) {}
+SetSecureValueErrors::SetSecureValueErrors(TLObject id_, std::vector<TLObject> errors_) {}
 
-template <class X>
-SetSecureValueErrors<X> SetSecureValueErrors<X>::read(Reader reader)
+SetSecureValueErrors SetSecureValueErrors::read(Reader reader)
 {
-    TLObject id_ = TLObject::read(reader);
-    std::vector<TLObject> errors_ = Vector<TLObject>::read(reader);
-    return SetSecureValueErrors<X>(id_, errors_);
+    TLObject id_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<TLObject> errors_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    return SetSecureValueErrors(id_, errors_);
 }
 
-template <class X>
-std::string SetSecureValueErrors<X>::write()
+std::string SetSecureValueErrors::write()
 {
     std::string buffer;
     buffer += Int::write(__id);

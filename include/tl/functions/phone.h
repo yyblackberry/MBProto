@@ -1,22 +1,36 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #pragma once
 #include "tl/bare.h"
 #include "tl/TLObject.h"
 #include <optional>
 
-template <class X>
-class GetCallConfig
+class GetCallConfig : public TLObject
 {
 private:
     int __id = 0x55451fa9;
 
 public:
     GetCallConfig() = default;
-    static GetCallConfig<X> read(Reader reader);
+    static GetCallConfig read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class RequestCall
+class RequestCall : public TLObject
 {
 private:
     int __id = 0x42ff96ed;
@@ -28,12 +42,11 @@ public:
     std::string g_a_hash;
     TLObject protocol;
     RequestCall(TLObject user_id_, int random_id_, std::string g_a_hash_, TLObject protocol_, std::optional<bool> video_ = std::nullopt);
-    static RequestCall<X> read(Reader reader);
+    static RequestCall read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class AcceptCall
+class AcceptCall : public TLObject
 {
 private:
     int __id = 0x3bd2b4a0;
@@ -43,12 +56,11 @@ public:
     std::string g_b;
     TLObject protocol;
     AcceptCall(TLObject peer_, std::string g_b_, TLObject protocol_);
-    static AcceptCall<X> read(Reader reader);
+    static AcceptCall read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ConfirmCall
+class ConfirmCall : public TLObject
 {
 private:
     int __id = 0x2efe1722;
@@ -59,12 +71,11 @@ public:
     long key_fingerprint;
     TLObject protocol;
     ConfirmCall(TLObject peer_, std::string g_a_, long key_fingerprint_, TLObject protocol_);
-    static ConfirmCall<X> read(Reader reader);
+    static ConfirmCall read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ReceivedCall
+class ReceivedCall : public TLObject
 {
 private:
     int __id = 0x17d54f61;
@@ -72,12 +83,11 @@ private:
 public:
     TLObject peer;
     ReceivedCall(TLObject peer_);
-    static ReceivedCall<X> read(Reader reader);
+    static ReceivedCall read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class DiscardCall
+class DiscardCall : public TLObject
 {
 private:
     int __id = 0xb2cbc1c0;
@@ -89,12 +99,11 @@ public:
     TLObject reason;
     long connection_id;
     DiscardCall(TLObject peer_, int duration_, TLObject reason_, long connection_id_, std::optional<bool> video_ = std::nullopt);
-    static DiscardCall<X> read(Reader reader);
+    static DiscardCall read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SetCallRating
+class SetCallRating : public TLObject
 {
 private:
     int __id = 0x59ead627;
@@ -105,12 +114,11 @@ public:
     int rating;
     std::string comment;
     SetCallRating(TLObject peer_, int rating_, std::string comment_, std::optional<bool> user_initiative_ = std::nullopt);
-    static SetCallRating<X> read(Reader reader);
+    static SetCallRating read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SaveCallDebug
+class SaveCallDebug : public TLObject
 {
 private:
     int __id = 0x277add7e;
@@ -119,12 +127,11 @@ public:
     TLObject peer;
     TLObject debug;
     SaveCallDebug(TLObject peer_, TLObject debug_);
-    static SaveCallDebug<X> read(Reader reader);
+    static SaveCallDebug read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SendSignalingData
+class SendSignalingData : public TLObject
 {
 private:
     int __id = 0xff7a9383;
@@ -133,12 +140,11 @@ public:
     TLObject peer;
     std::string data;
     SendSignalingData(TLObject peer_, std::string data_);
-    static SendSignalingData<X> read(Reader reader);
+    static SendSignalingData read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class CreateGroupCall
+class CreateGroupCall : public TLObject
 {
 private:
     int __id = 0x48cdc6d8;
@@ -149,12 +155,11 @@ public:
     std::optional<std::string> title;
     std::optional<int> schedule_date;
     CreateGroupCall(TLObject peer_, int random_id_, std::optional<std::string> title_ = std::nullopt, std::optional<int> schedule_date_ = std::nullopt);
-    static CreateGroupCall<X> read(Reader reader);
+    static CreateGroupCall read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class JoinGroupCall
+class JoinGroupCall : public TLObject
 {
 private:
     int __id = 0xb132ff7b;
@@ -167,12 +172,11 @@ public:
     std::optional<std::string> invite_hash;
     TLObject params;
     JoinGroupCall(TLObject call_, TLObject join_as_, TLObject params_, std::optional<bool> muted_ = std::nullopt, std::optional<bool> video_stopped_ = std::nullopt, std::optional<std::string> invite_hash_ = std::nullopt);
-    static JoinGroupCall<X> read(Reader reader);
+    static JoinGroupCall read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class LeaveGroupCall
+class LeaveGroupCall : public TLObject
 {
 private:
     int __id = 0x500377f9;
@@ -181,12 +185,11 @@ public:
     TLObject call;
     int source;
     LeaveGroupCall(TLObject call_, int source_);
-    static LeaveGroupCall<X> read(Reader reader);
+    static LeaveGroupCall read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class InviteToGroupCall
+class InviteToGroupCall : public TLObject
 {
 private:
     int __id = 0x7b393160;
@@ -195,12 +198,11 @@ public:
     TLObject call;
     std::vector<TLObject> users;
     InviteToGroupCall(TLObject call_, std::vector<TLObject> users_);
-    static InviteToGroupCall<X> read(Reader reader);
+    static InviteToGroupCall read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class DiscardGroupCall
+class DiscardGroupCall : public TLObject
 {
 private:
     int __id = 0x7a777135;
@@ -208,12 +210,11 @@ private:
 public:
     TLObject call;
     DiscardGroupCall(TLObject call_);
-    static DiscardGroupCall<X> read(Reader reader);
+    static DiscardGroupCall read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ToggleGroupCallSettings
+class ToggleGroupCallSettings : public TLObject
 {
 private:
     int __id = 0x74bbb43d;
@@ -223,12 +224,11 @@ public:
     TLObject call;
     std::optional<bool> join_muted;
     ToggleGroupCallSettings(TLObject call_, std::optional<bool> reset_invite_hash_ = std::nullopt, std::optional<bool> join_muted_ = std::nullopt);
-    static ToggleGroupCallSettings<X> read(Reader reader);
+    static ToggleGroupCallSettings read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetGroupCall
+class GetGroupCall : public TLObject
 {
 private:
     int __id = 0xc7cb017;
@@ -236,12 +236,11 @@ private:
 public:
     TLObject call;
     GetGroupCall(TLObject call_);
-    static GetGroupCall<X> read(Reader reader);
+    static GetGroupCall read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetGroupParticipants
+class GetGroupParticipants : public TLObject
 {
 private:
     int __id = 0xc558d8ab;
@@ -253,12 +252,11 @@ public:
     std::string offset;
     int limit;
     GetGroupParticipants(TLObject call_, std::vector<TLObject> ids_, std::vector<int> sources_, std::string offset_, int limit_);
-    static GetGroupParticipants<X> read(Reader reader);
+    static GetGroupParticipants read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class CheckGroupCall
+class CheckGroupCall : public TLObject
 {
 private:
     int __id = 0xb59cf977;
@@ -267,12 +265,11 @@ public:
     TLObject call;
     std::vector<int> sources;
     CheckGroupCall(TLObject call_, std::vector<int> sources_);
-    static CheckGroupCall<X> read(Reader reader);
+    static CheckGroupCall read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ToggleGroupCallRecord
+class ToggleGroupCallRecord : public TLObject
 {
 private:
     int __id = 0xc02a66d7;
@@ -282,12 +279,11 @@ public:
     TLObject call;
     std::optional<std::string> title;
     ToggleGroupCallRecord(TLObject call_, std::optional<bool> start_ = std::nullopt, std::optional<std::string> title_ = std::nullopt);
-    static ToggleGroupCallRecord<X> read(Reader reader);
+    static ToggleGroupCallRecord read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class EditGroupCallParticipant
+class EditGroupCallParticipant : public TLObject
 {
 private:
     int __id = 0xa5273abf;
@@ -302,12 +298,11 @@ public:
     std::optional<bool> video_paused;
     std::optional<bool> presentation_paused;
     EditGroupCallParticipant(TLObject call_, TLObject participant_, std::optional<bool> muted_ = std::nullopt, std::optional<int> volume_ = std::nullopt, std::optional<bool> raise_hand_ = std::nullopt, std::optional<bool> video_stopped_ = std::nullopt, std::optional<bool> video_paused_ = std::nullopt, std::optional<bool> presentation_paused_ = std::nullopt);
-    static EditGroupCallParticipant<X> read(Reader reader);
+    static EditGroupCallParticipant read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class EditGroupCallTitle
+class EditGroupCallTitle : public TLObject
 {
 private:
     int __id = 0x1ca6ac0a;
@@ -316,12 +311,11 @@ public:
     TLObject call;
     std::string title;
     EditGroupCallTitle(TLObject call_, std::string title_);
-    static EditGroupCallTitle<X> read(Reader reader);
+    static EditGroupCallTitle read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class GetGroupCallJoinAs
+class GetGroupCallJoinAs : public TLObject
 {
 private:
     int __id = 0xef7c213a;
@@ -329,12 +323,11 @@ private:
 public:
     TLObject peer;
     GetGroupCallJoinAs(TLObject peer_);
-    static GetGroupCallJoinAs<X> read(Reader reader);
+    static GetGroupCallJoinAs read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ExportGroupCallInvite
+class ExportGroupCallInvite : public TLObject
 {
 private:
     int __id = 0xe6aa647f;
@@ -343,12 +336,11 @@ public:
     std::optional<bool> can_self_unmute;
     TLObject call;
     ExportGroupCallInvite(TLObject call_, std::optional<bool> can_self_unmute_ = std::nullopt);
-    static ExportGroupCallInvite<X> read(Reader reader);
+    static ExportGroupCallInvite read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class ToggleGroupCallStartSubscription
+class ToggleGroupCallStartSubscription : public TLObject
 {
 private:
     int __id = 0x219c34e6;
@@ -357,12 +349,11 @@ public:
     TLObject call;
     bool subscribed;
     ToggleGroupCallStartSubscription(TLObject call_, bool subscribed_);
-    static ToggleGroupCallStartSubscription<X> read(Reader reader);
+    static ToggleGroupCallStartSubscription read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class StartScheduledGroupCall
+class StartScheduledGroupCall : public TLObject
 {
 private:
     int __id = 0x5680e342;
@@ -370,12 +361,11 @@ private:
 public:
     TLObject call;
     StartScheduledGroupCall(TLObject call_);
-    static StartScheduledGroupCall<X> read(Reader reader);
+    static StartScheduledGroupCall read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class SaveDefaultGroupCallJoinAs
+class SaveDefaultGroupCallJoinAs : public TLObject
 {
 private:
     int __id = 0x575e1f8c;
@@ -384,12 +374,11 @@ public:
     TLObject peer;
     TLObject join_as;
     SaveDefaultGroupCallJoinAs(TLObject peer_, TLObject join_as_);
-    static SaveDefaultGroupCallJoinAs<X> read(Reader reader);
+    static SaveDefaultGroupCallJoinAs read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class JoinGroupCallPresentation
+class JoinGroupCallPresentation : public TLObject
 {
 private:
     int __id = 0xcbea6bc4;
@@ -398,12 +387,11 @@ public:
     TLObject call;
     TLObject params;
     JoinGroupCallPresentation(TLObject call_, TLObject params_);
-    static JoinGroupCallPresentation<X> read(Reader reader);
+    static JoinGroupCallPresentation read(Reader reader);
     std::string write();
 };
 
-template <class X>
-class LeaveGroupCallPresentation
+class LeaveGroupCallPresentation : public TLObject
 {
 private:
     int __id = 0x1c50d144;
@@ -411,6 +399,6 @@ private:
 public:
     TLObject call;
     LeaveGroupCallPresentation(TLObject call_);
-    static LeaveGroupCallPresentation<X> read(Reader reader);
+    static LeaveGroupCallPresentation read(Reader reader);
     std::string write();
 };

@@ -1,13 +1,29 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "tl/types/messages.h"
 
 Dialogs::Dialogs(std::vector<TLObject> dialogs_, std::vector<TLObject> messages_, std::vector<TLObject> chats_, std::vector<TLObject> users_) {}
 
 Dialogs Dialogs::read(Reader reader)
 {
-    std::vector<TLObject> dialogs_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> messages_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> dialogs_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> messages_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return Dialogs(dialogs_, messages_, chats_, users_);
 }
 
@@ -27,10 +43,10 @@ DialogsSlice::DialogsSlice(int count_, std::vector<TLObject> dialogs_, std::vect
 DialogsSlice DialogsSlice::read(Reader reader)
 {
     int count_ = Int::read(reader);
-    std::vector<TLObject> dialogs_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> messages_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> dialogs_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> messages_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return DialogsSlice(count_, dialogs_, messages_, chats_, users_);
 }
 
@@ -66,9 +82,9 @@ Messages::Messages(std::vector<TLObject> messages_, std::vector<TLObject> chats_
 
 Messages Messages::read(Reader reader)
 {
-    std::vector<TLObject> messages_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> messages_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return Messages(messages_, chats_, users_);
 }
 
@@ -88,27 +104,15 @@ MessagesSlice MessagesSlice::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> inexact_;
-
-    if (1 << 1)
-        inexact_ = true;
-    else
-        inexact_ = std::nullopt;
+    inexact_ = (1 << 1) ? std::optional{true} : std::nullopt;
     int count_ = Int::read(reader);
     std::optional<int> next_rate_;
-
-    if (1 << 0)
-        next_rate_ = Int::read(reader);
-    else
-        next_rate_ = std::nullopt;
+    next_rate_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> offset_id_offset_;
-
-    if (1 << 2)
-        offset_id_offset_ = Int::read(reader);
-    else
-        offset_id_offset_ = std::nullopt;
-    std::vector<TLObject> messages_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    offset_id_offset_ = (1 << 2) ? std::optional{Int::read(reader)} : std::nullopt;
+    std::vector<TLObject> messages_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return MessagesSlice(count_, messages_, chats_, users_, inexact_, next_rate_, offset_id_offset_);
 }
 
@@ -139,22 +143,14 @@ ChannelMessages ChannelMessages::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> inexact_;
-
-    if (1 << 1)
-        inexact_ = true;
-    else
-        inexact_ = std::nullopt;
+    inexact_ = (1 << 1) ? std::optional{true} : std::nullopt;
     int pts_ = Int::read(reader);
     int count_ = Int::read(reader);
     std::optional<int> offset_id_offset_;
-
-    if (1 << 2)
-        offset_id_offset_ = Int::read(reader);
-    else
-        offset_id_offset_ = std::nullopt;
-    std::vector<TLObject> messages_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    offset_id_offset_ = (1 << 2) ? std::optional{Int::read(reader)} : std::nullopt;
+    std::vector<TLObject> messages_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return ChannelMessages(pts_, count_, messages_, chats_, users_, inexact_, offset_id_offset_);
 }
 
@@ -196,7 +192,7 @@ Chats::Chats(std::vector<TLObject> chats_) {}
 
 Chats Chats::read(Reader reader)
 {
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return Chats(chats_);
 }
 
@@ -213,7 +209,7 @@ ChatsSlice::ChatsSlice(int count_, std::vector<TLObject> chats_) {}
 ChatsSlice ChatsSlice::read(Reader reader)
 {
     int count_ = Int::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return ChatsSlice(count_, chats_);
 }
 
@@ -230,9 +226,9 @@ ChatFull::ChatFull(TLObject full_chat_, std::vector<TLObject> chats_, std::vecto
 
 ChatFull ChatFull::read(Reader reader)
 {
-    TLObject full_chat_ = TLObject::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    TLObject full_chat_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return ChatFull(full_chat_, chats_, users_);
 }
 
@@ -325,7 +321,7 @@ SentEncryptedFile::SentEncryptedFile(int date_, TLObject file_) {}
 SentEncryptedFile SentEncryptedFile::read(Reader reader)
 {
     int date_ = Int::read(reader);
-    TLObject file_ = TLObject::read(reader);
+    TLObject file_ = std::get<TLObject>(TLObject::read(reader));
     return SentEncryptedFile(date_, file_);
 }
 
@@ -354,7 +350,7 @@ Stickers::Stickers(int hash_, std::vector<TLObject> stickers_) {}
 Stickers Stickers::read(Reader reader)
 {
     int hash_ = Int::read(reader);
-    std::vector<TLObject> stickers_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> stickers_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return Stickers(hash_, stickers_);
 }
 
@@ -383,7 +379,7 @@ AllStickers::AllStickers(int hash_, std::vector<TLObject> sets_) {}
 AllStickers AllStickers::read(Reader reader)
 {
     int hash_ = Int::read(reader);
-    std::vector<TLObject> sets_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> sets_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return AllStickers(hash_, sets_);
 }
 
@@ -418,9 +414,9 @@ StickerSet::StickerSet(TLObject set_, std::vector<TLObject> packs_, std::vector<
 
 StickerSet StickerSet::read(Reader reader)
 {
-    TLObject set_ = TLObject::read(reader);
-    std::vector<TLObject> packs_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> documents_ = Vector<TLObject>::read(reader);
+    TLObject set_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<TLObject> packs_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> documents_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return StickerSet(set_, packs_, documents_);
 }
 
@@ -450,7 +446,7 @@ SavedGifs::SavedGifs(int hash_, std::vector<TLObject> gifs_) {}
 SavedGifs SavedGifs::read(Reader reader)
 {
     int hash_ = Int::read(reader);
-    std::vector<TLObject> gifs_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> gifs_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return SavedGifs(hash_, gifs_);
 }
 
@@ -469,27 +465,15 @@ BotResults BotResults::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> gallery_;
-
-    if (1 << 0)
-        gallery_ = true;
-    else
-        gallery_ = std::nullopt;
+    gallery_ = (1 << 0) ? std::optional{true} : std::nullopt;
     long query_id_ = Long::read(reader);
     std::optional<std::string> next_offset_;
-
-    if (1 << 1)
-        next_offset_ = String::read(reader);
-    else
-        next_offset_ = std::nullopt;
+    next_offset_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<TLObject> switch_pm_;
-
-    if (1 << 2)
-        switch_pm_ = TLObject::read(reader);
-    else
-        switch_pm_ = std::nullopt;
-    std::vector<TLObject> results_ = Vector<TLObject>::read(reader);
+    switch_pm_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
+    std::vector<TLObject> results_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     int cache_time_ = Int::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return BotResults(query_id_, results_, cache_time_, users_, gallery_, next_offset_, switch_pm_);
 }
 
@@ -520,35 +504,15 @@ BotCallbackAnswer BotCallbackAnswer::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> alert_;
-
-    if (1 << 1)
-        alert_ = true;
-    else
-        alert_ = std::nullopt;
+    alert_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> has_url_;
-
-    if (1 << 3)
-        has_url_ = true;
-    else
-        has_url_ = std::nullopt;
+    has_url_ = (1 << 3) ? std::optional{true} : std::nullopt;
     std::optional<bool> native_ui_;
-
-    if (1 << 4)
-        native_ui_ = true;
-    else
-        native_ui_ = std::nullopt;
+    native_ui_ = (1 << 4) ? std::optional{true} : std::nullopt;
     std::optional<std::string> message_;
-
-    if (1 << 0)
-        message_ = String::read(reader);
-    else
-        message_ = std::nullopt;
+    message_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> url_;
-
-    if (1 << 2)
-        url_ = String::read(reader);
-    else
-        url_ = std::nullopt;
+    url_ = (1 << 2) ? std::optional{String::read(reader)} : std::nullopt;
     int cache_time_ = Int::read(reader);
     return BotCallbackAnswer(cache_time_, alert_, has_url_, native_ui_, message_, url_);
 }
@@ -579,11 +543,7 @@ MessageEditData MessageEditData::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> caption_;
-
-    if (1 << 0)
-        caption_ = true;
-    else
-        caption_ = std::nullopt;
+    caption_ = (1 << 0) ? std::optional{true} : std::nullopt;
     return MessageEditData(caption_);
 }
 
@@ -600,11 +560,11 @@ PeerDialogs::PeerDialogs(std::vector<TLObject> dialogs_, std::vector<TLObject> m
 
 PeerDialogs PeerDialogs::read(Reader reader)
 {
-    std::vector<TLObject> dialogs_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> messages_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
-    TLObject state_ = TLObject::read(reader);
+    std::vector<TLObject> dialogs_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> messages_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    TLObject state_ = std::get<TLObject>(TLObject::read(reader));
     return PeerDialogs(dialogs_, messages_, chats_, users_, state_);
 }
 
@@ -642,8 +602,8 @@ FeaturedStickers FeaturedStickers::read(Reader reader)
 {
     int hash_ = Int::read(reader);
     int count_ = Int::read(reader);
-    std::vector<TLObject> sets_ = Vector<TLObject>::read(reader);
-    std::vector<long> unread_ = Vector<long>::read(reader);
+    std::vector<TLObject> sets_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<long> unread_ = std::get<std::vector<long>>(TLObject::read(reader));
     return FeaturedStickers(hash_, count_, sets_, unread_);
 }
 
@@ -674,9 +634,9 @@ RecentStickers::RecentStickers(int hash_, std::vector<TLObject> packs_, std::vec
 RecentStickers RecentStickers::read(Reader reader)
 {
     int hash_ = Int::read(reader);
-    std::vector<TLObject> packs_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> stickers_ = Vector<TLObject>::read(reader);
-    std::vector<int> dates_ = Vector<int>::read(reader);
+    std::vector<TLObject> packs_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> stickers_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<int> dates_ = std::get<std::vector<int>>(TLObject::read(reader));
     return RecentStickers(hash_, packs_, stickers_, dates_);
 }
 
@@ -696,7 +656,7 @@ ArchivedStickers::ArchivedStickers(int count_, std::vector<TLObject> sets_) {}
 ArchivedStickers ArchivedStickers::read(Reader reader)
 {
     int count_ = Int::read(reader);
-    std::vector<TLObject> sets_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> sets_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return ArchivedStickers(count_, sets_);
 }
 
@@ -724,7 +684,7 @@ StickerSetInstallResultArchive::StickerSetInstallResultArchive(std::vector<TLObj
 
 StickerSetInstallResultArchive StickerSetInstallResultArchive::read(Reader reader)
 {
-    std::vector<TLObject> sets_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> sets_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return StickerSetInstallResultArchive(sets_);
 }
 
@@ -740,8 +700,8 @@ HighScores::HighScores(std::vector<TLObject> scores_, std::vector<TLObject> user
 
 HighScores HighScores::read(Reader reader)
 {
-    std::vector<TLObject> scores_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> scores_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return HighScores(scores_, users_);
 }
 
@@ -770,8 +730,8 @@ FavedStickers::FavedStickers(int hash_, std::vector<TLObject> packs_, std::vecto
 FavedStickers FavedStickers::read(Reader reader)
 {
     int hash_ = Int::read(reader);
-    std::vector<TLObject> packs_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> stickers_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> packs_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> stickers_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return FavedStickers(hash_, packs_, stickers_);
 }
 
@@ -801,7 +761,7 @@ FoundStickerSets::FoundStickerSets(int hash_, std::vector<TLObject> sets_) {}
 FoundStickerSets FoundStickerSets::read(Reader reader)
 {
     int hash_ = Int::read(reader);
-    std::vector<TLObject> sets_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> sets_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return FoundStickerSets(hash_, sets_);
 }
 
@@ -820,12 +780,8 @@ SearchCounter SearchCounter::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> inexact_;
-
-    if (1 << 1)
-        inexact_ = true;
-    else
-        inexact_ = std::nullopt;
-    TLObject filter_ = TLObject::read(reader);
+    inexact_ = (1 << 1) ? std::optional{true} : std::nullopt;
+    TLObject filter_ = std::get<TLObject>(TLObject::read(reader));
     int count_ = Int::read(reader);
     return SearchCounter(filter_, count_, inexact_);
 }
@@ -845,9 +801,9 @@ InactiveChats::InactiveChats(std::vector<int> dates_, std::vector<TLObject> chat
 
 InactiveChats InactiveChats::read(Reader reader)
 {
-    std::vector<int> dates_ = Vector<int>::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<int> dates_ = std::get<std::vector<int>>(TLObject::read(reader));
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return InactiveChats(dates_, chats_, users_);
 }
 
@@ -867,14 +823,10 @@ VotesList VotesList::read(Reader reader)
 {
     int flags = Int::read(reader);
     int count_ = Int::read(reader);
-    std::vector<TLObject> votes_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> votes_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     std::optional<std::string> next_offset_;
-
-    if (1 << 0)
-        next_offset_ = String::read(reader);
-    else
-        next_offset_ = std::nullopt;
+    next_offset_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
     return VotesList(count_, votes_, users_, next_offset_);
 }
 
@@ -897,9 +849,9 @@ MessageViews::MessageViews(std::vector<TLObject> views_, std::vector<TLObject> c
 
 MessageViews MessageViews::read(Reader reader)
 {
-    std::vector<TLObject> views_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> views_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return MessageViews(views_, chats_, users_);
 }
 
@@ -918,27 +870,15 @@ DiscussionMessage::DiscussionMessage(std::vector<TLObject> messages_, std::vecto
 DiscussionMessage DiscussionMessage::read(Reader reader)
 {
     int flags = Int::read(reader);
-    std::vector<TLObject> messages_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> messages_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     std::optional<int> max_id_;
-
-    if (1 << 0)
-        max_id_ = Int::read(reader);
-    else
-        max_id_ = std::nullopt;
+    max_id_ = (1 << 0) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> read_inbox_max_id_;
-
-    if (1 << 1)
-        read_inbox_max_id_ = Int::read(reader);
-    else
-        read_inbox_max_id_ = std::nullopt;
+    read_inbox_max_id_ = (1 << 1) ? std::optional{Int::read(reader)} : std::nullopt;
     std::optional<int> read_outbox_max_id_;
-
-    if (1 << 2)
-        read_outbox_max_id_ = Int::read(reader);
-    else
-        read_outbox_max_id_ = std::nullopt;
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    read_outbox_max_id_ = (1 << 2) ? std::optional{Int::read(reader)} : std::nullopt;
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return DiscussionMessage(messages_, chats_, users_, max_id_, read_inbox_max_id_, read_outbox_max_id_);
 }
 
@@ -987,23 +927,11 @@ HistoryImportParsed HistoryImportParsed::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> pm_;
-
-    if (1 << 0)
-        pm_ = true;
-    else
-        pm_ = std::nullopt;
+    pm_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> group_;
-
-    if (1 << 1)
-        group_ = true;
-    else
-        group_ = std::nullopt;
+    group_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<std::string> title_;
-
-    if (1 << 2)
-        title_ = String::read(reader);
-    else
-        title_ = std::nullopt;
+    title_ = (1 << 2) ? std::optional{String::read(reader)} : std::nullopt;
     return HistoryImportParsed(pm_, group_, title_);
 }
 
@@ -1028,7 +956,7 @@ AffectedFoundMessages AffectedFoundMessages::read(Reader reader)
     int pts_ = Int::read(reader);
     int pts_count_ = Int::read(reader);
     int offset_ = Int::read(reader);
-    std::vector<int> messages_ = Vector<int>::read(reader);
+    std::vector<int> messages_ = std::get<std::vector<int>>(TLObject::read(reader));
     return AffectedFoundMessages(pts_, pts_count_, offset_, messages_);
 }
 
@@ -1048,8 +976,8 @@ ExportedChatInvites::ExportedChatInvites(int count_, std::vector<TLObject> invit
 ExportedChatInvites ExportedChatInvites::read(Reader reader)
 {
     int count_ = Int::read(reader);
-    std::vector<TLObject> invites_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> invites_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return ExportedChatInvites(count_, invites_, users_);
 }
 
@@ -1067,8 +995,8 @@ ExportedChatInvite::ExportedChatInvite(TLObject invite_, std::vector<TLObject> u
 
 ExportedChatInvite ExportedChatInvite::read(Reader reader)
 {
-    TLObject invite_ = TLObject::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    TLObject invite_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return ExportedChatInvite(invite_, users_);
 }
 
@@ -1085,9 +1013,9 @@ ExportedChatInviteReplaced::ExportedChatInviteReplaced(TLObject invite_, TLObjec
 
 ExportedChatInviteReplaced ExportedChatInviteReplaced::read(Reader reader)
 {
-    TLObject invite_ = TLObject::read(reader);
-    TLObject new_invite_ = TLObject::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    TLObject invite_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject new_invite_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return ExportedChatInviteReplaced(invite_, new_invite_, users_);
 }
 
@@ -1106,8 +1034,8 @@ ChatInviteImporters::ChatInviteImporters(int count_, std::vector<TLObject> impor
 ChatInviteImporters ChatInviteImporters::read(Reader reader)
 {
     int count_ = Int::read(reader);
-    std::vector<TLObject> importers_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> importers_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return ChatInviteImporters(count_, importers_, users_);
 }
 
@@ -1125,8 +1053,8 @@ ChatAdminsWithInvites::ChatAdminsWithInvites(std::vector<TLObject> admins_, std:
 
 ChatAdminsWithInvites ChatAdminsWithInvites::read(Reader reader)
 {
-    std::vector<TLObject> admins_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> admins_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return ChatAdminsWithInvites(admins_, users_);
 }
 

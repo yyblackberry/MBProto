@@ -1,3 +1,19 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include <fstream>
 #include <regex>
 #include <vector>
@@ -33,7 +49,7 @@ std::string snake_to_camel(std::string string)
 
 Argument parse_arg(std::string name, std::string type)
 {
-    Argument arg = {name, type};
+    Argument arg = {name == "default" ? "default_" : name, type};
 
     if (arg.name == "long" || arg.name == "static" || arg.name == "public" || arg.name == "delete")
         arg.name = arg.name + "_";
@@ -46,7 +62,7 @@ Argument parse_arg(std::string name, std::string type)
         arg.is_flag = true;
     }
     std::string type_class;
-    bool is_bare, is_bool;
+    bool is_bare;
 
     if (arg.type == "int" || arg.type == "long" || arg.type == "double" || arg.type == "string" || arg.type == "int128" || arg.type == "int256" || arg.type == "bytes")
     {
@@ -71,7 +87,6 @@ Argument parse_arg(std::string name, std::string type)
         type_class = "Bool";
         arg.type = "bool";
         is_bare = true;
-        is_bool = true;
     }
     else if (arg.type == "!X")
     {
@@ -84,16 +99,23 @@ Argument parse_arg(std::string name, std::string type)
         type_class = "TLObject";
         arg.type = type_class;
     }
-    arg.read = "\n    " + arg.type + " " + arg.name + "_ = " + type_class + "::read(reader);";
+
+    if (arg.type == "TLObject" || arg.type.substr(0, 11) == "std::vector")
+        arg.read = "\n    " + arg.type + " " + arg.name + "_ = std::get<" + arg.type + ">(TLObject::read(reader));";
+    else
+        arg.read = "\n    " + arg.type + " " + arg.name + "_ = " + type_class + "::read(reader);";
 
     if (arg.is_flag)
     {
-        if (is_bool)
+        if (arg.type == "bool")
         {
-            arg.read = "\n    std::optional<bool> " + arg.name + "_;\n\n    if (1 << " + arg.flag_index + ")\n        " + arg.name + "_ = true;\n    else\n        " + arg.name + "_ = std::nullopt;";
+            arg.read = "\n    std::optional<bool> " + arg.name + "_;\n    " + arg.name + "_ = (1 << " + arg.flag_index + ") ? std::optional{true} : std::nullopt;";
             return arg;
         }
-        arg.read = "\n    std::optional<" + arg.type + "> " + arg.name + "_;\n\n    if (1 << " + arg.flag_index + ")\n        " + arg.name + "_ = " + type_class + "::read(reader);\n    else\n        " + arg.name + "_ = std::nullopt;";
+        else if (arg.type == "TLObject" || arg.type.substr(0, 11) == "std::vector")
+            arg.read = "\n    std::optional<" + arg.type + "> " + arg.name + "_;\n    " + arg.name + "_ = (1 << " + arg.flag_index + ") ? std::optional{std::get<" + arg.type + ">(TLObject::read(reader))} : std::nullopt;";
+        else
+            arg.read = "\n    std::optional<" + arg.type + "> " + arg.name + "_;\n    " + arg.name + "_ = (1 << " + arg.flag_index + ") ? std::optional{" + type_class + "::read(reader)} : std::nullopt;";
 
         if (is_bare)
             arg.write = "\n\n    if (" + arg.name + ")\n        buffer += " + type_class + "::write(" + arg.name + ".value());";
@@ -117,6 +139,9 @@ int main()
     bool is_type = true;
     std::map<std::string, std::ofstream *[2]> functions;
     std::map<std::string, std::ofstream *[2]> types;
+    std::ofstream tl_object("../src/tl/TLObject.cpp");
+    tl_object << "/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>\n *\n * This program is free software: you can redistribute it and/or modify\n * it under the terms of the GNU General Public License as published by\n * the Free Software Foundation, either version 3 of the License, or\n * (at your option) any later version.\n *\n * This program is distributed in the hope that it will be useful,\n * but WITHOUT ANY WARRANTY; without even the implied warranty of\n * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n * GNU General Public License for more details.\n *\n * You should have received a copy of the GNU General Public License\n * along with this program.  If not, see <https://www.gnu.org/licenses/>.\n */\n\n#include \"tl/TLObject.h\"\n";
+    std::string tl_object_elements = "\nstd::variant<TLObject, std::vector<TLObject>> TLObject::read(Reader reader)\n{\n    int id = unpackInt(reader.read(4));\n\n";
 
     while (std::getline(mtproto_api, line) || std::getline(telegram_api, line))
     {
@@ -137,22 +162,31 @@ int main()
             if (is_type)
             {
                 types[filename][0] = new std::ofstream("../include/tl/types/" + filename + ".h");
-                *types[filename][0] << "#pragma once\n#include \"tl/bare.h\"\n#include \"tl/TLObject.h\"\n#include <optional>\n";
+                *types[filename][0] << "/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>\n *\n * This program is free software: you can redistribute it and/or modify\n * it under the terms of the GNU General Public License as published by\n * the Free Software Foundation, either version 3 of the License, or\n * (at your option) any later version.\n *\n * This program is distributed in the hope that it will be useful,\n * but WITHOUT ANY WARRANTY; without even the implied warranty of\n * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n * GNU General Public License for more details.\n *\n * You should have received a copy of the GNU General Public License\n * along with this program.  If not, see <https://www.gnu.org/licenses/>.\n */\n\n#pragma once\n#include \"tl/bare.h\"\n#include \"tl/TLObject.h\"\n#include <optional>\n";
                 types[filename][1] = new std::ofstream("../src/tl/types/" + filename + ".cpp");
-                *types[filename][1] << "#include \"tl/types/" + filename + ".h\"\n";
+                *types[filename][1] << "/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>\n *\n * This program is free software: you can redistribute it and/or modify\n * it under the terms of the GNU General Public License as published by\n * the Free Software Foundation, either version 3 of the License, or\n * (at your option) any later version.\n *\n * This program is distributed in the hope that it will be useful,\n * but WITHOUT ANY WARRANTY; without even the implied warranty of\n * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n * GNU General Public License for more details.\n *\n * You should have received a copy of the GNU General Public License\n * along with this program.  If not, see <https://www.gnu.org/licenses/>.\n */\n\n#include \"tl/types/" + filename + ".h\"\n";
+                tl_object << "#include \"tl/types/" + filename + ".h\"\n";
             }
             else
             {
                 functions[filename][0] = new std::ofstream("../include/tl/functions/" + filename + ".h");
-                *functions[filename][0] << "#pragma once\n#include \"tl/bare.h\"\n#include \"tl/TLObject.h\"\n#include <optional>\n";
+                *functions[filename][0] << "/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>\n *\n * This program is free software: you can redistribute it and/or modify\n * it under the terms of the GNU General Public License as published by\n * the Free Software Foundation, either version 3 of the License, or\n * (at your option) any later version.\n *\n * This program is distributed in the hope that it will be useful,\n * but WITHOUT ANY WARRANTY; without even the implied warranty of\n * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n * GNU General Public License for more details.\n *\n * You should have received a copy of the GNU General Public License\n * along with this program.  If not, see <https://www.gnu.org/licenses/>.\n */\n\n#pragma once\n#include \"tl/bare.h\"\n#include \"tl/TLObject.h\"\n#include <optional>\n";
                 functions[filename][1] = new std::ofstream("../src/tl/functions/" + filename + ".cpp");
-                *functions[filename][1] << "#include \"tl/functions/" + filename + ".h\"\n";
+                *functions[filename][1] << "/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>\n *\n * This program is free software: you can redistribute it and/or modify\n * it under the terms of the GNU General Public License as published by\n * the Free Software Foundation, either version 3 of the License, or\n * (at your option) any later version.\n *\n * This program is distributed in the hope that it will be useful,\n * but WITHOUT ANY WARRANTY; without even the implied warranty of\n * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n * GNU General Public License for more details.\n *\n * You should have received a copy of the GNU General Public License\n * along with this program.  If not, see <https://www.gnu.org/licenses/>.\n */\n\n#include \"tl/functions/" + filename + ".h\"\n";
+                tl_object << "#include \"tl/functions/" + filename + ".h\"\n";
             }
         }
         std::string name = snake_to_camel(general_match[2].str());
+
+        if (name == "True" || name == "BoolFalse" || name == "BoolTrue" || name == "Vector")
+        {
+            if (name == "Vector")
+                tl_object_elements += "    else if (id == 0x" + general_match[3].str() + ")\n        return Vector<TLObject>::read(reader);\n";
+            continue;
+        }
         std::sregex_iterator args_begin(line.begin(), line.end(), args_regex);
         std::sregex_iterator args_end;
-        bool is_template;
+        bool is_template = false;
         std::string reads, writes, flags_writes, arguments, constructor_header, flags_constructor_header, constructor_source, flags_constructor_source, returns, flags_returns;
 
         for (std::sregex_iterator i = args_begin; i != args_end; ++i)
@@ -188,11 +222,12 @@ int main()
                 returns += arg.name + "_, ";
             }
         }
+        tl_object_elements += "    " + std::string(name == "ResPQ" ? "" : "else ") + "if (id == 0x" + general_match[3].str() + ")\n        return " + name + std::string(is_template ? "<TLObject>" : "") + "::read(reader);\n";
         constructor_header += flags_constructor_header;
         constructor_source += flags_constructor_source;
         returns += flags_returns;
         *(is_type ? types : functions)[filename][0] << "\n"
-                                                    << (is_template ? "template <class X>\n" : "") << "class " << name << "\n{\nprivate:\n    int __id = 0x" << general_match[3].str() << ";\n\npublic:" << (!arguments.empty() ? arguments : "") << "\n    " << name << "("
+                                                    << (is_template ? "template <class X>\n" : "") << "class " << name << " : public TLObject\n{\nprivate:\n    int __id = 0x" << general_match[3].str() << ";\n\npublic:" << (!arguments.empty() ? arguments : "") << "\n    " << name << "("
                                                     << (!constructor_header.empty() ? constructor_header.substr(0, constructor_header.length() - 2) : "") << ")" << (constructor_header.empty() ? " = default" : "") << ";\n    static " << name << (is_template ? "<X>" : "") << " read(Reader reader);\n    std::string write();\n};\n";
 
         if (!constructor_source.empty())
@@ -201,6 +236,7 @@ int main()
         *(is_type ? types : functions)[filename][1] << (is_template ? "template <class X>\n" : "") << name << (is_template ? "<X>" : "") << " " << name << (is_template ? "<X>" : "") << "::read(Reader reader)\n{" << reads << "\n    return " << name << (is_template ? "<X>" : "") << "(" << (!constructor_source.empty() ? returns.substr(0, returns.length() - 2) : "") << ");\n}\n\n"
                                                     << (is_template ? "template <class X>\n" : "") << "std::string " << name << (is_template ? "<X>" : "") << "::write()\n{\n    std::string buffer;\n    buffer += Int::write(__id);" << flags_writes << writes << "\n    return buffer;\n}\n";
     }
+    tl_object << tl_object_elements << "}\n";
 
     for (auto &&pair : functions)
     {

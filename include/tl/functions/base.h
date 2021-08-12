@@ -1,9 +1,25 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #pragma once
 #include "tl/bare.h"
 #include "tl/TLObject.h"
 #include <optional>
 
-class ReqPqMulti
+class ReqPqMulti : public TLObject
 {
 private:
     int __id = 0xbe7e8ef1;
@@ -15,7 +31,7 @@ public:
     std::string write();
 };
 
-class ReqDHParams
+class ReqDHParams : public TLObject
 {
 private:
     int __id = 0xd712e4be;
@@ -32,7 +48,7 @@ public:
     std::string write();
 };
 
-class SetClientDHParams
+class SetClientDHParams : public TLObject
 {
 private:
     int __id = 0xf5045f1f;
@@ -46,7 +62,7 @@ public:
     std::string write();
 };
 
-class RpcDropAnswer
+class RpcDropAnswer : public TLObject
 {
 private:
     int __id = 0x58e4a740;
@@ -58,7 +74,7 @@ public:
     std::string write();
 };
 
-class GetFutureSalts
+class GetFutureSalts : public TLObject
 {
 private:
     int __id = 0xb921bd04;
@@ -70,7 +86,7 @@ public:
     std::string write();
 };
 
-class Ping
+class Ping : public TLObject
 {
 private:
     int __id = 0x7abe77ec;
@@ -82,7 +98,7 @@ public:
     std::string write();
 };
 
-class PingDelayDisconnect
+class PingDelayDisconnect : public TLObject
 {
 private:
     int __id = 0xf3427b8c;
@@ -95,7 +111,7 @@ public:
     std::string write();
 };
 
-class DestroySession
+class DestroySession : public TLObject
 {
 private:
     int __id = 0xe7512126;
@@ -107,7 +123,7 @@ public:
     std::string write();
 };
 
-class HttpWait
+class HttpWait : public TLObject
 {
 private:
     int __id = 0x9299359f;
@@ -121,7 +137,7 @@ public:
     std::string write();
 };
 
-class DestroyAuthKey
+class DestroyAuthKey : public TLObject
 {
 private:
     int __id = 0xd1435160;
@@ -132,51 +148,7 @@ public:
     std::string write();
 };
 
-class True
-{
-private:
-    int __id = 0x3fedd339;
-
-public:
-    True() = default;
-    static True read(Reader reader);
-    std::string write();
-};
-
-class BoolFalse
-{
-private:
-    int __id = 0xbc799737;
-
-public:
-    BoolFalse() = default;
-    static BoolFalse read(Reader reader);
-    std::string write();
-};
-
-class BoolTrue
-{
-private:
-    int __id = 0x997275b5;
-
-public:
-    BoolTrue() = default;
-    static BoolTrue read(Reader reader);
-    std::string write();
-};
-
-class Vector
-{
-private:
-    int __id = 0x1cb5c415;
-
-public:
-    Vector() = default;
-    static Vector read(Reader reader);
-    std::string write();
-};
-
-class Error
+class Error : public TLObject
 {
 private:
     int __id = 0xc4b9f9bb;
@@ -189,7 +161,7 @@ public:
     std::string write();
 };
 
-class IpPort
+class IpPort : public TLObject
 {
 private:
     int __id = 0xd433ad73;
@@ -202,7 +174,7 @@ public:
     std::string write();
 };
 
-class IpPortSecret
+class IpPortSecret : public TLObject
 {
 private:
     int __id = 0x37982646;
@@ -216,7 +188,7 @@ public:
     std::string write();
 };
 
-class AccessPointRule
+class AccessPointRule : public TLObject
 {
 private:
     int __id = 0x4679b65f;
@@ -230,7 +202,7 @@ public:
     std::string write();
 };
 
-class InputPeerPhotoFileLocationLegacy
+class InputPeerPhotoFileLocationLegacy : public TLObject
 {
 private:
     int __id = 0x27d69997;
@@ -245,7 +217,7 @@ public:
     std::string write();
 };
 
-class InputStickerSetThumbLegacy
+class InputStickerSetThumbLegacy : public TLObject
 {
 private:
     int __id = 0xdbaeae9;
@@ -260,7 +232,7 @@ public:
 };
 
 template <class X>
-class InvokeAfterMsg
+class InvokeAfterMsg : public TLObject
 {
 private:
     int __id = 0xcb9f372d;
@@ -274,7 +246,7 @@ public:
 };
 
 template <class X>
-class InvokeAfterMsgs
+class InvokeAfterMsgs : public TLObject
 {
 private:
     int __id = 0x3dc4b4f0;
@@ -288,7 +260,7 @@ public:
 };
 
 template <class X>
-class InitConnection
+class InitConnection : public TLObject
 {
 private:
     int __id = 0xc1cd5ea9;
@@ -310,7 +282,7 @@ public:
 };
 
 template <class X>
-class InvokeWithLayer
+class InvokeWithLayer : public TLObject
 {
 private:
     int __id = 0xda9b0d0d;
@@ -324,7 +296,7 @@ public:
 };
 
 template <class X>
-class InvokeWithoutUpdates
+class InvokeWithoutUpdates : public TLObject
 {
 private:
     int __id = 0xbf9459b7;
@@ -337,7 +309,7 @@ public:
 };
 
 template <class X>
-class InvokeWithMessagesRange
+class InvokeWithMessagesRange : public TLObject
 {
 private:
     int __id = 0x365275f2;
@@ -351,7 +323,7 @@ public:
 };
 
 template <class X>
-class InvokeWithTakeout
+class InvokeWithTakeout : public TLObject
 {
 private:
     int __id = 0xaca9fd2e;

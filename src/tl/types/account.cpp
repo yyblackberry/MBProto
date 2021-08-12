@@ -1,12 +1,28 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "tl/types/account.h"
 
 PrivacyRules::PrivacyRules(std::vector<TLObject> rules_, std::vector<TLObject> chats_, std::vector<TLObject> users_) {}
 
 PrivacyRules PrivacyRules::read(Reader reader)
 {
-    std::vector<TLObject> rules_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> rules_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return PrivacyRules(rules_, chats_, users_);
 }
 
@@ -24,7 +40,7 @@ Authorizations::Authorizations(std::vector<TLObject> authorizations_) {}
 
 Authorizations Authorizations::read(Reader reader)
 {
-    std::vector<TLObject> authorizations_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> authorizations_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return Authorizations(authorizations_);
 }
 
@@ -42,55 +58,23 @@ Password Password::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> has_recovery_;
-
-    if (1 << 0)
-        has_recovery_ = true;
-    else
-        has_recovery_ = std::nullopt;
+    has_recovery_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> has_secure_values_;
-
-    if (1 << 1)
-        has_secure_values_ = true;
-    else
-        has_secure_values_ = std::nullopt;
+    has_secure_values_ = (1 << 1) ? std::optional{true} : std::nullopt;
     std::optional<bool> has_password_;
-
-    if (1 << 2)
-        has_password_ = true;
-    else
-        has_password_ = std::nullopt;
+    has_password_ = (1 << 2) ? std::optional{true} : std::nullopt;
     std::optional<TLObject> current_algo_;
-
-    if (1 << 2)
-        current_algo_ = TLObject::read(reader);
-    else
-        current_algo_ = std::nullopt;
+    current_algo_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::string> srp_B_;
-
-    if (1 << 2)
-        srp_B_ = Bytes::read(reader);
-    else
-        srp_B_ = std::nullopt;
+    srp_B_ = (1 << 2) ? std::optional{Bytes::read(reader)} : std::nullopt;
     std::optional<long> srp_id_;
-
-    if (1 << 2)
-        srp_id_ = Long::read(reader);
-    else
-        srp_id_ = std::nullopt;
+    srp_id_ = (1 << 2) ? std::optional{Long::read(reader)} : std::nullopt;
     std::optional<std::string> hint_;
-
-    if (1 << 3)
-        hint_ = String::read(reader);
-    else
-        hint_ = std::nullopt;
+    hint_ = (1 << 3) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> email_unconfirmed_pattern_;
-
-    if (1 << 4)
-        email_unconfirmed_pattern_ = String::read(reader);
-    else
-        email_unconfirmed_pattern_ = std::nullopt;
-    TLObject new_algo_ = TLObject::read(reader);
-    TLObject new_secure_algo_ = TLObject::read(reader);
+    email_unconfirmed_pattern_ = (1 << 4) ? std::optional{String::read(reader)} : std::nullopt;
+    TLObject new_algo_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject new_secure_algo_ = std::get<TLObject>(TLObject::read(reader));
     std::string secure_random_ = Bytes::read(reader);
     return Password(new_algo_, new_secure_algo_, secure_random_, has_recovery_, has_secure_values_, has_password_, current_algo_, srp_B_, srp_id_, hint_, email_unconfirmed_pattern_);
 }
@@ -135,17 +119,9 @@ PasswordSettings PasswordSettings::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<std::string> email_;
-
-    if (1 << 0)
-        email_ = String::read(reader);
-    else
-        email_ = std::nullopt;
+    email_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<TLObject> secure_settings_;
-
-    if (1 << 1)
-        secure_settings_ = TLObject::read(reader);
-    else
-        secure_settings_ = std::nullopt;
+    secure_settings_ = (1 << 1) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return PasswordSettings(email_, secure_settings_);
 }
 
@@ -171,35 +147,15 @@ PasswordInputSettings PasswordInputSettings::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<TLObject> new_algo_;
-
-    if (1 << 0)
-        new_algo_ = TLObject::read(reader);
-    else
-        new_algo_ = std::nullopt;
+    new_algo_ = (1 << 0) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     std::optional<std::string> new_password_hash_;
-
-    if (1 << 0)
-        new_password_hash_ = Bytes::read(reader);
-    else
-        new_password_hash_ = std::nullopt;
+    new_password_hash_ = (1 << 0) ? std::optional{Bytes::read(reader)} : std::nullopt;
     std::optional<std::string> hint_;
-
-    if (1 << 0)
-        hint_ = String::read(reader);
-    else
-        hint_ = std::nullopt;
+    hint_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<std::string> email_;
-
-    if (1 << 1)
-        email_ = String::read(reader);
-    else
-        email_ = std::nullopt;
+    email_ = (1 << 1) ? std::optional{String::read(reader)} : std::nullopt;
     std::optional<TLObject> new_secure_settings_;
-
-    if (1 << 2)
-        new_secure_settings_ = TLObject::read(reader);
-    else
-        new_secure_settings_ = std::nullopt;
+    new_secure_settings_ = (1 << 2) ? std::optional{std::get<TLObject>(TLObject::read(reader))} : std::nullopt;
     return PasswordInputSettings(new_algo_, new_password_hash_, hint_, email_, new_secure_settings_);
 }
 
@@ -253,8 +209,8 @@ WebAuthorizations::WebAuthorizations(std::vector<TLObject> authorizations_, std:
 
 WebAuthorizations WebAuthorizations::read(Reader reader)
 {
-    std::vector<TLObject> authorizations_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> authorizations_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return WebAuthorizations(authorizations_, users_);
 }
 
@@ -272,16 +228,12 @@ AuthorizationForm::AuthorizationForm(std::vector<TLObject> required_types_, std:
 AuthorizationForm AuthorizationForm::read(Reader reader)
 {
     int flags = Int::read(reader);
-    std::vector<TLObject> required_types_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> values_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> errors_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> required_types_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> values_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> errors_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     std::optional<std::string> privacy_policy_url_;
-
-    if (1 << 0)
-        privacy_policy_url_ = String::read(reader);
-    else
-        privacy_policy_url_ = std::nullopt;
+    privacy_policy_url_ = (1 << 0) ? std::optional{String::read(reader)} : std::nullopt;
     return AuthorizationForm(required_types_, values_, errors_, users_, privacy_policy_url_);
 }
 
@@ -351,7 +303,7 @@ WallPapers::WallPapers(int hash_, std::vector<TLObject> wallpapers_) {}
 WallPapers WallPapers::read(Reader reader)
 {
     int hash_ = Int::read(reader);
-    std::vector<TLObject> wallpapers_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> wallpapers_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return WallPapers(hash_, wallpapers_);
 }
 
@@ -368,9 +320,9 @@ AutoDownloadSettings::AutoDownloadSettings(TLObject low_, TLObject medium_, TLOb
 
 AutoDownloadSettings AutoDownloadSettings::read(Reader reader)
 {
-    TLObject low_ = TLObject::read(reader);
-    TLObject medium_ = TLObject::read(reader);
-    TLObject high_ = TLObject::read(reader);
+    TLObject low_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject medium_ = std::get<TLObject>(TLObject::read(reader));
+    TLObject high_ = std::get<TLObject>(TLObject::read(reader));
     return AutoDownloadSettings(low_, medium_, high_);
 }
 
@@ -400,7 +352,7 @@ Themes::Themes(int hash_, std::vector<TLObject> themes_) {}
 Themes Themes::read(Reader reader)
 {
     int hash_ = Int::read(reader);
-    std::vector<TLObject> themes_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> themes_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return Themes(hash_, themes_);
 }
 
@@ -419,17 +371,9 @@ ContentSettings ContentSettings::read(Reader reader)
 {
     int flags = Int::read(reader);
     std::optional<bool> sensitive_enabled_;
-
-    if (1 << 0)
-        sensitive_enabled_ = true;
-    else
-        sensitive_enabled_ = std::nullopt;
+    sensitive_enabled_ = (1 << 0) ? std::optional{true} : std::nullopt;
     std::optional<bool> sensitive_can_change_;
-
-    if (1 << 1)
-        sensitive_can_change_ = true;
-    else
-        sensitive_can_change_ = std::nullopt;
+    sensitive_can_change_ = (1 << 1) ? std::optional{true} : std::nullopt;
     return ContentSettings(sensitive_enabled_, sensitive_can_change_);
 }
 

@@ -1,9 +1,25 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #pragma once
 #include "tl/bare.h"
 #include "tl/TLObject.h"
 #include <optional>
 
-class File
+class File : public TLObject
 {
 private:
     int __id = 0x96a18d5;
@@ -17,7 +33,7 @@ public:
     std::string write();
 };
 
-class FileCdnRedirect
+class FileCdnRedirect : public TLObject
 {
 private:
     int __id = 0xf18cda44;
@@ -33,7 +49,7 @@ public:
     std::string write();
 };
 
-class WebFile
+class WebFile : public TLObject
 {
 private:
     int __id = 0x21e753bc;
@@ -49,7 +65,7 @@ public:
     std::string write();
 };
 
-class CdnFileReuploadNeeded
+class CdnFileReuploadNeeded : public TLObject
 {
 private:
     int __id = 0xeea8e46e;
@@ -61,7 +77,7 @@ public:
     std::string write();
 };
 
-class CdnFile
+class CdnFile : public TLObject
 {
 private:
     int __id = 0xa99fca4f;

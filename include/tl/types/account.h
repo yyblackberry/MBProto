@@ -1,9 +1,25 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #pragma once
 #include "tl/bare.h"
 #include "tl/TLObject.h"
 #include <optional>
 
-class PrivacyRules
+class PrivacyRules : public TLObject
 {
 private:
     int __id = 0x50a04e45;
@@ -17,7 +33,7 @@ public:
     std::string write();
 };
 
-class Authorizations
+class Authorizations : public TLObject
 {
 private:
     int __id = 0x1250abde;
@@ -29,7 +45,7 @@ public:
     std::string write();
 };
 
-class Password
+class Password : public TLObject
 {
 private:
     int __id = 0xad2641f8;
@@ -51,7 +67,7 @@ public:
     std::string write();
 };
 
-class PasswordSettings
+class PasswordSettings : public TLObject
 {
 private:
     int __id = 0x9a5c33e5;
@@ -64,7 +80,7 @@ public:
     std::string write();
 };
 
-class PasswordInputSettings
+class PasswordInputSettings : public TLObject
 {
 private:
     int __id = 0xc23727c9;
@@ -80,7 +96,7 @@ public:
     std::string write();
 };
 
-class TmpPassword
+class TmpPassword : public TLObject
 {
 private:
     int __id = 0xdb64fd34;
@@ -93,7 +109,7 @@ public:
     std::string write();
 };
 
-class WebAuthorizations
+class WebAuthorizations : public TLObject
 {
 private:
     int __id = 0xed56c9fc;
@@ -106,7 +122,7 @@ public:
     std::string write();
 };
 
-class AuthorizationForm
+class AuthorizationForm : public TLObject
 {
 private:
     int __id = 0xad2e1cd8;
@@ -122,7 +138,7 @@ public:
     std::string write();
 };
 
-class SentEmailCode
+class SentEmailCode : public TLObject
 {
 private:
     int __id = 0x811f854f;
@@ -135,7 +151,7 @@ public:
     std::string write();
 };
 
-class Takeout
+class Takeout : public TLObject
 {
 private:
     int __id = 0x4dba4501;
@@ -147,7 +163,7 @@ public:
     std::string write();
 };
 
-class WallPapersNotModified
+class WallPapersNotModified : public TLObject
 {
 private:
     int __id = 0x1c199183;
@@ -158,7 +174,7 @@ public:
     std::string write();
 };
 
-class WallPapers
+class WallPapers : public TLObject
 {
 private:
     int __id = 0x702b65a9;
@@ -171,7 +187,7 @@ public:
     std::string write();
 };
 
-class AutoDownloadSettings
+class AutoDownloadSettings : public TLObject
 {
 private:
     int __id = 0x63cacf26;
@@ -185,7 +201,7 @@ public:
     std::string write();
 };
 
-class ThemesNotModified
+class ThemesNotModified : public TLObject
 {
 private:
     int __id = 0xf41eb622;
@@ -196,7 +212,7 @@ public:
     std::string write();
 };
 
-class Themes
+class Themes : public TLObject
 {
 private:
     int __id = 0x7f676421;
@@ -209,7 +225,7 @@ public:
     std::string write();
 };
 
-class ContentSettings
+class ContentSettings : public TLObject
 {
 private:
     int __id = 0x57e28221;

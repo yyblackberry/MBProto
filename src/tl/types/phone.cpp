@@ -1,11 +1,27 @@
+/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "tl/types/phone.h"
 
 PhoneCall::PhoneCall(TLObject phone_call_, std::vector<TLObject> users_) {}
 
 PhoneCall PhoneCall::read(Reader reader)
 {
-    TLObject phone_call_ = TLObject::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    TLObject phone_call_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return PhoneCall(phone_call_, users_);
 }
 
@@ -22,11 +38,11 @@ GroupCall::GroupCall(TLObject call_, std::vector<TLObject> participants_, std::s
 
 GroupCall GroupCall::read(Reader reader)
 {
-    TLObject call_ = TLObject::read(reader);
-    std::vector<TLObject> participants_ = Vector<TLObject>::read(reader);
+    TLObject call_ = std::get<TLObject>(TLObject::read(reader));
+    std::vector<TLObject> participants_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     std::string participants_next_offset_ = String::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return GroupCall(call_, participants_, participants_next_offset_, chats_, users_);
 }
 
@@ -47,10 +63,10 @@ GroupParticipants::GroupParticipants(int count_, std::vector<TLObject> participa
 GroupParticipants GroupParticipants::read(Reader reader)
 {
     int count_ = Int::read(reader);
-    std::vector<TLObject> participants_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> participants_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     std::string next_offset_ = String::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     int version_ = Int::read(reader);
     return GroupParticipants(count_, participants_, next_offset_, chats_, users_, version_);
 }
@@ -72,9 +88,9 @@ JoinAsPeers::JoinAsPeers(std::vector<TLObject> peers_, std::vector<TLObject> cha
 
 JoinAsPeers JoinAsPeers::read(Reader reader)
 {
-    std::vector<TLObject> peers_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> chats_ = Vector<TLObject>::read(reader);
-    std::vector<TLObject> users_ = Vector<TLObject>::read(reader);
+    std::vector<TLObject> peers_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> chats_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
+    std::vector<TLObject> users_ = std::get<std::vector<TLObject>>(TLObject::read(reader));
     return JoinAsPeers(peers_, chats_, users_);
 }
 
