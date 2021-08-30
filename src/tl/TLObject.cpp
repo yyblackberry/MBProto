@@ -1,2734 +1,2878 @@
-/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+/* Copyright (c) 2021 Mattia Lorenzo Chiabrando
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
-#include "tl/TLObject.h"
-#include "tl/types/base.h"
-#include "tl/functions/base.h"
-#include "tl/functions/help.h"
-#include "tl/types/storage.h"
-#include "tl/types/auth.h"
-#include "tl/types/contacts.h"
-#include "tl/types/messages.h"
-#include "tl/types/updates.h"
-#include "tl/types/photos.h"
-#include "tl/types/upload.h"
-#include "tl/types/help.h"
-#include "tl/types/account.h"
-#include "tl/types/channels.h"
-#include "tl/types/payments.h"
-#include "tl/types/phone.h"
-#include "tl/types/stats.h"
-#include "tl/types/stickers.h"
-#include "tl/functions/auth.h"
-#include "tl/functions/account.h"
-#include "tl/functions/users.h"
-#include "tl/functions/contacts.h"
-#include "tl/functions/messages.h"
-#include "tl/functions/updates.h"
-#include "tl/functions/photos.h"
-#include "tl/functions/upload.h"
-#include "tl/functions/channels.h"
-#include "tl/functions/bots.h"
-#include "tl/functions/payments.h"
-#include "tl/functions/stickers.h"
-#include "tl/functions/phone.h"
-#include "tl/functions/langpack.h"
-#include "tl/functions/folders.h"
-#include "tl/functions/stats.h"
+#include "tl/types.h"
 
-std::variant<TLObject, std::vector<TLObject>> TLObject::read(Reader reader)
+TLObject TLObject::read(Reader reader)
 {
-    int id = unpackInt(reader.read(4));
+    int id = Int::read(reader);
 
-    if (id == 0x05162463)
+    switch (id)
+    {
+    case ResPQ::getId():
         return ResPQ::read(reader);
-    else if (id == 0xa9f55f95)
+
+    case PQInnerDataDc::getId():
         return PQInnerDataDc::read(reader);
-    else if (id == 0x56fddf88)
+
+    case PQInnerDataTempDc::getId():
         return PQInnerDataTempDc::read(reader);
-    else if (id == 0x79cb045d)
+
+    case ServerDHParamsFail::getId():
         return ServerDHParamsFail::read(reader);
-    else if (id == 0xd0e8075c)
+
+    case ServerDHParamsOk::getId():
         return ServerDHParamsOk::read(reader);
-    else if (id == 0xb5890dba)
+
+    case ServerDHInnerData::getId():
         return ServerDHInnerData::read(reader);
-    else if (id == 0x6643b654)
+
+    case ClientDHInnerData::getId():
         return ClientDHInnerData::read(reader);
-    else if (id == 0x3bcbf734)
+
+    case DhGenOk::getId():
         return DhGenOk::read(reader);
-    else if (id == 0x46dc1fb9)
+
+    case DhGenRetry::getId():
         return DhGenRetry::read(reader);
-    else if (id == 0xa69dae02)
+
+    case DhGenFail::getId():
         return DhGenFail::read(reader);
-    else if (id == 0x2144ca19)
+
+    case RpcError::getId():
         return RpcError::read(reader);
-    else if (id == 0x5e2ad36e)
+
+    case RpcAnswerUnknown::getId():
         return RpcAnswerUnknown::read(reader);
-    else if (id == 0xcd78e586)
+
+    case RpcAnswerDroppedRunning::getId():
         return RpcAnswerDroppedRunning::read(reader);
-    else if (id == 0xa43ad8b7)
+
+    case RpcAnswerDropped::getId():
         return RpcAnswerDropped::read(reader);
-    else if (id == 0x0949d9dc)
+
+    case FutureSalt::getId():
         return FutureSalt::read(reader);
-    else if (id == 0xae500895)
+
+    case FutureSalts::getId():
         return FutureSalts::read(reader);
-    else if (id == 0x347773c5)
+
+    case Pong::getId():
         return Pong::read(reader);
-    else if (id == 0xe22045fc)
+
+    case DestroySessionOk::getId():
         return DestroySessionOk::read(reader);
-    else if (id == 0x62d350c9)
+
+    case DestroySessionNone::getId():
         return DestroySessionNone::read(reader);
-    else if (id == 0x9ec20908)
+
+    case NewSessionCreated::getId():
         return NewSessionCreated::read(reader);
-    else if (id == 0x3072cfa1)
+
+    case GzipPacked::getId():
         return GzipPacked::read(reader);
-    else if (id == 0x62d6b459)
+
+    case MsgsAck::getId():
         return MsgsAck::read(reader);
-    else if (id == 0xa7eff811)
+
+    case BadMsgNotification::getId():
         return BadMsgNotification::read(reader);
-    else if (id == 0xedab447b)
+
+    case BadServerSalt::getId():
         return BadServerSalt::read(reader);
-    else if (id == 0x7d861a08)
+
+    case MsgResendReq::getId():
         return MsgResendReq::read(reader);
-    else if (id == 0xda69fb52)
+
+    case MsgsStateReq::getId():
         return MsgsStateReq::read(reader);
-    else if (id == 0x04deb57d)
+
+    case MsgsStateInfo::getId():
         return MsgsStateInfo::read(reader);
-    else if (id == 0x8cc0d131)
+
+    case MsgsAllInfo::getId():
         return MsgsAllInfo::read(reader);
-    else if (id == 0x276d3ec6)
+
+    case MsgDetailedInfo::getId():
         return MsgDetailedInfo::read(reader);
-    else if (id == 0x809db6df)
+
+    case MsgNewDetailedInfo::getId():
         return MsgNewDetailedInfo::read(reader);
-    else if (id == 0xf660e1d4)
+
+    case DestroyAuthKeyOk::getId():
         return DestroyAuthKeyOk::read(reader);
-    else if (id == 0x0a9f2259)
+
+    case DestroyAuthKeyNone::getId():
         return DestroyAuthKeyNone::read(reader);
-    else if (id == 0xea109b13)
+
+    case DestroyAuthKeyFail::getId():
         return DestroyAuthKeyFail::read(reader);
-    else if (id == 0xbe7e8ef1)
-        return ReqPqMulti::read(reader);
-    else if (id == 0xd712e4be)
-        return ReqDHParams::read(reader);
-    else if (id == 0xf5045f1f)
-        return SetClientDHParams::read(reader);
-    else if (id == 0x58e4a740)
-        return RpcDropAnswer::read(reader);
-    else if (id == 0xb921bd04)
-        return GetFutureSalts::read(reader);
-    else if (id == 0x7abe77ec)
-        return Ping::read(reader);
-    else if (id == 0xf3427b8c)
-        return PingDelayDisconnect::read(reader);
-    else if (id == 0xe7512126)
-        return DestroySession::read(reader);
-    else if (id == 0x9299359f)
-        return HttpWait::read(reader);
-    else if (id == 0xd1435160)
-        return DestroyAuthKey::read(reader);
-    else if (id == 0x1cb5c415)
-        return Vector<TLObject>::read(reader);
-    else if (id == 0xc4b9f9bb)
+
+    case True::getId():
+        return True::read(reader);
+
+    case BoolFalse::getId():
+        return BoolFalse::read(reader);
+
+    case BoolTrue::getId():
+        return BoolTrue::read(reader);
+
+    case Error::getId():
         return Error::read(reader);
-    else if (id == 0xd433ad73)
+
+    case IpPort::getId():
         return IpPort::read(reader);
-    else if (id == 0x37982646)
+
+    case IpPortSecret::getId():
         return IpPortSecret::read(reader);
-    else if (id == 0x4679b65f)
+
+    case AccessPointRule::getId():
         return AccessPointRule::read(reader);
-    else if (id == 0x5a592a6c)
-        return ConfigSimple::read(reader);
-    else if (id == 0x27d69997)
+
+    case help::ConfigSimple::getId():
+        return help::ConfigSimple::read(reader);
+
+    case InputPeerPhotoFileLocationLegacy::getId():
         return InputPeerPhotoFileLocationLegacy::read(reader);
-    else if (id == 0xdbaeae9)
+
+    case InputStickerSetThumbLegacy::getId():
         return InputStickerSetThumbLegacy::read(reader);
-    else if (id == 0x7f3b18ea)
+
+    case InputPeerEmpty::getId():
         return InputPeerEmpty::read(reader);
-    else if (id == 0x7da07ec9)
+
+    case InputPeerSelf::getId():
         return InputPeerSelf::read(reader);
-    else if (id == 0x179be863)
+
+    case InputPeerChat::getId():
         return InputPeerChat::read(reader);
-    else if (id == 0x7b8e7de6)
+
+    case InputPeerUser::getId():
         return InputPeerUser::read(reader);
-    else if (id == 0x20adaef8)
+
+    case InputPeerChannel::getId():
         return InputPeerChannel::read(reader);
-    else if (id == 0x17bae2e6)
+
+    case InputPeerUserFromMessage::getId():
         return InputPeerUserFromMessage::read(reader);
-    else if (id == 0x9c95f7bb)
+
+    case InputPeerChannelFromMessage::getId():
         return InputPeerChannelFromMessage::read(reader);
-    else if (id == 0xb98886cf)
+
+    case InputUserEmpty::getId():
         return InputUserEmpty::read(reader);
-    else if (id == 0xf7c1b13f)
+
+    case InputUserSelf::getId():
         return InputUserSelf::read(reader);
-    else if (id == 0xd8292816)
+
+    case InputUser::getId():
         return InputUser::read(reader);
-    else if (id == 0x2d117597)
+
+    case InputUserFromMessage::getId():
         return InputUserFromMessage::read(reader);
-    else if (id == 0xf392b7f4)
+
+    case InputPhoneContact::getId():
         return InputPhoneContact::read(reader);
-    else if (id == 0xf52ff27f)
+
+    case InputFile::getId():
         return InputFile::read(reader);
-    else if (id == 0xfa4f0bb5)
+
+    case InputFileBig::getId():
         return InputFileBig::read(reader);
-    else if (id == 0x9664f57f)
+
+    case InputMediaEmpty::getId():
         return InputMediaEmpty::read(reader);
-    else if (id == 0x1e287d04)
+
+    case InputMediaUploadedPhoto::getId():
         return InputMediaUploadedPhoto::read(reader);
-    else if (id == 0xb3ba0635)
+
+    case InputMediaPhoto::getId():
         return InputMediaPhoto::read(reader);
-    else if (id == 0xf9c44144)
+
+    case InputMediaGeoPoint::getId():
         return InputMediaGeoPoint::read(reader);
-    else if (id == 0xf8ab7dfb)
+
+    case InputMediaContact::getId():
         return InputMediaContact::read(reader);
-    else if (id == 0x5b38c6c1)
+
+    case InputMediaUploadedDocument::getId():
         return InputMediaUploadedDocument::read(reader);
-    else if (id == 0x33473058)
+
+    case InputMediaDocument::getId():
         return InputMediaDocument::read(reader);
-    else if (id == 0xc13d1c11)
+
+    case InputMediaVenue::getId():
         return InputMediaVenue::read(reader);
-    else if (id == 0xe5bbfe1a)
+
+    case InputMediaPhotoExternal::getId():
         return InputMediaPhotoExternal::read(reader);
-    else if (id == 0xfb52dc99)
+
+    case InputMediaDocumentExternal::getId():
         return InputMediaDocumentExternal::read(reader);
-    else if (id == 0xd33f43f3)
+
+    case InputMediaGame::getId():
         return InputMediaGame::read(reader);
-    else if (id == 0xd9799874)
+
+    case InputMediaInvoice::getId():
         return InputMediaInvoice::read(reader);
-    else if (id == 0x971fa843)
+
+    case InputMediaGeoLive::getId():
         return InputMediaGeoLive::read(reader);
-    else if (id == 0xf94e5f1)
+
+    case InputMediaPoll::getId():
         return InputMediaPoll::read(reader);
-    else if (id == 0xe66fbf7b)
+
+    case InputMediaDice::getId():
         return InputMediaDice::read(reader);
-    else if (id == 0x1ca48f57)
+
+    case InputChatPhotoEmpty::getId():
         return InputChatPhotoEmpty::read(reader);
-    else if (id == 0xc642724e)
+
+    case InputChatUploadedPhoto::getId():
         return InputChatUploadedPhoto::read(reader);
-    else if (id == 0x8953ad37)
+
+    case InputChatPhoto::getId():
         return InputChatPhoto::read(reader);
-    else if (id == 0xe4c123d6)
+
+    case InputGeoPointEmpty::getId():
         return InputGeoPointEmpty::read(reader);
-    else if (id == 0x48222faf)
+
+    case InputGeoPoint::getId():
         return InputGeoPoint::read(reader);
-    else if (id == 0x1cd7bf0d)
+
+    case InputPhotoEmpty::getId():
         return InputPhotoEmpty::read(reader);
-    else if (id == 0x3bb3b94a)
+
+    case InputPhoto::getId():
         return InputPhoto::read(reader);
-    else if (id == 0xdfdaabe1)
+
+    case InputFileLocation::getId():
         return InputFileLocation::read(reader);
-    else if (id == 0xf5235d55)
+
+    case InputEncryptedFileLocation::getId():
         return InputEncryptedFileLocation::read(reader);
-    else if (id == 0xbad07584)
+
+    case InputDocumentFileLocation::getId():
         return InputDocumentFileLocation::read(reader);
-    else if (id == 0xcbc7ee28)
+
+    case InputSecureFileLocation::getId():
         return InputSecureFileLocation::read(reader);
-    else if (id == 0x29be5899)
+
+    case InputTakeoutFileLocation::getId():
         return InputTakeoutFileLocation::read(reader);
-    else if (id == 0x40181ffe)
+
+    case InputPhotoFileLocation::getId():
         return InputPhotoFileLocation::read(reader);
-    else if (id == 0xd83466f3)
+
+    case InputPhotoLegacyFileLocation::getId():
         return InputPhotoLegacyFileLocation::read(reader);
-    else if (id == 0x37257e99)
+
+    case InputPeerPhotoFileLocation::getId():
         return InputPeerPhotoFileLocation::read(reader);
-    else if (id == 0x9d84f3db)
+
+    case InputStickerSetThumb::getId():
         return InputStickerSetThumb::read(reader);
-    else if (id == 0xbba51639)
+
+    case InputGroupCallStream::getId():
         return InputGroupCallStream::read(reader);
-    else if (id == 0x9db1bc6d)
+
+    case PeerUser::getId():
         return PeerUser::read(reader);
-    else if (id == 0xbad0e5bb)
+
+    case PeerChat::getId():
         return PeerChat::read(reader);
-    else if (id == 0xbddde532)
+
+    case PeerChannel::getId():
         return PeerChannel::read(reader);
-    else if (id == 0xaa963b05)
-        return FileUnknown::read(reader);
-    else if (id == 0x40bc6f52)
-        return FilePartial::read(reader);
-    else if (id == 0x7efe0e)
-        return FileJpeg::read(reader);
-    else if (id == 0xcae1aadf)
-        return FileGif::read(reader);
-    else if (id == 0xa4f63c0)
-        return FilePng::read(reader);
-    else if (id == 0xae1e508d)
-        return FilePdf::read(reader);
-    else if (id == 0x4b09ebbc)
-        return FileMov::read(reader);
-    else if (id == 0x1081464c)
-        return FileWebp::read(reader);
-    else if (id == 0x200250ba)
+
+    case storage::FileUnknown::getId():
+        return storage::FileUnknown::read(reader);
+
+    case storage::FilePartial::getId():
+        return storage::FilePartial::read(reader);
+
+    case storage::FileJpeg::getId():
+        return storage::FileJpeg::read(reader);
+
+    case storage::FileGif::getId():
+        return storage::FileGif::read(reader);
+
+    case storage::FilePng::getId():
+        return storage::FilePng::read(reader);
+
+    case storage::FilePdf::getId():
+        return storage::FilePdf::read(reader);
+
+    case storage::FileMp3::getId():
+        return storage::FileMp3::read(reader);
+
+    case storage::FileMov::getId():
+        return storage::FileMov::read(reader);
+
+    case storage::FileMp4::getId():
+        return storage::FileMp4::read(reader);
+
+    case storage::FileWebp::getId():
+        return storage::FileWebp::read(reader);
+
+    case UserEmpty::getId():
         return UserEmpty::read(reader);
-    else if (id == 0x938458c1)
+
+    case User::getId():
         return User::read(reader);
-    else if (id == 0x4f11bae1)
+
+    case UserProfilePhotoEmpty::getId():
         return UserProfilePhotoEmpty::read(reader);
-    else if (id == 0x82d1f706)
+
+    case UserProfilePhoto::getId():
         return UserProfilePhoto::read(reader);
-    else if (id == 0x9d05049)
+
+    case UserStatusEmpty::getId():
         return UserStatusEmpty::read(reader);
-    else if (id == 0xedb93949)
+
+    case UserStatusOnline::getId():
         return UserStatusOnline::read(reader);
-    else if (id == 0x8c703f)
+
+    case UserStatusOffline::getId():
         return UserStatusOffline::read(reader);
-    else if (id == 0xe26f42f1)
+
+    case UserStatusRecently::getId():
         return UserStatusRecently::read(reader);
-    else if (id == 0x7bf09fc)
+
+    case UserStatusLastWeek::getId():
         return UserStatusLastWeek::read(reader);
-    else if (id == 0x77ebc742)
+
+    case UserStatusLastMonth::getId():
         return UserStatusLastMonth::read(reader);
-    else if (id == 0x9ba2d800)
+
+    case ChatEmpty::getId():
         return ChatEmpty::read(reader);
-    else if (id == 0x3bda1bde)
+
+    case Chat::getId():
         return Chat::read(reader);
-    else if (id == 0x7328bdb)
+
+    case ChatForbidden::getId():
         return ChatForbidden::read(reader);
-    else if (id == 0xd31a961e)
+
+    case Channel::getId():
         return Channel::read(reader);
-    else if (id == 0x289da732)
+
+    case ChannelForbidden::getId():
         return ChannelForbidden::read(reader);
-    else if (id == 0x8a1e2983)
+
+    case ChatFull::getId():
         return ChatFull::read(reader);
-    else if (id == 0x548c3f93)
+
+    case ChannelFull::getId():
         return ChannelFull::read(reader);
-    else if (id == 0xc8d7493e)
+
+    case ChatParticipant::getId():
         return ChatParticipant::read(reader);
-    else if (id == 0xda13538a)
+
+    case ChatParticipantCreator::getId():
         return ChatParticipantCreator::read(reader);
-    else if (id == 0xe2d6e436)
+
+    case ChatParticipantAdmin::getId():
         return ChatParticipantAdmin::read(reader);
-    else if (id == 0xfc900c2b)
+
+    case ChatParticipantsForbidden::getId():
         return ChatParticipantsForbidden::read(reader);
-    else if (id == 0x3f460fed)
+
+    case ChatParticipants::getId():
         return ChatParticipants::read(reader);
-    else if (id == 0x37c1011c)
+
+    case ChatPhotoEmpty::getId():
         return ChatPhotoEmpty::read(reader);
-    else if (id == 0x1c6e1c11)
+
+    case ChatPhoto::getId():
         return ChatPhoto::read(reader);
-    else if (id == 0x90a6ca84)
+
+    case MessageEmpty::getId():
         return MessageEmpty::read(reader);
-    else if (id == 0xbce383d2)
+
+    case Message::getId():
         return Message::read(reader);
-    else if (id == 0x2b085862)
+
+    case MessageService::getId():
         return MessageService::read(reader);
-    else if (id == 0x3ded6320)
+
+    case MessageMediaEmpty::getId():
         return MessageMediaEmpty::read(reader);
-    else if (id == 0x695150d7)
+
+    case MessageMediaPhoto::getId():
         return MessageMediaPhoto::read(reader);
-    else if (id == 0x56e0d474)
+
+    case MessageMediaGeo::getId():
         return MessageMediaGeo::read(reader);
-    else if (id == 0xcbf24940)
+
+    case MessageMediaContact::getId():
         return MessageMediaContact::read(reader);
-    else if (id == 0x9f84f49e)
+
+    case MessageMediaUnsupported::getId():
         return MessageMediaUnsupported::read(reader);
-    else if (id == 0x9cb070d7)
+
+    case MessageMediaDocument::getId():
         return MessageMediaDocument::read(reader);
-    else if (id == 0xa32dd600)
+
+    case MessageMediaWebPage::getId():
         return MessageMediaWebPage::read(reader);
-    else if (id == 0x2ec0533f)
+
+    case MessageMediaVenue::getId():
         return MessageMediaVenue::read(reader);
-    else if (id == 0xfdb19008)
+
+    case MessageMediaGame::getId():
         return MessageMediaGame::read(reader);
-    else if (id == 0x84551347)
+
+    case MessageMediaInvoice::getId():
         return MessageMediaInvoice::read(reader);
-    else if (id == 0xb940c666)
+
+    case MessageMediaGeoLive::getId():
         return MessageMediaGeoLive::read(reader);
-    else if (id == 0x4bd6e798)
+
+    case MessageMediaPoll::getId():
         return MessageMediaPoll::read(reader);
-    else if (id == 0x3f7ee58b)
+
+    case MessageMediaDice::getId():
         return MessageMediaDice::read(reader);
-    else if (id == 0xb6aef7b0)
+
+    case MessageActionEmpty::getId():
         return MessageActionEmpty::read(reader);
-    else if (id == 0xa6638b9a)
+
+    case MessageActionChatCreate::getId():
         return MessageActionChatCreate::read(reader);
-    else if (id == 0xb5a1ce5a)
+
+    case MessageActionChatEditTitle::getId():
         return MessageActionChatEditTitle::read(reader);
-    else if (id == 0x7fcb13a8)
+
+    case MessageActionChatEditPhoto::getId():
         return MessageActionChatEditPhoto::read(reader);
-    else if (id == 0x95e3fbef)
+
+    case MessageActionChatDeletePhoto::getId():
         return MessageActionChatDeletePhoto::read(reader);
-    else if (id == 0x488a7337)
+
+    case MessageActionChatAddUser::getId():
         return MessageActionChatAddUser::read(reader);
-    else if (id == 0xb2ae9b0c)
+
+    case MessageActionChatDeleteUser::getId():
         return MessageActionChatDeleteUser::read(reader);
-    else if (id == 0xf89cf5e8)
+
+    case MessageActionChatJoinedByLink::getId():
         return MessageActionChatJoinedByLink::read(reader);
-    else if (id == 0x95d2ac92)
+
+    case MessageActionChannelCreate::getId():
         return MessageActionChannelCreate::read(reader);
-    else if (id == 0x51bdb021)
+
+    case MessageActionChatMigrateTo::getId():
         return MessageActionChatMigrateTo::read(reader);
-    else if (id == 0xb055eaee)
+
+    case MessageActionChannelMigrateFrom::getId():
         return MessageActionChannelMigrateFrom::read(reader);
-    else if (id == 0x94bd38ed)
+
+    case MessageActionPinMessage::getId():
         return MessageActionPinMessage::read(reader);
-    else if (id == 0x9fbab604)
+
+    case MessageActionHistoryClear::getId():
         return MessageActionHistoryClear::read(reader);
-    else if (id == 0x92a72876)
+
+    case MessageActionGameScore::getId():
         return MessageActionGameScore::read(reader);
-    else if (id == 0x8f31b327)
+
+    case MessageActionPaymentSentMe::getId():
         return MessageActionPaymentSentMe::read(reader);
-    else if (id == 0x40699cd0)
+
+    case MessageActionPaymentSent::getId():
         return MessageActionPaymentSent::read(reader);
-    else if (id == 0x80e11a7f)
+
+    case MessageActionPhoneCall::getId():
         return MessageActionPhoneCall::read(reader);
-    else if (id == 0x4792929b)
+
+    case MessageActionScreenshotTaken::getId():
         return MessageActionScreenshotTaken::read(reader);
-    else if (id == 0xfae69f56)
+
+    case MessageActionCustomAction::getId():
         return MessageActionCustomAction::read(reader);
-    else if (id == 0xabe9affe)
+
+    case MessageActionBotAllowed::getId():
         return MessageActionBotAllowed::read(reader);
-    else if (id == 0x1b287353)
+
+    case MessageActionSecureValuesSentMe::getId():
         return MessageActionSecureValuesSentMe::read(reader);
-    else if (id == 0xd95c6154)
+
+    case MessageActionSecureValuesSent::getId():
         return MessageActionSecureValuesSent::read(reader);
-    else if (id == 0xf3f25f76)
+
+    case MessageActionContactSignUp::getId():
         return MessageActionContactSignUp::read(reader);
-    else if (id == 0x98e0d697)
+
+    case MessageActionGeoProximityReached::getId():
         return MessageActionGeoProximityReached::read(reader);
-    else if (id == 0x7a0d7f42)
+
+    case MessageActionGroupCall::getId():
         return MessageActionGroupCall::read(reader);
-    else if (id == 0x76b9f11a)
+
+    case MessageActionInviteToGroupCall::getId():
         return MessageActionInviteToGroupCall::read(reader);
-    else if (id == 0xaa1afbfd)
+
+    case MessageActionSetMessagesTTL::getId():
         return MessageActionSetMessagesTTL::read(reader);
-    else if (id == 0xb3a07661)
+
+    case MessageActionGroupCallScheduled::getId():
         return MessageActionGroupCallScheduled::read(reader);
-    else if (id == 0x2c171f72)
+
+    case Dialog::getId():
         return Dialog::read(reader);
-    else if (id == 0x71bd134c)
+
+    case DialogFolder::getId():
         return DialogFolder::read(reader);
-    else if (id == 0x2331b22d)
+
+    case PhotoEmpty::getId():
         return PhotoEmpty::read(reader);
-    else if (id == 0xfb197a65)
+
+    case Photo::getId():
         return Photo::read(reader);
-    else if (id == 0xe17e23c)
+
+    case PhotoSizeEmpty::getId():
         return PhotoSizeEmpty::read(reader);
-    else if (id == 0x75c78e60)
+
+    case PhotoSize::getId():
         return PhotoSize::read(reader);
-    else if (id == 0x21e1ad6)
+
+    case PhotoCachedSize::getId():
         return PhotoCachedSize::read(reader);
-    else if (id == 0xe0b0bc2e)
+
+    case PhotoStrippedSize::getId():
         return PhotoStrippedSize::read(reader);
-    else if (id == 0xfa3efb95)
+
+    case PhotoSizeProgressive::getId():
         return PhotoSizeProgressive::read(reader);
-    else if (id == 0xd8214d41)
+
+    case PhotoPathSize::getId():
         return PhotoPathSize::read(reader);
-    else if (id == 0x1117dd5f)
+
+    case GeoPointEmpty::getId():
         return GeoPointEmpty::read(reader);
-    else if (id == 0xb2a2f663)
+
+    case GeoPoint::getId():
         return GeoPoint::read(reader);
-    else if (id == 0x5e002502)
-        return SentCode::read(reader);
-    else if (id == 0xcd050916)
-        return Authorization::read(reader);
-    else if (id == 0x44747e9a)
-        return AuthorizationSignUpRequired::read(reader);
-    else if (id == 0xdf969c2d)
-        return ExportedAuthorization::read(reader);
-    else if (id == 0xb8bc5b0c)
+
+    case auth::SentCode::getId():
+        return auth::SentCode::read(reader);
+
+    case auth::Authorization::getId():
+        return auth::Authorization::read(reader);
+
+    case auth::AuthorizationSignUpRequired::getId():
+        return auth::AuthorizationSignUpRequired::read(reader);
+
+    case auth::ExportedAuthorization::getId():
+        return auth::ExportedAuthorization::read(reader);
+
+    case InputNotifyPeer::getId():
         return InputNotifyPeer::read(reader);
-    else if (id == 0x193b4417)
+
+    case InputNotifyUsers::getId():
         return InputNotifyUsers::read(reader);
-    else if (id == 0x4a95e84e)
+
+    case InputNotifyChats::getId():
         return InputNotifyChats::read(reader);
-    else if (id == 0xb1db7c7e)
+
+    case InputNotifyBroadcasts::getId():
         return InputNotifyBroadcasts::read(reader);
-    else if (id == 0x9c3d198e)
+
+    case InputPeerNotifySettings::getId():
         return InputPeerNotifySettings::read(reader);
-    else if (id == 0xaf509d20)
+
+    case PeerNotifySettings::getId():
         return PeerNotifySettings::read(reader);
-    else if (id == 0x733f2961)
+
+    case PeerSettings::getId():
         return PeerSettings::read(reader);
-    else if (id == 0xa437c3ed)
+
+    case WallPaper::getId():
         return WallPaper::read(reader);
-    else if (id == 0xe0804116)
+
+    case WallPaperNoFile::getId():
         return WallPaperNoFile::read(reader);
-    else if (id == 0x58dbcab8)
+
+    case InputReportReasonSpam::getId():
         return InputReportReasonSpam::read(reader);
-    else if (id == 0x1e22c78d)
+
+    case InputReportReasonViolence::getId():
         return InputReportReasonViolence::read(reader);
-    else if (id == 0x2e59d922)
+
+    case InputReportReasonPornography::getId():
         return InputReportReasonPornography::read(reader);
-    else if (id == 0xadf44ee3)
+
+    case InputReportReasonChildAbuse::getId():
         return InputReportReasonChildAbuse::read(reader);
-    else if (id == 0xc1e4a2b1)
+
+    case InputReportReasonOther::getId():
         return InputReportReasonOther::read(reader);
-    else if (id == 0x9b89f93a)
+
+    case InputReportReasonCopyright::getId():
         return InputReportReasonCopyright::read(reader);
-    else if (id == 0xdbd4feed)
+
+    case InputReportReasonGeoIrrelevant::getId():
         return InputReportReasonGeoIrrelevant::read(reader);
-    else if (id == 0xf5ddd6e7)
+
+    case InputReportReasonFake::getId():
         return InputReportReasonFake::read(reader);
-    else if (id == 0x139a9a77)
+
+    case UserFull::getId():
         return UserFull::read(reader);
-    else if (id == 0xf911c994)
+
+    case Contact::getId():
         return Contact::read(reader);
-    else if (id == 0xd0028438)
+
+    case ImportedContact::getId():
         return ImportedContact::read(reader);
-    else if (id == 0xd3680c61)
+
+    case ContactStatus::getId():
         return ContactStatus::read(reader);
-    else if (id == 0xb74ba9d2)
-        return ContactsNotModified::read(reader);
-    else if (id == 0xeae87e42)
-        return Contacts::read(reader);
-    else if (id == 0x77d01c3b)
-        return ImportedContacts::read(reader);
-    else if (id == 0xade1591)
-        return Blocked::read(reader);
-    else if (id == 0xe1664194)
-        return BlockedSlice::read(reader);
-    else if (id == 0x15ba6c40)
-        return Dialogs::read(reader);
-    else if (id == 0x71e094f3)
-        return DialogsSlice::read(reader);
-    else if (id == 0xf0e3e596)
-        return DialogsNotModified::read(reader);
-    else if (id == 0x8c718e87)
-        return Messages::read(reader);
-    else if (id == 0x3a54685e)
-        return MessagesSlice::read(reader);
-    else if (id == 0x64479808)
-        return ChannelMessages::read(reader);
-    else if (id == 0x74535f21)
-        return MessagesNotModified::read(reader);
-    else if (id == 0x64ff9fd5)
-        return Chats::read(reader);
-    else if (id == 0x9cd81144)
-        return ChatsSlice::read(reader);
-    else if (id == 0xe5d7d19c)
-        return ChatFull::read(reader);
-    else if (id == 0xb45c69d1)
-        return AffectedHistory::read(reader);
-    else if (id == 0x57e2f66c)
+
+    case contacts::ContactsNotModified::getId():
+        return contacts::ContactsNotModified::read(reader);
+
+    case contacts::Contacts::getId():
+        return contacts::Contacts::read(reader);
+
+    case contacts::ImportedContacts::getId():
+        return contacts::ImportedContacts::read(reader);
+
+    case contacts::Blocked::getId():
+        return contacts::Blocked::read(reader);
+
+    case contacts::BlockedSlice::getId():
+        return contacts::BlockedSlice::read(reader);
+
+    case messages::Dialogs::getId():
+        return messages::Dialogs::read(reader);
+
+    case messages::DialogsSlice::getId():
+        return messages::DialogsSlice::read(reader);
+
+    case messages::DialogsNotModified::getId():
+        return messages::DialogsNotModified::read(reader);
+
+    case messages::Messages::getId():
+        return messages::Messages::read(reader);
+
+    case messages::MessagesSlice::getId():
+        return messages::MessagesSlice::read(reader);
+
+    case messages::ChannelMessages::getId():
+        return messages::ChannelMessages::read(reader);
+
+    case messages::MessagesNotModified::getId():
+        return messages::MessagesNotModified::read(reader);
+
+    case messages::Chats::getId():
+        return messages::Chats::read(reader);
+
+    case messages::ChatsSlice::getId():
+        return messages::ChatsSlice::read(reader);
+
+    case messages::ChatFull::getId():
+        return messages::ChatFull::read(reader);
+
+    case messages::AffectedHistory::getId():
+        return messages::AffectedHistory::read(reader);
+
+    case InputMessagesFilterEmpty::getId():
         return InputMessagesFilterEmpty::read(reader);
-    else if (id == 0x9609a51c)
+
+    case InputMessagesFilterPhotos::getId():
         return InputMessagesFilterPhotos::read(reader);
-    else if (id == 0x9fc00e65)
+
+    case InputMessagesFilterVideo::getId():
         return InputMessagesFilterVideo::read(reader);
-    else if (id == 0x56e9f0e4)
+
+    case InputMessagesFilterPhotoVideo::getId():
         return InputMessagesFilterPhotoVideo::read(reader);
-    else if (id == 0x9eddf188)
+
+    case InputMessagesFilterDocument::getId():
         return InputMessagesFilterDocument::read(reader);
-    else if (id == 0x7ef0dd87)
+
+    case InputMessagesFilterUrl::getId():
         return InputMessagesFilterUrl::read(reader);
-    else if (id == 0xffc86587)
+
+    case InputMessagesFilterGif::getId():
         return InputMessagesFilterGif::read(reader);
-    else if (id == 0x50f5c392)
+
+    case InputMessagesFilterVoice::getId():
         return InputMessagesFilterVoice::read(reader);
-    else if (id == 0x3751b49e)
+
+    case InputMessagesFilterMusic::getId():
         return InputMessagesFilterMusic::read(reader);
-    else if (id == 0x3a20ecb8)
+
+    case InputMessagesFilterChatPhotos::getId():
         return InputMessagesFilterChatPhotos::read(reader);
-    else if (id == 0x80c99768)
+
+    case InputMessagesFilterPhoneCalls::getId():
         return InputMessagesFilterPhoneCalls::read(reader);
-    else if (id == 0x7a7c17a4)
+
+    case InputMessagesFilterRoundVoice::getId():
         return InputMessagesFilterRoundVoice::read(reader);
-    else if (id == 0xb549da53)
+
+    case InputMessagesFilterRoundVideo::getId():
         return InputMessagesFilterRoundVideo::read(reader);
-    else if (id == 0xc1f8e69a)
+
+    case InputMessagesFilterMyMentions::getId():
         return InputMessagesFilterMyMentions::read(reader);
-    else if (id == 0xe7026d0d)
+
+    case InputMessagesFilterGeo::getId():
         return InputMessagesFilterGeo::read(reader);
-    else if (id == 0xe062db83)
+
+    case InputMessagesFilterContacts::getId():
         return InputMessagesFilterContacts::read(reader);
-    else if (id == 0x1bb00451)
+
+    case InputMessagesFilterPinned::getId():
         return InputMessagesFilterPinned::read(reader);
-    else if (id == 0x1f2b0afd)
+
+    case UpdateNewMessage::getId():
         return UpdateNewMessage::read(reader);
-    else if (id == 0x4e90bfd6)
+
+    case UpdateMessageID::getId():
         return UpdateMessageID::read(reader);
-    else if (id == 0xa20db0e5)
+
+    case UpdateDeleteMessages::getId():
         return UpdateDeleteMessages::read(reader);
-    else if (id == 0x5c486927)
+
+    case UpdateUserTyping::getId():
         return UpdateUserTyping::read(reader);
-    else if (id == 0x86cadb6c)
+
+    case UpdateChatUserTyping::getId():
         return UpdateChatUserTyping::read(reader);
-    else if (id == 0x7761198)
+
+    case UpdateChatParticipants::getId():
         return UpdateChatParticipants::read(reader);
-    else if (id == 0x1bfbd823)
+
+    case UpdateUserStatus::getId():
         return UpdateUserStatus::read(reader);
-    else if (id == 0xa7332b73)
+
+    case UpdateUserName::getId():
         return UpdateUserName::read(reader);
-    else if (id == 0x95313b0c)
+
+    case UpdateUserPhoto::getId():
         return UpdateUserPhoto::read(reader);
-    else if (id == 0x12bcbd9a)
+
+    case UpdateNewEncryptedMessage::getId():
         return UpdateNewEncryptedMessage::read(reader);
-    else if (id == 0x1710f156)
+
+    case UpdateEncryptedChatTyping::getId():
         return UpdateEncryptedChatTyping::read(reader);
-    else if (id == 0xb4a2e88d)
+
+    case UpdateEncryption::getId():
         return UpdateEncryption::read(reader);
-    else if (id == 0x38fe25b7)
+
+    case UpdateEncryptedMessagesRead::getId():
         return UpdateEncryptedMessagesRead::read(reader);
-    else if (id == 0xea4b0e5c)
+
+    case UpdateChatParticipantAdd::getId():
         return UpdateChatParticipantAdd::read(reader);
-    else if (id == 0x6e5f8c22)
+
+    case UpdateChatParticipantDelete::getId():
         return UpdateChatParticipantDelete::read(reader);
-    else if (id == 0x8e5e9873)
+
+    case UpdateDcOptions::getId():
         return UpdateDcOptions::read(reader);
-    else if (id == 0xbec268ef)
+
+    case UpdateNotifySettings::getId():
         return UpdateNotifySettings::read(reader);
-    else if (id == 0xebe46819)
+
+    case UpdateServiceNotification::getId():
         return UpdateServiceNotification::read(reader);
-    else if (id == 0xee3b272a)
+
+    case UpdatePrivacy::getId():
         return UpdatePrivacy::read(reader);
-    else if (id == 0x12b9417b)
+
+    case UpdateUserPhone::getId():
         return UpdateUserPhone::read(reader);
-    else if (id == 0x9c974fdf)
+
+    case UpdateReadHistoryInbox::getId():
         return UpdateReadHistoryInbox::read(reader);
-    else if (id == 0x2f2f21bf)
+
+    case UpdateReadHistoryOutbox::getId():
         return UpdateReadHistoryOutbox::read(reader);
-    else if (id == 0x7f891213)
+
+    case UpdateWebPage::getId():
         return UpdateWebPage::read(reader);
-    else if (id == 0x68c13933)
+
+    case UpdateReadMessagesContents::getId():
         return UpdateReadMessagesContents::read(reader);
-    else if (id == 0xeb0467fb)
+
+    case UpdateChannelTooLong::getId():
         return UpdateChannelTooLong::read(reader);
-    else if (id == 0xb6d45656)
+
+    case UpdateChannel::getId():
         return UpdateChannel::read(reader);
-    else if (id == 0x62ba04d9)
+
+    case UpdateNewChannelMessage::getId():
         return UpdateNewChannelMessage::read(reader);
-    else if (id == 0x330b5424)
+
+    case UpdateReadChannelInbox::getId():
         return UpdateReadChannelInbox::read(reader);
-    else if (id == 0xc37521c9)
+
+    case UpdateDeleteChannelMessages::getId():
         return UpdateDeleteChannelMessages::read(reader);
-    else if (id == 0x98a12b4b)
+
+    case UpdateChannelMessageViews::getId():
         return UpdateChannelMessageViews::read(reader);
-    else if (id == 0xb6901959)
+
+    case UpdateChatParticipantAdmin::getId():
         return UpdateChatParticipantAdmin::read(reader);
-    else if (id == 0x688a30aa)
+
+    case UpdateNewStickerSet::getId():
         return UpdateNewStickerSet::read(reader);
-    else if (id == 0xbb2d201)
+
+    case UpdateStickerSetsOrder::getId():
         return UpdateStickerSetsOrder::read(reader);
-    else if (id == 0x43ae3dec)
+
+    case UpdateStickerSets::getId():
         return UpdateStickerSets::read(reader);
-    else if (id == 0x9375341e)
+
+    case UpdateSavedGifs::getId():
         return UpdateSavedGifs::read(reader);
-    else if (id == 0x3f2038db)
+
+    case UpdateBotInlineQuery::getId():
         return UpdateBotInlineQuery::read(reader);
-    else if (id == 0xe48f964)
+
+    case UpdateBotInlineSend::getId():
         return UpdateBotInlineSend::read(reader);
-    else if (id == 0x1b3f4df7)
+
+    case UpdateEditChannelMessage::getId():
         return UpdateEditChannelMessage::read(reader);
-    else if (id == 0xe73547e1)
+
+    case UpdateBotCallbackQuery::getId():
         return UpdateBotCallbackQuery::read(reader);
-    else if (id == 0xe40370a3)
+
+    case UpdateEditMessage::getId():
         return UpdateEditMessage::read(reader);
-    else if (id == 0xf9d27a5a)
+
+    case UpdateInlineBotCallbackQuery::getId():
         return UpdateInlineBotCallbackQuery::read(reader);
-    else if (id == 0x25d6c9c7)
+
+    case UpdateReadChannelOutbox::getId():
         return UpdateReadChannelOutbox::read(reader);
-    else if (id == 0xee2bb969)
+
+    case UpdateDraftMessage::getId():
         return UpdateDraftMessage::read(reader);
-    else if (id == 0x571d2742)
+
+    case UpdateReadFeaturedStickers::getId():
         return UpdateReadFeaturedStickers::read(reader);
-    else if (id == 0x9a422c20)
+
+    case UpdateRecentStickers::getId():
         return UpdateRecentStickers::read(reader);
-    else if (id == 0xa229dd06)
+
+    case UpdateConfig::getId():
         return UpdateConfig::read(reader);
-    else if (id == 0x3354678f)
+
+    case UpdatePtsChanged::getId():
         return UpdatePtsChanged::read(reader);
-    else if (id == 0x40771900)
+
+    case UpdateChannelWebPage::getId():
         return UpdateChannelWebPage::read(reader);
-    else if (id == 0x6e6fe51c)
+
+    case UpdateDialogPinned::getId():
         return UpdateDialogPinned::read(reader);
-    else if (id == 0xfa0f3ca2)
+
+    case UpdatePinnedDialogs::getId():
         return UpdatePinnedDialogs::read(reader);
-    else if (id == 0x8317c0c3)
+
+    case UpdateBotWebhookJSON::getId():
         return UpdateBotWebhookJSON::read(reader);
-    else if (id == 0x9b9240a6)
+
+    case UpdateBotWebhookJSONQuery::getId():
         return UpdateBotWebhookJSONQuery::read(reader);
-    else if (id == 0xe0cdc940)
+
+    case UpdateBotShippingQuery::getId():
         return UpdateBotShippingQuery::read(reader);
-    else if (id == 0x5d2f3aa9)
+
+    case UpdateBotPrecheckoutQuery::getId():
         return UpdateBotPrecheckoutQuery::read(reader);
-    else if (id == 0xab0f6b1e)
+
+    case UpdatePhoneCall::getId():
         return UpdatePhoneCall::read(reader);
-    else if (id == 0x46560264)
+
+    case UpdateLangPackTooLong::getId():
         return UpdateLangPackTooLong::read(reader);
-    else if (id == 0x56022f4d)
+
+    case UpdateLangPack::getId():
         return UpdateLangPack::read(reader);
-    else if (id == 0xe511996d)
+
+    case UpdateFavedStickers::getId():
         return UpdateFavedStickers::read(reader);
-    else if (id == 0x89893b45)
+
+    case UpdateChannelReadMessagesContents::getId():
         return UpdateChannelReadMessagesContents::read(reader);
-    else if (id == 0x7084a7be)
+
+    case UpdateContactsReset::getId():
         return UpdateContactsReset::read(reader);
-    else if (id == 0x70db6837)
+
+    case UpdateChannelAvailableMessages::getId():
         return UpdateChannelAvailableMessages::read(reader);
-    else if (id == 0xe16459c3)
+
+    case UpdateDialogUnreadMark::getId():
         return UpdateDialogUnreadMark::read(reader);
-    else if (id == 0xaca1657b)
+
+    case UpdateMessagePoll::getId():
         return UpdateMessagePoll::read(reader);
-    else if (id == 0x54c01850)
+
+    case UpdateChatDefaultBannedRights::getId():
         return UpdateChatDefaultBannedRights::read(reader);
-    else if (id == 0x19360dc0)
+
+    case UpdateFolderPeers::getId():
         return UpdateFolderPeers::read(reader);
-    else if (id == 0x6a7e7366)
+
+    case UpdatePeerSettings::getId():
         return UpdatePeerSettings::read(reader);
-    else if (id == 0xb4afcfb0)
+
+    case UpdatePeerLocated::getId():
         return UpdatePeerLocated::read(reader);
-    else if (id == 0x39a51dfb)
+
+    case UpdateNewScheduledMessage::getId():
         return UpdateNewScheduledMessage::read(reader);
-    else if (id == 0x90866cee)
+
+    case UpdateDeleteScheduledMessages::getId():
         return UpdateDeleteScheduledMessages::read(reader);
-    else if (id == 0x8216fba3)
+
+    case UpdateTheme::getId():
         return UpdateTheme::read(reader);
-    else if (id == 0x871fb939)
+
+    case UpdateGeoLiveViewed::getId():
         return UpdateGeoLiveViewed::read(reader);
-    else if (id == 0x564fe691)
+
+    case UpdateLoginToken::getId():
         return UpdateLoginToken::read(reader);
-    else if (id == 0x37f69f0b)
+
+    case UpdateMessagePollVote::getId():
         return UpdateMessagePollVote::read(reader);
-    else if (id == 0x26ffde7d)
+
+    case UpdateDialogFilter::getId():
         return UpdateDialogFilter::read(reader);
-    else if (id == 0xa5d72105)
+
+    case UpdateDialogFilterOrder::getId():
         return UpdateDialogFilterOrder::read(reader);
-    else if (id == 0x3504914f)
+
+    case UpdateDialogFilters::getId():
         return UpdateDialogFilters::read(reader);
-    else if (id == 0x2661bf09)
+
+    case UpdatePhoneCallSignalingData::getId():
         return UpdatePhoneCallSignalingData::read(reader);
-    else if (id == 0x6e8a84df)
+
+    case UpdateChannelMessageForwards::getId():
         return UpdateChannelMessageForwards::read(reader);
-    else if (id == 0x1cc7de54)
+
+    case UpdateReadChannelDiscussionInbox::getId():
         return UpdateReadChannelDiscussionInbox::read(reader);
-    else if (id == 0x4638a26c)
+
+    case UpdateReadChannelDiscussionOutbox::getId():
         return UpdateReadChannelDiscussionOutbox::read(reader);
-    else if (id == 0x246a4b22)
+
+    case UpdatePeerBlocked::getId():
         return UpdatePeerBlocked::read(reader);
-    else if (id == 0x6b171718)
+
+    case UpdateChannelUserTyping::getId():
         return UpdateChannelUserTyping::read(reader);
-    else if (id == 0xed85eab5)
+
+    case UpdatePinnedMessages::getId():
         return UpdatePinnedMessages::read(reader);
-    else if (id == 0x8588878b)
+
+    case UpdatePinnedChannelMessages::getId():
         return UpdatePinnedChannelMessages::read(reader);
-    else if (id == 0x1330a196)
+
+    case UpdateChat::getId():
         return UpdateChat::read(reader);
-    else if (id == 0xf2ebdb4e)
+
+    case UpdateGroupCallParticipants::getId():
         return UpdateGroupCallParticipants::read(reader);
-    else if (id == 0xa45eb99b)
+
+    case UpdateGroupCall::getId():
         return UpdateGroupCall::read(reader);
-    else if (id == 0xbb9bb9a5)
+
+    case UpdatePeerHistoryTTL::getId():
         return UpdatePeerHistoryTTL::read(reader);
-    else if (id == 0xf3b3781f)
+
+    case UpdateChatParticipant::getId():
         return UpdateChatParticipant::read(reader);
-    else if (id == 0x7fecb1ec)
+
+    case UpdateChannelParticipant::getId():
         return UpdateChannelParticipant::read(reader);
-    else if (id == 0x7f9488a)
+
+    case UpdateBotStopped::getId():
         return UpdateBotStopped::read(reader);
-    else if (id == 0xb783982)
+
+    case UpdateGroupCallConnection::getId():
         return UpdateGroupCallConnection::read(reader);
-    else if (id == 0xa56c2a3e)
-        return State::read(reader);
-    else if (id == 0x5d75a138)
-        return DifferenceEmpty::read(reader);
-    else if (id == 0xf49ca0)
-        return Difference::read(reader);
-    else if (id == 0xa8fb1981)
-        return DifferenceSlice::read(reader);
-    else if (id == 0x4afe8f6d)
-        return DifferenceTooLong::read(reader);
-    else if (id == 0xe317af7e)
+
+    case updates::State::getId():
+        return updates::State::read(reader);
+
+    case updates::DifferenceEmpty::getId():
+        return updates::DifferenceEmpty::read(reader);
+
+    case updates::Difference::getId():
+        return updates::Difference::read(reader);
+
+    case updates::DifferenceSlice::getId():
+        return updates::DifferenceSlice::read(reader);
+
+    case updates::DifferenceTooLong::getId():
+        return updates::DifferenceTooLong::read(reader);
+
+    case UpdatesTooLong::getId():
         return UpdatesTooLong::read(reader);
-    else if (id == 0xfaeff833)
+
+    case UpdateShortMessage::getId():
         return UpdateShortMessage::read(reader);
-    else if (id == 0x1157b858)
+
+    case UpdateShortChatMessage::getId():
         return UpdateShortChatMessage::read(reader);
-    else if (id == 0x78d4dec1)
+
+    case UpdateShort::getId():
         return UpdateShort::read(reader);
-    else if (id == 0x725b04c3)
+
+    case UpdatesCombined::getId():
         return UpdatesCombined::read(reader);
-    else if (id == 0x74ae4240)
+
+    case Updates::getId():
         return Updates::read(reader);
-    else if (id == 0x9015e101)
+
+    case UpdateShortSentMessage::getId():
         return UpdateShortSentMessage::read(reader);
-    else if (id == 0x8dca6aa5)
-        return Photos::read(reader);
-    else if (id == 0x15051f54)
-        return PhotosSlice::read(reader);
-    else if (id == 0x20212ca8)
-        return Photo::read(reader);
-    else if (id == 0x96a18d5)
-        return File::read(reader);
-    else if (id == 0xf18cda44)
-        return FileCdnRedirect::read(reader);
-    else if (id == 0x18b7a10d)
+
+    case photos::Photos::getId():
+        return photos::Photos::read(reader);
+
+    case photos::PhotosSlice::getId():
+        return photos::PhotosSlice::read(reader);
+
+    case photos::Photo::getId():
+        return photos::Photo::read(reader);
+
+    case upload::File::getId():
+        return upload::File::read(reader);
+
+    case upload::FileCdnRedirect::getId():
+        return upload::FileCdnRedirect::read(reader);
+
+    case DcOption::getId():
         return DcOption::read(reader);
-    else if (id == 0x330b4067)
+
+    case Config::getId():
         return Config::read(reader);
-    else if (id == 0x8e1a1775)
+
+    case NearestDc::getId():
         return NearestDc::read(reader);
-    else if (id == 0xccbbce30)
-        return AppUpdate::read(reader);
-    else if (id == 0xc45a6536)
-        return NoAppUpdate::read(reader);
-    else if (id == 0x18cb9f78)
-        return InviteText::read(reader);
-    else if (id == 0xab7ec0a0)
+
+    case help::AppUpdate::getId():
+        return help::AppUpdate::read(reader);
+
+    case help::NoAppUpdate::getId():
+        return help::NoAppUpdate::read(reader);
+
+    case help::InviteText::getId():
+        return help::InviteText::read(reader);
+
+    case EncryptedChatEmpty::getId():
         return EncryptedChatEmpty::read(reader);
-    else if (id == 0x3bf703dc)
+
+    case EncryptedChatWaiting::getId():
         return EncryptedChatWaiting::read(reader);
-    else if (id == 0x62718a82)
+
+    case EncryptedChatRequested::getId():
         return EncryptedChatRequested::read(reader);
-    else if (id == 0xfa56ce36)
+
+    case EncryptedChat::getId():
         return EncryptedChat::read(reader);
-    else if (id == 0x1e1c7c45)
+
+    case EncryptedChatDiscarded::getId():
         return EncryptedChatDiscarded::read(reader);
-    else if (id == 0xf141b5e1)
+
+    case InputEncryptedChat::getId():
         return InputEncryptedChat::read(reader);
-    else if (id == 0xc21f497e)
+
+    case EncryptedFileEmpty::getId():
         return EncryptedFileEmpty::read(reader);
-    else if (id == 0x4a70994c)
+
+    case EncryptedFile::getId():
         return EncryptedFile::read(reader);
-    else if (id == 0x1837c364)
+
+    case InputEncryptedFileEmpty::getId():
         return InputEncryptedFileEmpty::read(reader);
-    else if (id == 0x64bd0306)
+
+    case InputEncryptedFileUploaded::getId():
         return InputEncryptedFileUploaded::read(reader);
-    else if (id == 0x5a17b5e5)
+
+    case InputEncryptedFile::getId():
         return InputEncryptedFile::read(reader);
-    else if (id == 0x2dc173c8)
+
+    case InputEncryptedFileBigUploaded::getId():
         return InputEncryptedFileBigUploaded::read(reader);
-    else if (id == 0xed18c118)
+
+    case EncryptedMessage::getId():
         return EncryptedMessage::read(reader);
-    else if (id == 0x23734b06)
+
+    case EncryptedMessageService::getId():
         return EncryptedMessageService::read(reader);
-    else if (id == 0xc0e24635)
-        return DhConfigNotModified::read(reader);
-    else if (id == 0x2c221edd)
-        return DhConfig::read(reader);
-    else if (id == 0x560f8935)
-        return SentEncryptedMessage::read(reader);
-    else if (id == 0x9493ff32)
-        return SentEncryptedFile::read(reader);
-    else if (id == 0x72f0eaae)
+
+    case messages::DhConfigNotModified::getId():
+        return messages::DhConfigNotModified::read(reader);
+
+    case messages::DhConfig::getId():
+        return messages::DhConfig::read(reader);
+
+    case messages::SentEncryptedMessage::getId():
+        return messages::SentEncryptedMessage::read(reader);
+
+    case messages::SentEncryptedFile::getId():
+        return messages::SentEncryptedFile::read(reader);
+
+    case InputDocumentEmpty::getId():
         return InputDocumentEmpty::read(reader);
-    else if (id == 0x1abfb575)
+
+    case InputDocument::getId():
         return InputDocument::read(reader);
-    else if (id == 0x36f8c871)
+
+    case DocumentEmpty::getId():
         return DocumentEmpty::read(reader);
-    else if (id == 0x1e87342b)
+
+    case Document::getId():
         return Document::read(reader);
-    else if (id == 0x17c6b5f6)
-        return Support::read(reader);
-    else if (id == 0x9fd40bd8)
+
+    case help::Support::getId():
+        return help::Support::read(reader);
+
+    case NotifyPeer::getId():
         return NotifyPeer::read(reader);
-    else if (id == 0xb4c83b4c)
+
+    case NotifyUsers::getId():
         return NotifyUsers::read(reader);
-    else if (id == 0xc007cec3)
+
+    case NotifyChats::getId():
         return NotifyChats::read(reader);
-    else if (id == 0xd612e8ef)
+
+    case NotifyBroadcasts::getId():
         return NotifyBroadcasts::read(reader);
-    else if (id == 0x16bf744e)
+
+    case SendMessageTypingAction::getId():
         return SendMessageTypingAction::read(reader);
-    else if (id == 0xfd5ec8f5)
+
+    case SendMessageCancelAction::getId():
         return SendMessageCancelAction::read(reader);
-    else if (id == 0xa187d66f)
+
+    case SendMessageRecordVideoAction::getId():
         return SendMessageRecordVideoAction::read(reader);
-    else if (id == 0xe9763aec)
+
+    case SendMessageUploadVideoAction::getId():
         return SendMessageUploadVideoAction::read(reader);
-    else if (id == 0xd52f73f7)
+
+    case SendMessageRecordAudioAction::getId():
         return SendMessageRecordAudioAction::read(reader);
-    else if (id == 0xf351d7ab)
+
+    case SendMessageUploadAudioAction::getId():
         return SendMessageUploadAudioAction::read(reader);
-    else if (id == 0xd1d34a26)
+
+    case SendMessageUploadPhotoAction::getId():
         return SendMessageUploadPhotoAction::read(reader);
-    else if (id == 0xaa0cd9e4)
+
+    case SendMessageUploadDocumentAction::getId():
         return SendMessageUploadDocumentAction::read(reader);
-    else if (id == 0x176f8ba1)
+
+    case SendMessageGeoLocationAction::getId():
         return SendMessageGeoLocationAction::read(reader);
-    else if (id == 0x628cbc6f)
+
+    case SendMessageChooseContactAction::getId():
         return SendMessageChooseContactAction::read(reader);
-    else if (id == 0xdd6a8f48)
+
+    case SendMessageGamePlayAction::getId():
         return SendMessageGamePlayAction::read(reader);
-    else if (id == 0x88f27fbc)
+
+    case SendMessageRecordRoundAction::getId():
         return SendMessageRecordRoundAction::read(reader);
-    else if (id == 0x243e1c66)
+
+    case SendMessageUploadRoundAction::getId():
         return SendMessageUploadRoundAction::read(reader);
-    else if (id == 0xd92c2285)
+
+    case SpeakingInGroupCallAction::getId():
         return SpeakingInGroupCallAction::read(reader);
-    else if (id == 0xdbda9246)
+
+    case SendMessageHistoryImportAction::getId():
         return SendMessageHistoryImportAction::read(reader);
-    else if (id == 0xb3134d9d)
-        return Found::read(reader);
-    else if (id == 0x4f96cb18)
+
+    case contacts::Found::getId():
+        return contacts::Found::read(reader);
+
+    case InputPrivacyKeyStatusTimestamp::getId():
         return InputPrivacyKeyStatusTimestamp::read(reader);
-    else if (id == 0xbdfb0426)
+
+    case InputPrivacyKeyChatInvite::getId():
         return InputPrivacyKeyChatInvite::read(reader);
-    else if (id == 0xfabadc5f)
+
+    case InputPrivacyKeyPhoneCall::getId():
         return InputPrivacyKeyPhoneCall::read(reader);
-    else if (id == 0xa4dd4c08)
+
+    case InputPrivacyKeyPhoneP2P::getId():
+        return InputPrivacyKeyPhoneP2P::read(reader);
+
+    case InputPrivacyKeyForwards::getId():
         return InputPrivacyKeyForwards::read(reader);
-    else if (id == 0x5719bacc)
+
+    case InputPrivacyKeyProfilePhoto::getId():
         return InputPrivacyKeyProfilePhoto::read(reader);
-    else if (id == 0x352dafa)
+
+    case InputPrivacyKeyPhoneNumber::getId():
         return InputPrivacyKeyPhoneNumber::read(reader);
-    else if (id == 0xd1219bdd)
+
+    case InputPrivacyKeyAddedByPhone::getId():
         return InputPrivacyKeyAddedByPhone::read(reader);
-    else if (id == 0xbc2eab30)
+
+    case PrivacyKeyStatusTimestamp::getId():
         return PrivacyKeyStatusTimestamp::read(reader);
-    else if (id == 0x500e6dfa)
+
+    case PrivacyKeyChatInvite::getId():
         return PrivacyKeyChatInvite::read(reader);
-    else if (id == 0x3d662b7b)
+
+    case PrivacyKeyPhoneCall::getId():
         return PrivacyKeyPhoneCall::read(reader);
-    else if (id == 0x69ec56a3)
+
+    case PrivacyKeyPhoneP2P::getId():
+        return PrivacyKeyPhoneP2P::read(reader);
+
+    case PrivacyKeyForwards::getId():
         return PrivacyKeyForwards::read(reader);
-    else if (id == 0x96151fed)
+
+    case PrivacyKeyProfilePhoto::getId():
         return PrivacyKeyProfilePhoto::read(reader);
-    else if (id == 0xd19ae46d)
+
+    case PrivacyKeyPhoneNumber::getId():
         return PrivacyKeyPhoneNumber::read(reader);
-    else if (id == 0x42ffd42b)
+
+    case PrivacyKeyAddedByPhone::getId():
         return PrivacyKeyAddedByPhone::read(reader);
-    else if (id == 0xd09e07b)
+
+    case InputPrivacyValueAllowContacts::getId():
         return InputPrivacyValueAllowContacts::read(reader);
-    else if (id == 0x184b35ce)
+
+    case InputPrivacyValueAllowAll::getId():
         return InputPrivacyValueAllowAll::read(reader);
-    else if (id == 0x131cc67f)
+
+    case InputPrivacyValueAllowUsers::getId():
         return InputPrivacyValueAllowUsers::read(reader);
-    else if (id == 0xba52007)
+
+    case InputPrivacyValueDisallowContacts::getId():
         return InputPrivacyValueDisallowContacts::read(reader);
-    else if (id == 0xd66b66c9)
+
+    case InputPrivacyValueDisallowAll::getId():
         return InputPrivacyValueDisallowAll::read(reader);
-    else if (id == 0x90110467)
+
+    case InputPrivacyValueDisallowUsers::getId():
         return InputPrivacyValueDisallowUsers::read(reader);
-    else if (id == 0x4c81c1ba)
+
+    case InputPrivacyValueAllowChatParticipants::getId():
         return InputPrivacyValueAllowChatParticipants::read(reader);
-    else if (id == 0xd82363af)
+
+    case InputPrivacyValueDisallowChatParticipants::getId():
         return InputPrivacyValueDisallowChatParticipants::read(reader);
-    else if (id == 0xfffe1bac)
+
+    case PrivacyValueAllowContacts::getId():
         return PrivacyValueAllowContacts::read(reader);
-    else if (id == 0x65427b82)
+
+    case PrivacyValueAllowAll::getId():
         return PrivacyValueAllowAll::read(reader);
-    else if (id == 0x4d5bbe0c)
+
+    case PrivacyValueAllowUsers::getId():
         return PrivacyValueAllowUsers::read(reader);
-    else if (id == 0xf888fa1a)
+
+    case PrivacyValueDisallowContacts::getId():
         return PrivacyValueDisallowContacts::read(reader);
-    else if (id == 0x8b73e763)
+
+    case PrivacyValueDisallowAll::getId():
         return PrivacyValueDisallowAll::read(reader);
-    else if (id == 0xc7f49b7)
+
+    case PrivacyValueDisallowUsers::getId():
         return PrivacyValueDisallowUsers::read(reader);
-    else if (id == 0x18be796b)
+
+    case PrivacyValueAllowChatParticipants::getId():
         return PrivacyValueAllowChatParticipants::read(reader);
-    else if (id == 0xacae0690)
+
+    case PrivacyValueDisallowChatParticipants::getId():
         return PrivacyValueDisallowChatParticipants::read(reader);
-    else if (id == 0x50a04e45)
-        return PrivacyRules::read(reader);
-    else if (id == 0xb8d0afdf)
+
+    case account::PrivacyRules::getId():
+        return account::PrivacyRules::read(reader);
+
+    case AccountDaysTTL::getId():
         return AccountDaysTTL::read(reader);
-    else if (id == 0x6c37c15c)
+
+    case DocumentAttributeImageSize::getId():
         return DocumentAttributeImageSize::read(reader);
-    else if (id == 0x11b58939)
+
+    case DocumentAttributeAnimated::getId():
         return DocumentAttributeAnimated::read(reader);
-    else if (id == 0x6319d612)
+
+    case DocumentAttributeSticker::getId():
         return DocumentAttributeSticker::read(reader);
-    else if (id == 0xef02ce6)
+
+    case DocumentAttributeVideo::getId():
         return DocumentAttributeVideo::read(reader);
-    else if (id == 0x9852f9c6)
+
+    case DocumentAttributeAudio::getId():
         return DocumentAttributeAudio::read(reader);
-    else if (id == 0x15590068)
+
+    case DocumentAttributeFilename::getId():
         return DocumentAttributeFilename::read(reader);
-    else if (id == 0x9801d2f7)
+
+    case DocumentAttributeHasStickers::getId():
         return DocumentAttributeHasStickers::read(reader);
-    else if (id == 0xf1749a22)
-        return StickersNotModified::read(reader);
-    else if (id == 0xe4599bbd)
-        return Stickers::read(reader);
-    else if (id == 0x12b299d4)
+
+    case messages::StickersNotModified::getId():
+        return messages::StickersNotModified::read(reader);
+
+    case messages::Stickers::getId():
+        return messages::Stickers::read(reader);
+
+    case StickerPack::getId():
         return StickerPack::read(reader);
-    else if (id == 0xe86602c3)
-        return AllStickersNotModified::read(reader);
-    else if (id == 0xedfd405f)
-        return AllStickers::read(reader);
-    else if (id == 0x84d19185)
-        return AffectedMessages::read(reader);
-    else if (id == 0xeb1477e8)
+
+    case messages::AllStickersNotModified::getId():
+        return messages::AllStickersNotModified::read(reader);
+
+    case messages::AllStickers::getId():
+        return messages::AllStickers::read(reader);
+
+    case messages::AffectedMessages::getId():
+        return messages::AffectedMessages::read(reader);
+
+    case WebPageEmpty::getId():
         return WebPageEmpty::read(reader);
-    else if (id == 0xc586da1c)
+
+    case WebPagePending::getId():
         return WebPagePending::read(reader);
-    else if (id == 0xe89c45b2)
+
+    case WebPage::getId():
         return WebPage::read(reader);
-    else if (id == 0x7311ca11)
+
+    case WebPageNotModified::getId():
         return WebPageNotModified::read(reader);
-    else if (id == 0xad01d61d)
+
+    case Authorization::getId():
         return Authorization::read(reader);
-    else if (id == 0x1250abde)
-        return Authorizations::read(reader);
-    else if (id == 0xad2641f8)
-        return Password::read(reader);
-    else if (id == 0x9a5c33e5)
-        return PasswordSettings::read(reader);
-    else if (id == 0xc23727c9)
-        return PasswordInputSettings::read(reader);
-    else if (id == 0x137948a5)
-        return PasswordRecovery::read(reader);
-    else if (id == 0xa384b779)
+
+    case account::Authorizations::getId():
+        return account::Authorizations::read(reader);
+
+    case account::Password::getId():
+        return account::Password::read(reader);
+
+    case account::PasswordSettings::getId():
+        return account::PasswordSettings::read(reader);
+
+    case account::PasswordInputSettings::getId():
+        return account::PasswordInputSettings::read(reader);
+
+    case auth::PasswordRecovery::getId():
+        return auth::PasswordRecovery::read(reader);
+
+    case ReceivedNotifyMessage::getId():
         return ReceivedNotifyMessage::read(reader);
-    else if (id == 0x6e24fc9d)
+
+    case ChatInviteExported::getId():
         return ChatInviteExported::read(reader);
-    else if (id == 0x5a686d7c)
+
+    case ChatInviteAlready::getId():
         return ChatInviteAlready::read(reader);
-    else if (id == 0xdfc2f58e)
+
+    case ChatInvite::getId():
         return ChatInvite::read(reader);
-    else if (id == 0x61695cb0)
+
+    case ChatInvitePeek::getId():
         return ChatInvitePeek::read(reader);
-    else if (id == 0xffb62b95)
+
+    case InputStickerSetEmpty::getId():
         return InputStickerSetEmpty::read(reader);
-    else if (id == 0x9de7a269)
+
+    case InputStickerSetID::getId():
         return InputStickerSetID::read(reader);
-    else if (id == 0x861cc8a0)
+
+    case InputStickerSetShortName::getId():
         return InputStickerSetShortName::read(reader);
-    else if (id == 0x28703c8)
+
+    case InputStickerSetAnimatedEmoji::getId():
         return InputStickerSetAnimatedEmoji::read(reader);
-    else if (id == 0xe67f520e)
+
+    case InputStickerSetDice::getId():
         return InputStickerSetDice::read(reader);
-    else if (id == 0xd7df217a)
+
+    case StickerSet::getId():
         return StickerSet::read(reader);
-    else if (id == 0xb60a24a6)
-        return StickerSet::read(reader);
-    else if (id == 0xc27ac8c7)
+
+    case messages::StickerSet::getId():
+        return messages::StickerSet::read(reader);
+
+    case BotCommand::getId():
         return BotCommand::read(reader);
-    else if (id == 0x98e81d3a)
+
+    case BotInfo::getId():
         return BotInfo::read(reader);
-    else if (id == 0xa2fa4880)
+
+    case KeyboardButton::getId():
         return KeyboardButton::read(reader);
-    else if (id == 0x258aff05)
+
+    case KeyboardButtonUrl::getId():
         return KeyboardButtonUrl::read(reader);
-    else if (id == 0x35bbdb6b)
+
+    case KeyboardButtonCallback::getId():
         return KeyboardButtonCallback::read(reader);
-    else if (id == 0xb16a6c29)
+
+    case KeyboardButtonRequestPhone::getId():
         return KeyboardButtonRequestPhone::read(reader);
-    else if (id == 0xfc796b3f)
+
+    case KeyboardButtonRequestGeoLocation::getId():
         return KeyboardButtonRequestGeoLocation::read(reader);
-    else if (id == 0x568a748)
+
+    case KeyboardButtonSwitchInline::getId():
         return KeyboardButtonSwitchInline::read(reader);
-    else if (id == 0x50f41ccf)
+
+    case KeyboardButtonGame::getId():
         return KeyboardButtonGame::read(reader);
-    else if (id == 0xafd93fbb)
+
+    case KeyboardButtonBuy::getId():
         return KeyboardButtonBuy::read(reader);
-    else if (id == 0x10b78d29)
+
+    case KeyboardButtonUrlAuth::getId():
         return KeyboardButtonUrlAuth::read(reader);
-    else if (id == 0xd02e7fd4)
+
+    case InputKeyboardButtonUrlAuth::getId():
         return InputKeyboardButtonUrlAuth::read(reader);
-    else if (id == 0xbbc7515d)
+
+    case KeyboardButtonRequestPoll::getId():
         return KeyboardButtonRequestPoll::read(reader);
-    else if (id == 0x77608b83)
+
+    case KeyboardButtonRow::getId():
         return KeyboardButtonRow::read(reader);
-    else if (id == 0xa03e5b85)
+
+    case ReplyKeyboardHide::getId():
         return ReplyKeyboardHide::read(reader);
-    else if (id == 0x86b40b08)
+
+    case ReplyKeyboardForceReply::getId():
         return ReplyKeyboardForceReply::read(reader);
-    else if (id == 0x85dd99d1)
+
+    case ReplyKeyboardMarkup::getId():
         return ReplyKeyboardMarkup::read(reader);
-    else if (id == 0x48a30254)
+
+    case ReplyInlineMarkup::getId():
         return ReplyInlineMarkup::read(reader);
-    else if (id == 0xbb92ba95)
+
+    case MessageEntityUnknown::getId():
         return MessageEntityUnknown::read(reader);
-    else if (id == 0xfa04579d)
+
+    case MessageEntityMention::getId():
         return MessageEntityMention::read(reader);
-    else if (id == 0x6f635b0d)
+
+    case MessageEntityHashtag::getId():
         return MessageEntityHashtag::read(reader);
-    else if (id == 0x6cef8ac7)
+
+    case MessageEntityBotCommand::getId():
         return MessageEntityBotCommand::read(reader);
-    else if (id == 0x6ed02538)
+
+    case MessageEntityUrl::getId():
         return MessageEntityUrl::read(reader);
-    else if (id == 0x64e475c2)
+
+    case MessageEntityEmail::getId():
         return MessageEntityEmail::read(reader);
-    else if (id == 0xbd610bc9)
+
+    case MessageEntityBold::getId():
         return MessageEntityBold::read(reader);
-    else if (id == 0x826f8b60)
+
+    case MessageEntityItalic::getId():
         return MessageEntityItalic::read(reader);
-    else if (id == 0x28a20571)
+
+    case MessageEntityCode::getId():
         return MessageEntityCode::read(reader);
-    else if (id == 0x73924be0)
+
+    case MessageEntityPre::getId():
         return MessageEntityPre::read(reader);
-    else if (id == 0x76a6d327)
+
+    case MessageEntityTextUrl::getId():
         return MessageEntityTextUrl::read(reader);
-    else if (id == 0x352dca58)
+
+    case MessageEntityMentionName::getId():
         return MessageEntityMentionName::read(reader);
-    else if (id == 0x208e68c9)
+
+    case InputMessageEntityMentionName::getId():
         return InputMessageEntityMentionName::read(reader);
-    else if (id == 0x9b69e34b)
+
+    case MessageEntityPhone::getId():
         return MessageEntityPhone::read(reader);
-    else if (id == 0x4c4e743f)
+
+    case MessageEntityCashtag::getId():
         return MessageEntityCashtag::read(reader);
-    else if (id == 0x9c4e7e8b)
+
+    case MessageEntityUnderline::getId():
         return MessageEntityUnderline::read(reader);
-    else if (id == 0xbf0693d4)
+
+    case MessageEntityStrike::getId():
         return MessageEntityStrike::read(reader);
-    else if (id == 0x20df5d0)
+
+    case MessageEntityBlockquote::getId():
         return MessageEntityBlockquote::read(reader);
-    else if (id == 0x761e6af4)
+
+    case MessageEntityBankCard::getId():
         return MessageEntityBankCard::read(reader);
-    else if (id == 0xee8c1e86)
+
+    case InputChannelEmpty::getId():
         return InputChannelEmpty::read(reader);
-    else if (id == 0xafeb712e)
+
+    case InputChannel::getId():
         return InputChannel::read(reader);
-    else if (id == 0x2a286531)
+
+    case InputChannelFromMessage::getId():
         return InputChannelFromMessage::read(reader);
-    else if (id == 0x7f077ad9)
-        return ResolvedPeer::read(reader);
-    else if (id == 0xae30253)
+
+    case contacts::ResolvedPeer::getId():
+        return contacts::ResolvedPeer::read(reader);
+
+    case MessageRange::getId():
         return MessageRange::read(reader);
-    else if (id == 0x3e11affb)
-        return ChannelDifferenceEmpty::read(reader);
-    else if (id == 0xa4bcc6fe)
-        return ChannelDifferenceTooLong::read(reader);
-    else if (id == 0x2064674e)
-        return ChannelDifference::read(reader);
-    else if (id == 0x94d42ee7)
+
+    case updates::ChannelDifferenceEmpty::getId():
+        return updates::ChannelDifferenceEmpty::read(reader);
+
+    case updates::ChannelDifferenceTooLong::getId():
+        return updates::ChannelDifferenceTooLong::read(reader);
+
+    case updates::ChannelDifference::getId():
+        return updates::ChannelDifference::read(reader);
+
+    case ChannelMessagesFilterEmpty::getId():
         return ChannelMessagesFilterEmpty::read(reader);
-    else if (id == 0xcd77d957)
+
+    case ChannelMessagesFilter::getId():
         return ChannelMessagesFilter::read(reader);
-    else if (id == 0x15ebac1d)
+
+    case ChannelParticipant::getId():
         return ChannelParticipant::read(reader);
-    else if (id == 0xa3289a6d)
+
+    case ChannelParticipantSelf::getId():
         return ChannelParticipantSelf::read(reader);
-    else if (id == 0x447dca4b)
+
+    case ChannelParticipantCreator::getId():
         return ChannelParticipantCreator::read(reader);
-    else if (id == 0xccbebbaf)
+
+    case ChannelParticipantAdmin::getId():
         return ChannelParticipantAdmin::read(reader);
-    else if (id == 0x50a1dfd6)
+
+    case ChannelParticipantBanned::getId():
         return ChannelParticipantBanned::read(reader);
-    else if (id == 0x1b03f006)
+
+    case ChannelParticipantLeft::getId():
         return ChannelParticipantLeft::read(reader);
-    else if (id == 0xde3f3c79)
+
+    case ChannelParticipantsRecent::getId():
         return ChannelParticipantsRecent::read(reader);
-    else if (id == 0xb4608969)
+
+    case ChannelParticipantsAdmins::getId():
         return ChannelParticipantsAdmins::read(reader);
-    else if (id == 0xa3b54985)
+
+    case ChannelParticipantsKicked::getId():
         return ChannelParticipantsKicked::read(reader);
-    else if (id == 0xb0d1865b)
+
+    case ChannelParticipantsBots::getId():
         return ChannelParticipantsBots::read(reader);
-    else if (id == 0x1427a5e1)
+
+    case ChannelParticipantsBanned::getId():
         return ChannelParticipantsBanned::read(reader);
-    else if (id == 0x656ac4b)
+
+    case ChannelParticipantsSearch::getId():
         return ChannelParticipantsSearch::read(reader);
-    else if (id == 0xbb6ae88d)
+
+    case ChannelParticipantsContacts::getId():
         return ChannelParticipantsContacts::read(reader);
-    else if (id == 0xe04b5ceb)
+
+    case ChannelParticipantsMentions::getId():
         return ChannelParticipantsMentions::read(reader);
-    else if (id == 0x9ab0feaf)
-        return ChannelParticipants::read(reader);
-    else if (id == 0xf0173fe9)
-        return ChannelParticipantsNotModified::read(reader);
-    else if (id == 0xdfb80317)
-        return ChannelParticipant::read(reader);
-    else if (id == 0x780a0310)
-        return TermsOfService::read(reader);
-    else if (id == 0xe8025ca2)
-        return SavedGifsNotModified::read(reader);
-    else if (id == 0x2e0709a5)
-        return SavedGifs::read(reader);
-    else if (id == 0x3380c786)
+
+    case channels::ChannelParticipants::getId():
+        return channels::ChannelParticipants::read(reader);
+
+    case channels::ChannelParticipantsNotModified::getId():
+        return channels::ChannelParticipantsNotModified::read(reader);
+
+    case channels::ChannelParticipant::getId():
+        return channels::ChannelParticipant::read(reader);
+
+    case help::TermsOfService::getId():
+        return help::TermsOfService::read(reader);
+
+    case messages::SavedGifsNotModified::getId():
+        return messages::SavedGifsNotModified::read(reader);
+
+    case messages::SavedGifs::getId():
+        return messages::SavedGifs::read(reader);
+
+    case InputBotInlineMessageMediaAuto::getId():
         return InputBotInlineMessageMediaAuto::read(reader);
-    else if (id == 0x3dcd7a87)
+
+    case InputBotInlineMessageText::getId():
         return InputBotInlineMessageText::read(reader);
-    else if (id == 0x96929a85)
+
+    case InputBotInlineMessageMediaGeo::getId():
         return InputBotInlineMessageMediaGeo::read(reader);
-    else if (id == 0x417bbf11)
+
+    case InputBotInlineMessageMediaVenue::getId():
         return InputBotInlineMessageMediaVenue::read(reader);
-    else if (id == 0xa6edbffd)
+
+    case InputBotInlineMessageMediaContact::getId():
         return InputBotInlineMessageMediaContact::read(reader);
-    else if (id == 0x4b425864)
+
+    case InputBotInlineMessageGame::getId():
         return InputBotInlineMessageGame::read(reader);
-    else if (id == 0xd7e78225)
+
+    case InputBotInlineMessageMediaInvoice::getId():
         return InputBotInlineMessageMediaInvoice::read(reader);
-    else if (id == 0x88bf9319)
+
+    case InputBotInlineResult::getId():
         return InputBotInlineResult::read(reader);
-    else if (id == 0xa8d864a7)
+
+    case InputBotInlineResultPhoto::getId():
         return InputBotInlineResultPhoto::read(reader);
-    else if (id == 0xfff8fdc4)
+
+    case InputBotInlineResultDocument::getId():
         return InputBotInlineResultDocument::read(reader);
-    else if (id == 0x4fa417f2)
+
+    case InputBotInlineResultGame::getId():
         return InputBotInlineResultGame::read(reader);
-    else if (id == 0x764cf810)
+
+    case BotInlineMessageMediaAuto::getId():
         return BotInlineMessageMediaAuto::read(reader);
-    else if (id == 0x8c7f65e2)
+
+    case BotInlineMessageText::getId():
         return BotInlineMessageText::read(reader);
-    else if (id == 0x51846fd)
+
+    case BotInlineMessageMediaGeo::getId():
         return BotInlineMessageMediaGeo::read(reader);
-    else if (id == 0x8a86659c)
+
+    case BotInlineMessageMediaVenue::getId():
         return BotInlineMessageMediaVenue::read(reader);
-    else if (id == 0x18d1cdc2)
+
+    case BotInlineMessageMediaContact::getId():
         return BotInlineMessageMediaContact::read(reader);
-    else if (id == 0x354a9b09)
+
+    case BotInlineMessageMediaInvoice::getId():
         return BotInlineMessageMediaInvoice::read(reader);
-    else if (id == 0x11965f3a)
+
+    case BotInlineResult::getId():
         return BotInlineResult::read(reader);
-    else if (id == 0x17db940b)
+
+    case BotInlineMediaResult::getId():
         return BotInlineMediaResult::read(reader);
-    else if (id == 0x947ca848)
-        return BotResults::read(reader);
-    else if (id == 0x5dab1af4)
+
+    case messages::BotResults::getId():
+        return messages::BotResults::read(reader);
+
+    case ExportedMessageLink::getId():
         return ExportedMessageLink::read(reader);
-    else if (id == 0x5f777dce)
+
+    case MessageFwdHeader::getId():
         return MessageFwdHeader::read(reader);
-    else if (id == 0x72a3158c)
-        return CodeTypeSms::read(reader);
-    else if (id == 0x741cd3e3)
-        return CodeTypeCall::read(reader);
-    else if (id == 0x226ccefb)
-        return CodeTypeFlashCall::read(reader);
-    else if (id == 0x3dbb5986)
-        return SentCodeTypeApp::read(reader);
-    else if (id == 0xc000bba2)
-        return SentCodeTypeSms::read(reader);
-    else if (id == 0x5353e5a7)
-        return SentCodeTypeCall::read(reader);
-    else if (id == 0xab03c6d9)
-        return SentCodeTypeFlashCall::read(reader);
-    else if (id == 0x36585ea4)
-        return BotCallbackAnswer::read(reader);
-    else if (id == 0x26b5dde6)
-        return MessageEditData::read(reader);
-    else if (id == 0x890c3d89)
+
+    case auth::CodeTypeSms::getId():
+        return auth::CodeTypeSms::read(reader);
+
+    case auth::CodeTypeCall::getId():
+        return auth::CodeTypeCall::read(reader);
+
+    case auth::CodeTypeFlashCall::getId():
+        return auth::CodeTypeFlashCall::read(reader);
+
+    case auth::SentCodeTypeApp::getId():
+        return auth::SentCodeTypeApp::read(reader);
+
+    case auth::SentCodeTypeSms::getId():
+        return auth::SentCodeTypeSms::read(reader);
+
+    case auth::SentCodeTypeCall::getId():
+        return auth::SentCodeTypeCall::read(reader);
+
+    case auth::SentCodeTypeFlashCall::getId():
+        return auth::SentCodeTypeFlashCall::read(reader);
+
+    case messages::BotCallbackAnswer::getId():
+        return messages::BotCallbackAnswer::read(reader);
+
+    case messages::MessageEditData::getId():
+        return messages::MessageEditData::read(reader);
+
+    case InputBotInlineMessageID::getId():
         return InputBotInlineMessageID::read(reader);
-    else if (id == 0x3c20629f)
+
+    case InlineBotSwitchPM::getId():
         return InlineBotSwitchPM::read(reader);
-    else if (id == 0x3371c354)
-        return PeerDialogs::read(reader);
-    else if (id == 0xedcdc05b)
+
+    case messages::PeerDialogs::getId():
+        return messages::PeerDialogs::read(reader);
+
+    case TopPeer::getId():
         return TopPeer::read(reader);
-    else if (id == 0xab661b5b)
+
+    case TopPeerCategoryBotsPM::getId():
         return TopPeerCategoryBotsPM::read(reader);
-    else if (id == 0x148677e2)
+
+    case TopPeerCategoryBotsInline::getId():
         return TopPeerCategoryBotsInline::read(reader);
-    else if (id == 0x637b7ed)
+
+    case TopPeerCategoryCorrespondents::getId():
         return TopPeerCategoryCorrespondents::read(reader);
-    else if (id == 0xbd17a14a)
+
+    case TopPeerCategoryGroups::getId():
         return TopPeerCategoryGroups::read(reader);
-    else if (id == 0x161d9628)
+
+    case TopPeerCategoryChannels::getId():
         return TopPeerCategoryChannels::read(reader);
-    else if (id == 0x1e76a78c)
+
+    case TopPeerCategoryPhoneCalls::getId():
         return TopPeerCategoryPhoneCalls::read(reader);
-    else if (id == 0xa8406ca9)
+
+    case TopPeerCategoryForwardUsers::getId():
         return TopPeerCategoryForwardUsers::read(reader);
-    else if (id == 0xfbeec0f0)
+
+    case TopPeerCategoryForwardChats::getId():
         return TopPeerCategoryForwardChats::read(reader);
-    else if (id == 0xfb834291)
+
+    case TopPeerCategoryPeers::getId():
         return TopPeerCategoryPeers::read(reader);
-    else if (id == 0xde266ef5)
-        return TopPeersNotModified::read(reader);
-    else if (id == 0x70b772a8)
-        return TopPeers::read(reader);
-    else if (id == 0xb52c939d)
-        return TopPeersDisabled::read(reader);
-    else if (id == 0x1b0c841a)
+
+    case contacts::TopPeersNotModified::getId():
+        return contacts::TopPeersNotModified::read(reader);
+
+    case contacts::TopPeers::getId():
+        return contacts::TopPeers::read(reader);
+
+    case contacts::TopPeersDisabled::getId():
+        return contacts::TopPeersDisabled::read(reader);
+
+    case DraftMessageEmpty::getId():
         return DraftMessageEmpty::read(reader);
-    else if (id == 0xfd8e711f)
+
+    case DraftMessage::getId():
         return DraftMessage::read(reader);
-    else if (id == 0xc6dc0c66)
-        return FeaturedStickersNotModified::read(reader);
-    else if (id == 0xb6abc341)
-        return FeaturedStickers::read(reader);
-    else if (id == 0xb17f890)
-        return RecentStickersNotModified::read(reader);
-    else if (id == 0x22f3afb3)
-        return RecentStickers::read(reader);
-    else if (id == 0x4fcba9c8)
-        return ArchivedStickers::read(reader);
-    else if (id == 0x38641628)
-        return StickerSetInstallResultSuccess::read(reader);
-    else if (id == 0x35e410a8)
-        return StickerSetInstallResultArchive::read(reader);
-    else if (id == 0x6410a5d2)
+
+    case messages::FeaturedStickersNotModified::getId():
+        return messages::FeaturedStickersNotModified::read(reader);
+
+    case messages::FeaturedStickers::getId():
+        return messages::FeaturedStickers::read(reader);
+
+    case messages::RecentStickersNotModified::getId():
+        return messages::RecentStickersNotModified::read(reader);
+
+    case messages::RecentStickers::getId():
+        return messages::RecentStickers::read(reader);
+
+    case messages::ArchivedStickers::getId():
+        return messages::ArchivedStickers::read(reader);
+
+    case messages::StickerSetInstallResultSuccess::getId():
+        return messages::StickerSetInstallResultSuccess::read(reader);
+
+    case messages::StickerSetInstallResultArchive::getId():
+        return messages::StickerSetInstallResultArchive::read(reader);
+
+    case StickerSetCovered::getId():
         return StickerSetCovered::read(reader);
-    else if (id == 0x3407e51b)
+
+    case StickerSetMultiCovered::getId():
         return StickerSetMultiCovered::read(reader);
-    else if (id == 0xaed6dbb2)
+
+    case MaskCoords::getId():
         return MaskCoords::read(reader);
-    else if (id == 0x4a992157)
+
+    case InputStickeredMediaPhoto::getId():
         return InputStickeredMediaPhoto::read(reader);
-    else if (id == 0x438865b)
+
+    case InputStickeredMediaDocument::getId():
         return InputStickeredMediaDocument::read(reader);
-    else if (id == 0xbdf9653b)
+
+    case Game::getId():
         return Game::read(reader);
-    else if (id == 0x32c3e77)
+
+    case InputGameID::getId():
         return InputGameID::read(reader);
-    else if (id == 0xc331e80a)
+
+    case InputGameShortName::getId():
         return InputGameShortName::read(reader);
-    else if (id == 0x58fffcd0)
+
+    case HighScore::getId():
         return HighScore::read(reader);
-    else if (id == 0x9a3bfd99)
-        return HighScores::read(reader);
-    else if (id == 0xdc3d824f)
+
+    case messages::HighScores::getId():
+        return messages::HighScores::read(reader);
+
+    case TextEmpty::getId():
         return TextEmpty::read(reader);
-    else if (id == 0x744694e0)
+
+    case TextPlain::getId():
         return TextPlain::read(reader);
-    else if (id == 0x6724abc4)
+
+    case TextBold::getId():
         return TextBold::read(reader);
-    else if (id == 0xd912a59c)
+
+    case TextItalic::getId():
         return TextItalic::read(reader);
-    else if (id == 0xc12622c4)
+
+    case TextUnderline::getId():
         return TextUnderline::read(reader);
-    else if (id == 0x9bf8bb95)
+
+    case TextStrike::getId():
         return TextStrike::read(reader);
-    else if (id == 0x6c3f19b9)
+
+    case TextFixed::getId():
         return TextFixed::read(reader);
-    else if (id == 0x3c2884c1)
+
+    case TextUrl::getId():
         return TextUrl::read(reader);
-    else if (id == 0xde5a0dd6)
+
+    case TextEmail::getId():
         return TextEmail::read(reader);
-    else if (id == 0x7e6260d7)
+
+    case TextConcat::getId():
         return TextConcat::read(reader);
-    else if (id == 0xed6a8504)
+
+    case TextSubscript::getId():
         return TextSubscript::read(reader);
-    else if (id == 0xc7fb5e01)
+
+    case TextSuperscript::getId():
         return TextSuperscript::read(reader);
-    else if (id == 0x34b8621)
+
+    case TextMarked::getId():
         return TextMarked::read(reader);
-    else if (id == 0x1ccb966a)
+
+    case TextPhone::getId():
         return TextPhone::read(reader);
-    else if (id == 0x81ccf4f)
+
+    case TextImage::getId():
         return TextImage::read(reader);
-    else if (id == 0x35553762)
+
+    case TextAnchor::getId():
         return TextAnchor::read(reader);
-    else if (id == 0x13567e8a)
+
+    case PageBlockUnsupported::getId():
         return PageBlockUnsupported::read(reader);
-    else if (id == 0x70abc3fd)
+
+    case PageBlockTitle::getId():
         return PageBlockTitle::read(reader);
-    else if (id == 0x8ffa9a1f)
+
+    case PageBlockSubtitle::getId():
         return PageBlockSubtitle::read(reader);
-    else if (id == 0xbaafe5e0)
+
+    case PageBlockAuthorDate::getId():
         return PageBlockAuthorDate::read(reader);
-    else if (id == 0xbfd064ec)
+
+    case PageBlockHeader::getId():
         return PageBlockHeader::read(reader);
-    else if (id == 0xf12bb6e1)
+
+    case PageBlockSubheader::getId():
         return PageBlockSubheader::read(reader);
-    else if (id == 0x467a0766)
+
+    case PageBlockParagraph::getId():
         return PageBlockParagraph::read(reader);
-    else if (id == 0xc070d93e)
+
+    case PageBlockPreformatted::getId():
         return PageBlockPreformatted::read(reader);
-    else if (id == 0x48870999)
+
+    case PageBlockFooter::getId():
         return PageBlockFooter::read(reader);
-    else if (id == 0xdb20b188)
+
+    case PageBlockDivider::getId():
         return PageBlockDivider::read(reader);
-    else if (id == 0xce0d37b0)
+
+    case PageBlockAnchor::getId():
         return PageBlockAnchor::read(reader);
-    else if (id == 0xe4e88011)
+
+    case PageBlockList::getId():
         return PageBlockList::read(reader);
-    else if (id == 0x263d7c26)
+
+    case PageBlockBlockquote::getId():
         return PageBlockBlockquote::read(reader);
-    else if (id == 0x4f4456d3)
+
+    case PageBlockPullquote::getId():
         return PageBlockPullquote::read(reader);
-    else if (id == 0x1759c560)
+
+    case PageBlockPhoto::getId():
         return PageBlockPhoto::read(reader);
-    else if (id == 0x7c8fe7b6)
+
+    case PageBlockVideo::getId():
         return PageBlockVideo::read(reader);
-    else if (id == 0x39f23300)
+
+    case PageBlockCover::getId():
         return PageBlockCover::read(reader);
-    else if (id == 0xa8718dc5)
+
+    case PageBlockEmbed::getId():
         return PageBlockEmbed::read(reader);
-    else if (id == 0xf259a80b)
+
+    case PageBlockEmbedPost::getId():
         return PageBlockEmbedPost::read(reader);
-    else if (id == 0x65a0fa4d)
+
+    case PageBlockCollage::getId():
         return PageBlockCollage::read(reader);
-    else if (id == 0x31f9590)
+
+    case PageBlockSlideshow::getId():
         return PageBlockSlideshow::read(reader);
-    else if (id == 0xef1751b5)
+
+    case PageBlockChannel::getId():
         return PageBlockChannel::read(reader);
-    else if (id == 0x804361ea)
+
+    case PageBlockAudio::getId():
         return PageBlockAudio::read(reader);
-    else if (id == 0x1e148390)
+
+    case PageBlockKicker::getId():
         return PageBlockKicker::read(reader);
-    else if (id == 0xbf4dea82)
+
+    case PageBlockTable::getId():
         return PageBlockTable::read(reader);
-    else if (id == 0x9a8ae1e1)
+
+    case PageBlockOrderedList::getId():
         return PageBlockOrderedList::read(reader);
-    else if (id == 0x76768bed)
+
+    case PageBlockDetails::getId():
         return PageBlockDetails::read(reader);
-    else if (id == 0x16115a96)
+
+    case PageBlockRelatedArticles::getId():
         return PageBlockRelatedArticles::read(reader);
-    else if (id == 0xa44f3ef6)
+
+    case PageBlockMap::getId():
         return PageBlockMap::read(reader);
-    else if (id == 0x85e42301)
+
+    case PhoneCallDiscardReasonMissed::getId():
         return PhoneCallDiscardReasonMissed::read(reader);
-    else if (id == 0xe095c1a0)
+
+    case PhoneCallDiscardReasonDisconnect::getId():
         return PhoneCallDiscardReasonDisconnect::read(reader);
-    else if (id == 0x57adc690)
+
+    case PhoneCallDiscardReasonHangup::getId():
         return PhoneCallDiscardReasonHangup::read(reader);
-    else if (id == 0xfaf7e8c9)
+
+    case PhoneCallDiscardReasonBusy::getId():
         return PhoneCallDiscardReasonBusy::read(reader);
-    else if (id == 0x7d748d04)
+
+    case DataJSON::getId():
         return DataJSON::read(reader);
-    else if (id == 0xcb296bf8)
+
+    case LabeledPrice::getId():
         return LabeledPrice::read(reader);
-    else if (id == 0xcd886e0)
+
+    case Invoice::getId():
         return Invoice::read(reader);
-    else if (id == 0xea02c27e)
+
+    case PaymentCharge::getId():
         return PaymentCharge::read(reader);
-    else if (id == 0x1e8caaeb)
+
+    case PostAddress::getId():
         return PostAddress::read(reader);
-    else if (id == 0x909c3f94)
+
+    case PaymentRequestedInfo::getId():
         return PaymentRequestedInfo::read(reader);
-    else if (id == 0xcdc27a1f)
+
+    case PaymentSavedCredentialsCard::getId():
         return PaymentSavedCredentialsCard::read(reader);
-    else if (id == 0x1c570ed1)
+
+    case WebDocument::getId():
         return WebDocument::read(reader);
-    else if (id == 0xf9c8bcc6)
+
+    case WebDocumentNoProxy::getId():
         return WebDocumentNoProxy::read(reader);
-    else if (id == 0x9bed434d)
+
+    case InputWebDocument::getId():
         return InputWebDocument::read(reader);
-    else if (id == 0xc239d686)
+
+    case InputWebFileLocation::getId():
         return InputWebFileLocation::read(reader);
-    else if (id == 0x9f2221c9)
+
+    case InputWebFileGeoPointLocation::getId():
         return InputWebFileGeoPointLocation::read(reader);
-    else if (id == 0x21e753bc)
-        return WebFile::read(reader);
-    else if (id == 0x8d0b2415)
-        return PaymentForm::read(reader);
-    else if (id == 0xd1451883)
-        return ValidatedRequestedInfo::read(reader);
-    else if (id == 0x4e5f810d)
-        return PaymentResult::read(reader);
-    else if (id == 0xd8411139)
-        return PaymentVerificationNeeded::read(reader);
-    else if (id == 0x10b555d0)
-        return PaymentReceipt::read(reader);
-    else if (id == 0xfb8fe43c)
-        return SavedInfo::read(reader);
-    else if (id == 0xc10eb2cf)
+
+    case upload::WebFile::getId():
+        return upload::WebFile::read(reader);
+
+    case payments::PaymentForm::getId():
+        return payments::PaymentForm::read(reader);
+
+    case payments::ValidatedRequestedInfo::getId():
+        return payments::ValidatedRequestedInfo::read(reader);
+
+    case payments::PaymentResult::getId():
+        return payments::PaymentResult::read(reader);
+
+    case payments::PaymentVerificationNeeded::getId():
+        return payments::PaymentVerificationNeeded::read(reader);
+
+    case payments::PaymentReceipt::getId():
+        return payments::PaymentReceipt::read(reader);
+
+    case payments::SavedInfo::getId():
+        return payments::SavedInfo::read(reader);
+
+    case InputPaymentCredentialsSaved::getId():
         return InputPaymentCredentialsSaved::read(reader);
-    else if (id == 0x3417d728)
+
+    case InputPaymentCredentials::getId():
         return InputPaymentCredentials::read(reader);
-    else if (id == 0xaa1c39f)
+
+    case InputPaymentCredentialsApplePay::getId():
         return InputPaymentCredentialsApplePay::read(reader);
-    else if (id == 0x8ac32801)
+
+    case InputPaymentCredentialsGooglePay::getId():
         return InputPaymentCredentialsGooglePay::read(reader);
-    else if (id == 0xdb64fd34)
-        return TmpPassword::read(reader);
-    else if (id == 0xb6213cdf)
+
+    case account::TmpPassword::getId():
+        return account::TmpPassword::read(reader);
+
+    case ShippingOption::getId():
         return ShippingOption::read(reader);
-    else if (id == 0xffa0a496)
+
+    case InputStickerSetItem::getId():
         return InputStickerSetItem::read(reader);
-    else if (id == 0x1e36fded)
+
+    case InputPhoneCall::getId():
         return InputPhoneCall::read(reader);
-    else if (id == 0x5366c915)
+
+    case PhoneCallEmpty::getId():
         return PhoneCallEmpty::read(reader);
-    else if (id == 0x1b8f4ad1)
+
+    case PhoneCallWaiting::getId():
         return PhoneCallWaiting::read(reader);
-    else if (id == 0x87eabb53)
+
+    case PhoneCallRequested::getId():
         return PhoneCallRequested::read(reader);
-    else if (id == 0x997c454a)
+
+    case PhoneCallAccepted::getId():
         return PhoneCallAccepted::read(reader);
-    else if (id == 0x8742ae7f)
+
+    case PhoneCall::getId():
         return PhoneCall::read(reader);
-    else if (id == 0x50ca4de1)
+
+    case PhoneCallDiscarded::getId():
         return PhoneCallDiscarded::read(reader);
-    else if (id == 0x9d4c17c0)
+
+    case PhoneConnection::getId():
         return PhoneConnection::read(reader);
-    else if (id == 0x635fe375)
+
+    case PhoneConnectionWebrtc::getId():
         return PhoneConnectionWebrtc::read(reader);
-    else if (id == 0xfc878fc8)
+
+    case PhoneCallProtocol::getId():
         return PhoneCallProtocol::read(reader);
-    else if (id == 0xec82e140)
-        return PhoneCall::read(reader);
-    else if (id == 0xeea8e46e)
-        return CdnFileReuploadNeeded::read(reader);
-    else if (id == 0xa99fca4f)
-        return CdnFile::read(reader);
-    else if (id == 0xc982eaba)
+
+    case phone::PhoneCall::getId():
+        return phone::PhoneCall::read(reader);
+
+    case upload::CdnFileReuploadNeeded::getId():
+        return upload::CdnFileReuploadNeeded::read(reader);
+
+    case upload::CdnFile::getId():
+        return upload::CdnFile::read(reader);
+
+    case CdnPublicKey::getId():
         return CdnPublicKey::read(reader);
-    else if (id == 0x5725e40a)
+
+    case CdnConfig::getId():
         return CdnConfig::read(reader);
-    else if (id == 0xcad181f6)
+
+    case LangPackString::getId():
         return LangPackString::read(reader);
-    else if (id == 0x6c47ac9f)
+
+    case LangPackStringPluralized::getId():
         return LangPackStringPluralized::read(reader);
-    else if (id == 0x2979eeb2)
+
+    case LangPackStringDeleted::getId():
         return LangPackStringDeleted::read(reader);
-    else if (id == 0xf385c1f6)
+
+    case LangPackDifference::getId():
         return LangPackDifference::read(reader);
-    else if (id == 0xeeca5ce3)
+
+    case LangPackLanguage::getId():
         return LangPackLanguage::read(reader);
-    else if (id == 0xe6dfb825)
+
+    case ChannelAdminLogEventActionChangeTitle::getId():
         return ChannelAdminLogEventActionChangeTitle::read(reader);
-    else if (id == 0x55188a2e)
+
+    case ChannelAdminLogEventActionChangeAbout::getId():
         return ChannelAdminLogEventActionChangeAbout::read(reader);
-    else if (id == 0x6a4afc38)
+
+    case ChannelAdminLogEventActionChangeUsername::getId():
         return ChannelAdminLogEventActionChangeUsername::read(reader);
-    else if (id == 0x434bd2af)
+
+    case ChannelAdminLogEventActionChangePhoto::getId():
         return ChannelAdminLogEventActionChangePhoto::read(reader);
-    else if (id == 0x1b7907ae)
+
+    case ChannelAdminLogEventActionToggleInvites::getId():
         return ChannelAdminLogEventActionToggleInvites::read(reader);
-    else if (id == 0x26ae0971)
+
+    case ChannelAdminLogEventActionToggleSignatures::getId():
         return ChannelAdminLogEventActionToggleSignatures::read(reader);
-    else if (id == 0xe9e82c18)
+
+    case ChannelAdminLogEventActionUpdatePinned::getId():
         return ChannelAdminLogEventActionUpdatePinned::read(reader);
-    else if (id == 0x709b2405)
+
+    case ChannelAdminLogEventActionEditMessage::getId():
         return ChannelAdminLogEventActionEditMessage::read(reader);
-    else if (id == 0x42e047bb)
+
+    case ChannelAdminLogEventActionDeleteMessage::getId():
         return ChannelAdminLogEventActionDeleteMessage::read(reader);
-    else if (id == 0x183040d3)
+
+    case ChannelAdminLogEventActionParticipantJoin::getId():
         return ChannelAdminLogEventActionParticipantJoin::read(reader);
-    else if (id == 0xf89777f2)
+
+    case ChannelAdminLogEventActionParticipantLeave::getId():
         return ChannelAdminLogEventActionParticipantLeave::read(reader);
-    else if (id == 0xe31c34d8)
+
+    case ChannelAdminLogEventActionParticipantInvite::getId():
         return ChannelAdminLogEventActionParticipantInvite::read(reader);
-    else if (id == 0xe6d83d7e)
+
+    case ChannelAdminLogEventActionParticipantToggleBan::getId():
         return ChannelAdminLogEventActionParticipantToggleBan::read(reader);
-    else if (id == 0xd5676710)
+
+    case ChannelAdminLogEventActionParticipantToggleAdmin::getId():
         return ChannelAdminLogEventActionParticipantToggleAdmin::read(reader);
-    else if (id == 0xb1c3caa7)
+
+    case ChannelAdminLogEventActionChangeStickerSet::getId():
         return ChannelAdminLogEventActionChangeStickerSet::read(reader);
-    else if (id == 0x5f5c95f1)
+
+    case ChannelAdminLogEventActionTogglePreHistoryHidden::getId():
         return ChannelAdminLogEventActionTogglePreHistoryHidden::read(reader);
-    else if (id == 0x2df5fc0a)
+
+    case ChannelAdminLogEventActionDefaultBannedRights::getId():
         return ChannelAdminLogEventActionDefaultBannedRights::read(reader);
-    else if (id == 0x8f079643)
+
+    case ChannelAdminLogEventActionStopPoll::getId():
         return ChannelAdminLogEventActionStopPoll::read(reader);
-    else if (id == 0xa26f881b)
+
+    case ChannelAdminLogEventActionChangeLinkedChat::getId():
         return ChannelAdminLogEventActionChangeLinkedChat::read(reader);
-    else if (id == 0xe6b76ae)
+
+    case ChannelAdminLogEventActionChangeLocation::getId():
         return ChannelAdminLogEventActionChangeLocation::read(reader);
-    else if (id == 0x53909779)
+
+    case ChannelAdminLogEventActionToggleSlowMode::getId():
         return ChannelAdminLogEventActionToggleSlowMode::read(reader);
-    else if (id == 0x23209745)
+
+    case ChannelAdminLogEventActionStartGroupCall::getId():
         return ChannelAdminLogEventActionStartGroupCall::read(reader);
-    else if (id == 0xdb9f9140)
+
+    case ChannelAdminLogEventActionDiscardGroupCall::getId():
         return ChannelAdminLogEventActionDiscardGroupCall::read(reader);
-    else if (id == 0xf92424d2)
+
+    case ChannelAdminLogEventActionParticipantMute::getId():
         return ChannelAdminLogEventActionParticipantMute::read(reader);
-    else if (id == 0xe64429c0)
+
+    case ChannelAdminLogEventActionParticipantUnmute::getId():
         return ChannelAdminLogEventActionParticipantUnmute::read(reader);
-    else if (id == 0x56d6a247)
+
+    case ChannelAdminLogEventActionToggleGroupCallSetting::getId():
         return ChannelAdminLogEventActionToggleGroupCallSetting::read(reader);
-    else if (id == 0x5cdada77)
+
+    case ChannelAdminLogEventActionParticipantJoinByInvite::getId():
         return ChannelAdminLogEventActionParticipantJoinByInvite::read(reader);
-    else if (id == 0x5a50fca4)
+
+    case ChannelAdminLogEventActionExportedInviteDelete::getId():
         return ChannelAdminLogEventActionExportedInviteDelete::read(reader);
-    else if (id == 0x410a134e)
+
+    case ChannelAdminLogEventActionExportedInviteRevoke::getId():
         return ChannelAdminLogEventActionExportedInviteRevoke::read(reader);
-    else if (id == 0xe90ebb59)
+
+    case ChannelAdminLogEventActionExportedInviteEdit::getId():
         return ChannelAdminLogEventActionExportedInviteEdit::read(reader);
-    else if (id == 0x3e7f6847)
+
+    case ChannelAdminLogEventActionParticipantVolume::getId():
         return ChannelAdminLogEventActionParticipantVolume::read(reader);
-    else if (id == 0x6e941a38)
+
+    case ChannelAdminLogEventActionChangeHistoryTTL::getId():
         return ChannelAdminLogEventActionChangeHistoryTTL::read(reader);
-    else if (id == 0x3b5a3e40)
+
+    case ChannelAdminLogEvent::getId():
         return ChannelAdminLogEvent::read(reader);
-    else if (id == 0xed8af74d)
-        return AdminLogResults::read(reader);
-    else if (id == 0xea107ae4)
+
+    case channels::AdminLogResults::getId():
+        return channels::AdminLogResults::read(reader);
+
+    case ChannelAdminLogEventsFilter::getId():
         return ChannelAdminLogEventsFilter::read(reader);
-    else if (id == 0x5ce14175)
+
+    case PopularContact::getId():
         return PopularContact::read(reader);
-    else if (id == 0x9e8fa6d3)
-        return FavedStickersNotModified::read(reader);
-    else if (id == 0xf37f2f16)
-        return FavedStickers::read(reader);
-    else if (id == 0x46e1d13d)
+
+    case messages::FavedStickersNotModified::getId():
+        return messages::FavedStickersNotModified::read(reader);
+
+    case messages::FavedStickers::getId():
+        return messages::FavedStickers::read(reader);
+
+    case RecentMeUrlUnknown::getId():
         return RecentMeUrlUnknown::read(reader);
-    else if (id == 0x8dbc3336)
+
+    case RecentMeUrlUser::getId():
         return RecentMeUrlUser::read(reader);
-    else if (id == 0xa01b22f9)
+
+    case RecentMeUrlChat::getId():
         return RecentMeUrlChat::read(reader);
-    else if (id == 0xeb49081d)
+
+    case RecentMeUrlChatInvite::getId():
         return RecentMeUrlChatInvite::read(reader);
-    else if (id == 0xbc0a57dc)
+
+    case RecentMeUrlStickerSet::getId():
         return RecentMeUrlStickerSet::read(reader);
-    else if (id == 0xe0310d7)
-        return RecentMeUrls::read(reader);
-    else if (id == 0x1cc6e91f)
+
+    case help::RecentMeUrls::getId():
+        return help::RecentMeUrls::read(reader);
+
+    case InputSingleMedia::getId():
         return InputSingleMedia::read(reader);
-    else if (id == 0xcac943f2)
+
+    case WebAuthorization::getId():
         return WebAuthorization::read(reader);
-    else if (id == 0xed56c9fc)
-        return WebAuthorizations::read(reader);
-    else if (id == 0xa676a322)
+
+    case account::WebAuthorizations::getId():
+        return account::WebAuthorizations::read(reader);
+
+    case InputMessageID::getId():
         return InputMessageID::read(reader);
-    else if (id == 0xbad88395)
+
+    case InputMessageReplyTo::getId():
         return InputMessageReplyTo::read(reader);
-    else if (id == 0x86872538)
+
+    case InputMessagePinned::getId():
         return InputMessagePinned::read(reader);
-    else if (id == 0xacfa1a7e)
+
+    case InputMessageCallbackQuery::getId():
         return InputMessageCallbackQuery::read(reader);
-    else if (id == 0xfcaafeb7)
+
+    case InputDialogPeer::getId():
         return InputDialogPeer::read(reader);
-    else if (id == 0x64600527)
+
+    case InputDialogPeerFolder::getId():
         return InputDialogPeerFolder::read(reader);
-    else if (id == 0xe56dbf05)
+
+    case DialogPeer::getId():
         return DialogPeer::read(reader);
-    else if (id == 0x514519e2)
+
+    case DialogPeerFolder::getId():
         return DialogPeerFolder::read(reader);
-    else if (id == 0xd54b65d)
-        return FoundStickerSetsNotModified::read(reader);
-    else if (id == 0x5108d648)
-        return FoundStickerSets::read(reader);
-    else if (id == 0x6242c773)
+
+    case messages::FoundStickerSetsNotModified::getId():
+        return messages::FoundStickerSetsNotModified::read(reader);
+
+    case messages::FoundStickerSets::getId():
+        return messages::FoundStickerSets::read(reader);
+
+    case FileHash::getId():
         return FileHash::read(reader);
-    else if (id == 0x75588b3f)
+
+    case InputClientProxy::getId():
         return InputClientProxy::read(reader);
-    else if (id == 0xe3309f7f)
-        return TermsOfServiceUpdateEmpty::read(reader);
-    else if (id == 0x28ecf961)
-        return TermsOfServiceUpdate::read(reader);
-    else if (id == 0x3334b0f0)
+
+    case help::TermsOfServiceUpdateEmpty::getId():
+        return help::TermsOfServiceUpdateEmpty::read(reader);
+
+    case help::TermsOfServiceUpdate::getId():
+        return help::TermsOfServiceUpdate::read(reader);
+
+    case InputSecureFileUploaded::getId():
         return InputSecureFileUploaded::read(reader);
-    else if (id == 0x5367e5be)
+
+    case InputSecureFile::getId():
         return InputSecureFile::read(reader);
-    else if (id == 0x64199744)
+
+    case SecureFileEmpty::getId():
         return SecureFileEmpty::read(reader);
-    else if (id == 0xe0277a62)
+
+    case SecureFile::getId():
         return SecureFile::read(reader);
-    else if (id == 0x8aeabec3)
+
+    case SecureData::getId():
         return SecureData::read(reader);
-    else if (id == 0x7d6099dd)
+
+    case SecurePlainPhone::getId():
         return SecurePlainPhone::read(reader);
-    else if (id == 0x21ec5a5f)
+
+    case SecurePlainEmail::getId():
         return SecurePlainEmail::read(reader);
-    else if (id == 0x9d2a81e3)
+
+    case SecureValueTypePersonalDetails::getId():
         return SecureValueTypePersonalDetails::read(reader);
-    else if (id == 0x3dac6a00)
+
+    case SecureValueTypePassport::getId():
         return SecureValueTypePassport::read(reader);
-    else if (id == 0x6e425c4)
+
+    case SecureValueTypeDriverLicense::getId():
         return SecureValueTypeDriverLicense::read(reader);
-    else if (id == 0xa0d0744b)
+
+    case SecureValueTypeIdentityCard::getId():
         return SecureValueTypeIdentityCard::read(reader);
-    else if (id == 0x99a48f23)
+
+    case SecureValueTypeInternalPassport::getId():
         return SecureValueTypeInternalPassport::read(reader);
-    else if (id == 0xcbe31e26)
+
+    case SecureValueTypeAddress::getId():
         return SecureValueTypeAddress::read(reader);
-    else if (id == 0xfc36954e)
+
+    case SecureValueTypeUtilityBill::getId():
         return SecureValueTypeUtilityBill::read(reader);
-    else if (id == 0x89137c0d)
+
+    case SecureValueTypeBankStatement::getId():
         return SecureValueTypeBankStatement::read(reader);
-    else if (id == 0x8b883488)
+
+    case SecureValueTypeRentalAgreement::getId():
         return SecureValueTypeRentalAgreement::read(reader);
-    else if (id == 0x99e3806a)
+
+    case SecureValueTypePassportRegistration::getId():
         return SecureValueTypePassportRegistration::read(reader);
-    else if (id == 0xea02ec33)
+
+    case SecureValueTypeTemporaryRegistration::getId():
         return SecureValueTypeTemporaryRegistration::read(reader);
-    else if (id == 0xb320aadb)
+
+    case SecureValueTypePhone::getId():
         return SecureValueTypePhone::read(reader);
-    else if (id == 0x8e3ca7ee)
+
+    case SecureValueTypeEmail::getId():
         return SecureValueTypeEmail::read(reader);
-    else if (id == 0x187fa0ca)
+
+    case SecureValue::getId():
         return SecureValue::read(reader);
-    else if (id == 0xdb21d0a7)
+
+    case InputSecureValue::getId():
         return InputSecureValue::read(reader);
-    else if (id == 0xed1ecdb0)
+
+    case SecureValueHash::getId():
         return SecureValueHash::read(reader);
-    else if (id == 0xe8a40bd9)
+
+    case SecureValueErrorData::getId():
         return SecureValueErrorData::read(reader);
-    else if (id == 0xbe3dfa)
+
+    case SecureValueErrorFrontSide::getId():
         return SecureValueErrorFrontSide::read(reader);
-    else if (id == 0x868a2aa5)
+
+    case SecureValueErrorReverseSide::getId():
         return SecureValueErrorReverseSide::read(reader);
-    else if (id == 0xe537ced6)
+
+    case SecureValueErrorSelfie::getId():
         return SecureValueErrorSelfie::read(reader);
-    else if (id == 0x7a700873)
+
+    case SecureValueErrorFile::getId():
         return SecureValueErrorFile::read(reader);
-    else if (id == 0x666220e9)
+
+    case SecureValueErrorFiles::getId():
         return SecureValueErrorFiles::read(reader);
-    else if (id == 0x869d758f)
+
+    case SecureValueError::getId():
         return SecureValueError::read(reader);
-    else if (id == 0xa1144770)
+
+    case SecureValueErrorTranslationFile::getId():
         return SecureValueErrorTranslationFile::read(reader);
-    else if (id == 0x34636dd8)
+
+    case SecureValueErrorTranslationFiles::getId():
         return SecureValueErrorTranslationFiles::read(reader);
-    else if (id == 0x33f0ea47)
+
+    case SecureCredentialsEncrypted::getId():
         return SecureCredentialsEncrypted::read(reader);
-    else if (id == 0xad2e1cd8)
-        return AuthorizationForm::read(reader);
-    else if (id == 0x811f854f)
-        return SentEmailCode::read(reader);
-    else if (id == 0x66afa166)
-        return DeepLinkInfoEmpty::read(reader);
-    else if (id == 0x6a4ee832)
-        return DeepLinkInfo::read(reader);
-    else if (id == 0x1142bd56)
+
+    case account::AuthorizationForm::getId():
+        return account::AuthorizationForm::read(reader);
+
+    case account::SentEmailCode::getId():
+        return account::SentEmailCode::read(reader);
+
+    case help::DeepLinkInfoEmpty::getId():
+        return help::DeepLinkInfoEmpty::read(reader);
+
+    case help::DeepLinkInfo::getId():
+        return help::DeepLinkInfo::read(reader);
+
+    case SavedPhoneContact::getId():
         return SavedPhoneContact::read(reader);
-    else if (id == 0x4dba4501)
-        return Takeout::read(reader);
-    else if (id == 0xd45ab096)
+
+    case account::Takeout::getId():
+        return account::Takeout::read(reader);
+
+    case PasswordKdfAlgoUnknown::getId():
         return PasswordKdfAlgoUnknown::read(reader);
-    else if (id == 0x4a8537)
+
+    case PasswordKdfAlgoSHA256SHA256PBKDF2HMACSHA512iter100000SHA256ModPow::getId():
+        return PasswordKdfAlgoSHA256SHA256PBKDF2HMACSHA512iter100000SHA256ModPow::read(reader);
+
+    case SecurePasswordKdfAlgoUnknown::getId():
         return SecurePasswordKdfAlgoUnknown::read(reader);
-    else if (id == 0x1527bcac)
+
+    case SecurePasswordKdfAlgoPBKDF2HMACSHA512iter100000::getId():
+        return SecurePasswordKdfAlgoPBKDF2HMACSHA512iter100000::read(reader);
+
+    case SecurePasswordKdfAlgoSHA512::getId():
+        return SecurePasswordKdfAlgoSHA512::read(reader);
+
+    case SecureSecretSettings::getId():
         return SecureSecretSettings::read(reader);
-    else if (id == 0x9880f658)
+
+    case InputCheckPasswordEmpty::getId():
         return InputCheckPasswordEmpty::read(reader);
-    else if (id == 0xd27ff082)
+
+    case InputCheckPasswordSRP::getId():
         return InputCheckPasswordSRP::read(reader);
-    else if (id == 0x829d99da)
+
+    case SecureRequiredType::getId():
         return SecureRequiredType::read(reader);
-    else if (id == 0x27477b4)
+
+    case SecureRequiredTypeOneOf::getId():
         return SecureRequiredTypeOneOf::read(reader);
-    else if (id == 0xbfb9f457)
-        return PassportConfigNotModified::read(reader);
-    else if (id == 0xa098d6af)
-        return PassportConfig::read(reader);
-    else if (id == 0x1d1b1245)
+
+    case help::PassportConfigNotModified::getId():
+        return help::PassportConfigNotModified::read(reader);
+
+    case help::PassportConfig::getId():
+        return help::PassportConfig::read(reader);
+
+    case InputAppEvent::getId():
         return InputAppEvent::read(reader);
-    else if (id == 0xc0de1bd9)
+
+    case JsonObjectValue::getId():
         return JsonObjectValue::read(reader);
-    else if (id == 0x3f6d7b68)
+
+    case JsonNull::getId():
         return JsonNull::read(reader);
-    else if (id == 0xc7345e6a)
+
+    case JsonBool::getId():
         return JsonBool::read(reader);
-    else if (id == 0x2be0dfa4)
+
+    case JsonNumber::getId():
         return JsonNumber::read(reader);
-    else if (id == 0xb71e767a)
+
+    case JsonString::getId():
         return JsonString::read(reader);
-    else if (id == 0xf7444763)
+
+    case JsonArray::getId():
         return JsonArray::read(reader);
-    else if (id == 0x99c1d49d)
+
+    case JsonObject::getId():
         return JsonObject::read(reader);
-    else if (id == 0x34566b6a)
+
+    case PageTableCell::getId():
         return PageTableCell::read(reader);
-    else if (id == 0xe0c0c5e5)
+
+    case PageTableRow::getId():
         return PageTableRow::read(reader);
-    else if (id == 0x6f747657)
+
+    case PageCaption::getId():
         return PageCaption::read(reader);
-    else if (id == 0xb92fb6cd)
+
+    case PageListItemText::getId():
         return PageListItemText::read(reader);
-    else if (id == 0x25e073fc)
+
+    case PageListItemBlocks::getId():
         return PageListItemBlocks::read(reader);
-    else if (id == 0x5e068047)
+
+    case PageListOrderedItemText::getId():
         return PageListOrderedItemText::read(reader);
-    else if (id == 0x98dd8936)
+
+    case PageListOrderedItemBlocks::getId():
         return PageListOrderedItemBlocks::read(reader);
-    else if (id == 0xb390dc08)
+
+    case PageRelatedArticle::getId():
         return PageRelatedArticle::read(reader);
-    else if (id == 0x98657f0d)
+
+    case Page::getId():
         return Page::read(reader);
-    else if (id == 0x8c05f1c9)
-        return SupportName::read(reader);
-    else if (id == 0xf3ae2eed)
-        return UserInfoEmpty::read(reader);
-    else if (id == 0x1eb3758)
-        return UserInfo::read(reader);
-    else if (id == 0x6ca9c2e9)
+
+    case help::SupportName::getId():
+        return help::SupportName::read(reader);
+
+    case help::UserInfoEmpty::getId():
+        return help::UserInfoEmpty::read(reader);
+
+    case help::UserInfo::getId():
+        return help::UserInfo::read(reader);
+
+    case PollAnswer::getId():
         return PollAnswer::read(reader);
-    else if (id == 0x86e18161)
+
+    case Poll::getId():
         return Poll::read(reader);
-    else if (id == 0x3b6ddad2)
+
+    case PollAnswerVoters::getId():
         return PollAnswerVoters::read(reader);
-    else if (id == 0xbadcc1a3)
+
+    case PollResults::getId():
         return PollResults::read(reader);
-    else if (id == 0xf041e250)
+
+    case ChatOnlines::getId():
         return ChatOnlines::read(reader);
-    else if (id == 0x47a971e0)
+
+    case StatsURL::getId():
         return StatsURL::read(reader);
-    else if (id == 0x5fb224d5)
+
+    case ChatAdminRights::getId():
         return ChatAdminRights::read(reader);
-    else if (id == 0x9f120418)
+
+    case ChatBannedRights::getId():
         return ChatBannedRights::read(reader);
-    else if (id == 0xe630b979)
+
+    case InputWallPaper::getId():
         return InputWallPaper::read(reader);
-    else if (id == 0x72091c80)
+
+    case InputWallPaperSlug::getId():
         return InputWallPaperSlug::read(reader);
-    else if (id == 0x967a462e)
+
+    case InputWallPaperNoFile::getId():
         return InputWallPaperNoFile::read(reader);
-    else if (id == 0x1c199183)
-        return WallPapersNotModified::read(reader);
-    else if (id == 0x702b65a9)
-        return WallPapers::read(reader);
-    else if (id == 0xdebebe83)
+
+    case account::WallPapersNotModified::getId():
+        return account::WallPapersNotModified::read(reader);
+
+    case account::WallPapers::getId():
+        return account::WallPapers::read(reader);
+
+    case CodeSettings::getId():
         return CodeSettings::read(reader);
-    else if (id == 0x1dc1bca4)
+
+    case WallPaperSettings::getId():
         return WallPaperSettings::read(reader);
-    else if (id == 0xe04232f3)
+
+    case AutoDownloadSettings::getId():
         return AutoDownloadSettings::read(reader);
-    else if (id == 0x63cacf26)
-        return AutoDownloadSettings::read(reader);
-    else if (id == 0xd5b3b9f9)
+
+    case account::AutoDownloadSettings::getId():
+        return account::AutoDownloadSettings::read(reader);
+
+    case EmojiKeyword::getId():
         return EmojiKeyword::read(reader);
-    else if (id == 0x236df622)
+
+    case EmojiKeywordDeleted::getId():
         return EmojiKeywordDeleted::read(reader);
-    else if (id == 0x5cc761bd)
+
+    case EmojiKeywordsDifference::getId():
         return EmojiKeywordsDifference::read(reader);
-    else if (id == 0xa575739d)
+
+    case EmojiURL::getId():
         return EmojiURL::read(reader);
-    else if (id == 0xb3fb5361)
+
+    case EmojiLanguage::getId():
         return EmojiLanguage::read(reader);
-    else if (id == 0xff544e65)
+
+    case Folder::getId():
         return Folder::read(reader);
-    else if (id == 0xfbd2c296)
+
+    case InputFolderPeer::getId():
         return InputFolderPeer::read(reader);
-    else if (id == 0xe9baa668)
+
+    case FolderPeer::getId():
         return FolderPeer::read(reader);
-    else if (id == 0xe844ebff)
-        return SearchCounter::read(reader);
-    else if (id == 0x92d33a0e)
+
+    case messages::SearchCounter::getId():
+        return messages::SearchCounter::read(reader);
+
+    case UrlAuthResultRequest::getId():
         return UrlAuthResultRequest::read(reader);
-    else if (id == 0x8f8c0e4e)
+
+    case UrlAuthResultAccepted::getId():
         return UrlAuthResultAccepted::read(reader);
-    else if (id == 0xa9d6db1f)
+
+    case UrlAuthResultDefault::getId():
         return UrlAuthResultDefault::read(reader);
-    else if (id == 0xbfb5ad8b)
+
+    case ChannelLocationEmpty::getId():
         return ChannelLocationEmpty::read(reader);
-    else if (id == 0x209b82db)
+
+    case ChannelLocation::getId():
         return ChannelLocation::read(reader);
-    else if (id == 0xca461b5d)
+
+    case PeerLocated::getId():
         return PeerLocated::read(reader);
-    else if (id == 0xf8ec284b)
+
+    case PeerSelfLocated::getId():
         return PeerSelfLocated::read(reader);
-    else if (id == 0xd072acb4)
+
+    case RestrictionReason::getId():
         return RestrictionReason::read(reader);
-    else if (id == 0x3c5693e9)
+
+    case InputTheme::getId():
         return InputTheme::read(reader);
-    else if (id == 0xf5890df1)
+
+    case InputThemeSlug::getId():
         return InputThemeSlug::read(reader);
-    else if (id == 0x28f1114)
+
+    case Theme::getId():
         return Theme::read(reader);
-    else if (id == 0xf41eb622)
-        return ThemesNotModified::read(reader);
-    else if (id == 0x7f676421)
-        return Themes::read(reader);
-    else if (id == 0x629f1980)
-        return LoginToken::read(reader);
-    else if (id == 0x68e9916)
-        return LoginTokenMigrateTo::read(reader);
-    else if (id == 0x390d5c5e)
-        return LoginTokenSuccess::read(reader);
-    else if (id == 0x57e28221)
-        return ContentSettings::read(reader);
-    else if (id == 0xa927fec5)
-        return InactiveChats::read(reader);
-    else if (id == 0xc3a12462)
+
+    case account::ThemesNotModified::getId():
+        return account::ThemesNotModified::read(reader);
+
+    case account::Themes::getId():
+        return account::Themes::read(reader);
+
+    case auth::LoginToken::getId():
+        return auth::LoginToken::read(reader);
+
+    case auth::LoginTokenMigrateTo::getId():
+        return auth::LoginTokenMigrateTo::read(reader);
+
+    case auth::LoginTokenSuccess::getId():
+        return auth::LoginTokenSuccess::read(reader);
+
+    case account::ContentSettings::getId():
+        return account::ContentSettings::read(reader);
+
+    case messages::InactiveChats::getId():
+        return messages::InactiveChats::read(reader);
+
+    case BaseThemeClassic::getId():
         return BaseThemeClassic::read(reader);
-    else if (id == 0xfbd81688)
+
+    case BaseThemeDay::getId():
         return BaseThemeDay::read(reader);
-    else if (id == 0xb7b31ea8)
+
+    case BaseThemeNight::getId():
         return BaseThemeNight::read(reader);
-    else if (id == 0x6d5f77ee)
+
+    case BaseThemeTinted::getId():
         return BaseThemeTinted::read(reader);
-    else if (id == 0x5b11125a)
+
+    case BaseThemeArctic::getId():
         return BaseThemeArctic::read(reader);
-    else if (id == 0xbd507cd1)
+
+    case InputThemeSettings::getId():
         return InputThemeSettings::read(reader);
-    else if (id == 0x9c14984a)
+
+    case ThemeSettings::getId():
         return ThemeSettings::read(reader);
-    else if (id == 0x54b56617)
+
+    case WebPageAttributeTheme::getId():
         return WebPageAttributeTheme::read(reader);
-    else if (id == 0xa28e5559)
+
+    case MessageUserVote::getId():
         return MessageUserVote::read(reader);
-    else if (id == 0x36377430)
+
+    case MessageUserVoteInputOption::getId():
         return MessageUserVoteInputOption::read(reader);
-    else if (id == 0xe8fe0de)
+
+    case MessageUserVoteMultiple::getId():
         return MessageUserVoteMultiple::read(reader);
-    else if (id == 0x823f649)
-        return VotesList::read(reader);
-    else if (id == 0xf568028a)
+
+    case messages::VotesList::getId():
+        return messages::VotesList::read(reader);
+
+    case BankCardOpenUrl::getId():
         return BankCardOpenUrl::read(reader);
-    else if (id == 0x3e24e573)
-        return BankCardData::read(reader);
-    else if (id == 0x7438f7e8)
+
+    case payments::BankCardData::getId():
+        return payments::BankCardData::read(reader);
+
+    case DialogFilter::getId():
         return DialogFilter::read(reader);
-    else if (id == 0x77744d4a)
+
+    case DialogFilterSuggested::getId():
         return DialogFilterSuggested::read(reader);
-    else if (id == 0xb637edaf)
+
+    case StatsDateRangeDays::getId():
         return StatsDateRangeDays::read(reader);
-    else if (id == 0xcb43acde)
+
+    case StatsAbsValueAndPrev::getId():
         return StatsAbsValueAndPrev::read(reader);
-    else if (id == 0xcbce2fe0)
+
+    case StatsPercentValue::getId():
         return StatsPercentValue::read(reader);
-    else if (id == 0x4a27eb2d)
+
+    case StatsGraphAsync::getId():
         return StatsGraphAsync::read(reader);
-    else if (id == 0xbedc9822)
+
+    case StatsGraphError::getId():
         return StatsGraphError::read(reader);
-    else if (id == 0x8ea464b6)
+
+    case StatsGraph::getId():
         return StatsGraph::read(reader);
-    else if (id == 0xad4fc9bd)
+
+    case MessageInteractionCounters::getId():
         return MessageInteractionCounters::read(reader);
-    else if (id == 0xbdf78394)
-        return BroadcastStats::read(reader);
-    else if (id == 0x98f6ac75)
-        return PromoDataEmpty::read(reader);
-    else if (id == 0x8c39793f)
-        return PromoData::read(reader);
-    else if (id == 0xde33b094)
+
+    case stats::BroadcastStats::getId():
+        return stats::BroadcastStats::read(reader);
+
+    case help::PromoDataEmpty::getId():
+        return help::PromoDataEmpty::read(reader);
+
+    case help::PromoData::getId():
+        return help::PromoData::read(reader);
+
+    case VideoSize::getId():
         return VideoSize::read(reader);
-    else if (id == 0x18f3d0f7)
+
+    case StatsGroupTopPoster::getId():
         return StatsGroupTopPoster::read(reader);
-    else if (id == 0x6014f412)
+
+    case StatsGroupTopAdmin::getId():
         return StatsGroupTopAdmin::read(reader);
-    else if (id == 0x31962a4c)
+
+    case StatsGroupTopInviter::getId():
         return StatsGroupTopInviter::read(reader);
-    else if (id == 0xef7ff916)
-        return MegagroupStats::read(reader);
-    else if (id == 0xbea2f424)
+
+    case stats::MegagroupStats::getId():
+        return stats::MegagroupStats::read(reader);
+
+    case GlobalPrivacySettings::getId():
         return GlobalPrivacySettings::read(reader);
-    else if (id == 0x4203c5ef)
-        return CountryCode::read(reader);
-    else if (id == 0xc3878e23)
-        return Country::read(reader);
-    else if (id == 0x93cc1f32)
-        return CountriesListNotModified::read(reader);
-    else if (id == 0x87d0759e)
-        return CountriesList::read(reader);
-    else if (id == 0x455b853d)
+
+    case help::CountryCode::getId():
+        return help::CountryCode::read(reader);
+
+    case help::Country::getId():
+        return help::Country::read(reader);
+
+    case help::CountriesListNotModified::getId():
+        return help::CountriesListNotModified::read(reader);
+
+    case help::CountriesList::getId():
+        return help::CountriesList::read(reader);
+
+    case MessageViews::getId():
         return MessageViews::read(reader);
-    else if (id == 0xb6c4f543)
-        return MessageViews::read(reader);
-    else if (id == 0xf5dd8f9d)
-        return DiscussionMessage::read(reader);
-    else if (id == 0xa6d57763)
+
+    case messages::MessageViews::getId():
+        return messages::MessageViews::read(reader);
+
+    case messages::DiscussionMessage::getId():
+        return messages::DiscussionMessage::read(reader);
+
+    case MessageReplyHeader::getId():
         return MessageReplyHeader::read(reader);
-    else if (id == 0x4128faac)
+
+    case MessageReplies::getId():
         return MessageReplies::read(reader);
-    else if (id == 0xe8fd8014)
+
+    case PeerBlocked::getId():
         return PeerBlocked::read(reader);
-    else if (id == 0x8999f295)
-        return MessageStats::read(reader);
-    else if (id == 0x7780bcb4)
+
+    case stats::MessageStats::getId():
+        return stats::MessageStats::read(reader);
+
+    case GroupCallDiscarded::getId():
         return GroupCallDiscarded::read(reader);
-    else if (id == 0x653dbaad)
+
+    case GroupCall::getId():
         return GroupCall::read(reader);
-    else if (id == 0xd8aa840f)
+
+    case InputGroupCall::getId():
         return InputGroupCall::read(reader);
-    else if (id == 0xeba636fe)
+
+    case GroupCallParticipant::getId():
         return GroupCallParticipant::read(reader);
-    else if (id == 0x9e727aad)
-        return GroupCall::read(reader);
-    else if (id == 0xf47751b6)
-        return GroupParticipants::read(reader);
-    else if (id == 0x3081ed9d)
+
+    case phone::GroupCall::getId():
+        return phone::GroupCall::read(reader);
+
+    case phone::GroupParticipants::getId():
+        return phone::GroupParticipants::read(reader);
+
+    case InlineQueryPeerTypeSameBotPM::getId():
         return InlineQueryPeerTypeSameBotPM::read(reader);
-    else if (id == 0x833c0fac)
+
+    case InlineQueryPeerTypePM::getId():
         return InlineQueryPeerTypePM::read(reader);
-    else if (id == 0xd766c50a)
+
+    case InlineQueryPeerTypeChat::getId():
         return InlineQueryPeerTypeChat::read(reader);
-    else if (id == 0x5ec4be43)
+
+    case InlineQueryPeerTypeMegagroup::getId():
         return InlineQueryPeerTypeMegagroup::read(reader);
-    else if (id == 0x6334ee9a)
+
+    case InlineQueryPeerTypeBroadcast::getId():
         return InlineQueryPeerTypeBroadcast::read(reader);
-    else if (id == 0x1662af0b)
-        return HistoryImport::read(reader);
-    else if (id == 0x5e0fb7b9)
-        return HistoryImportParsed::read(reader);
-    else if (id == 0xef8d3e6c)
-        return AffectedFoundMessages::read(reader);
-    else if (id == 0x1e3e6680)
+
+    case messages::HistoryImport::getId():
+        return messages::HistoryImport::read(reader);
+
+    case messages::HistoryImportParsed::getId():
+        return messages::HistoryImportParsed::read(reader);
+
+    case messages::AffectedFoundMessages::getId():
+        return messages::AffectedFoundMessages::read(reader);
+
+    case ChatInviteImporter::getId():
         return ChatInviteImporter::read(reader);
-    else if (id == 0xbdc62dcc)
-        return ExportedChatInvites::read(reader);
-    else if (id == 0x1871be50)
-        return ExportedChatInvite::read(reader);
-    else if (id == 0x222600ef)
-        return ExportedChatInviteReplaced::read(reader);
-    else if (id == 0x81b6b00a)
-        return ChatInviteImporters::read(reader);
-    else if (id == 0xdfd2330f)
+
+    case messages::ExportedChatInvites::getId():
+        return messages::ExportedChatInvites::read(reader);
+
+    case messages::ExportedChatInvite::getId():
+        return messages::ExportedChatInvite::read(reader);
+
+    case messages::ExportedChatInviteReplaced::getId():
+        return messages::ExportedChatInviteReplaced::read(reader);
+
+    case messages::ChatInviteImporters::getId():
+        return messages::ChatInviteImporters::read(reader);
+
+    case ChatAdminWithInvites::getId():
         return ChatAdminWithInvites::read(reader);
-    else if (id == 0xb69b72d7)
-        return ChatAdminsWithInvites::read(reader);
-    else if (id == 0xa24de717)
-        return CheckedHistoryImportPeer::read(reader);
-    else if (id == 0xafe5623f)
-        return JoinAsPeers::read(reader);
-    else if (id == 0x204bd158)
-        return ExportedGroupCallInvite::read(reader);
-    else if (id == 0xdcb118b7)
+
+    case messages::ChatAdminsWithInvites::getId():
+        return messages::ChatAdminsWithInvites::read(reader);
+
+    case messages::CheckedHistoryImportPeer::getId():
+        return messages::CheckedHistoryImportPeer::read(reader);
+
+    case phone::JoinAsPeers::getId():
+        return phone::JoinAsPeers::read(reader);
+
+    case phone::ExportedGroupCallInvite::getId():
+        return phone::ExportedGroupCallInvite::read(reader);
+
+    case GroupCallParticipantVideoSourceGroup::getId():
         return GroupCallParticipantVideoSourceGroup::read(reader);
-    else if (id == 0x78e41663)
+
+    case GroupCallParticipantVideo::getId():
         return GroupCallParticipantVideo::read(reader);
-    else if (id == 0x85fea03f)
-        return SuggestedShortName::read(reader);
-    else if (id == 0x2f6cb2ab)
+
+    case stickers::SuggestedShortName::getId():
+        return stickers::SuggestedShortName::read(reader);
+
+    case BotCommandScopeDefault::getId():
         return BotCommandScopeDefault::read(reader);
-    else if (id == 0x3c4f04d8)
+
+    case BotCommandScopeUsers::getId():
         return BotCommandScopeUsers::read(reader);
-    else if (id == 0x6fe1a881)
+
+    case BotCommandScopeChats::getId():
         return BotCommandScopeChats::read(reader);
-    else if (id == 0xb9aa606a)
+
+    case BotCommandScopeChatAdmins::getId():
         return BotCommandScopeChatAdmins::read(reader);
-    else if (id == 0xdb9d897d)
+
+    case BotCommandScopePeer::getId():
         return BotCommandScopePeer::read(reader);
-    else if (id == 0x3fd863d1)
+
+    case BotCommandScopePeerAdmins::getId():
         return BotCommandScopePeerAdmins::read(reader);
-    else if (id == 0xa1321f3)
+
+    case BotCommandScopePeerUser::getId():
         return BotCommandScopePeerUser::read(reader);
-    else if (id == 0xcb9f372d)
-        return InvokeAfterMsg<TLObject>::read(reader);
-    else if (id == 0x3dc4b4f0)
-        return InvokeAfterMsgs<TLObject>::read(reader);
-    else if (id == 0xc1cd5ea9)
-        return InitConnection<TLObject>::read(reader);
-    else if (id == 0xda9b0d0d)
-        return InvokeWithLayer<TLObject>::read(reader);
-    else if (id == 0xbf9459b7)
-        return InvokeWithoutUpdates<TLObject>::read(reader);
-    else if (id == 0x365275f2)
-        return InvokeWithMessagesRange<TLObject>::read(reader);
-    else if (id == 0xaca9fd2e)
-        return InvokeWithTakeout<TLObject>::read(reader);
-    else if (id == 0xa677244f)
-        return SendCode::read(reader);
-    else if (id == 0x80eee427)
-        return SignUp::read(reader);
-    else if (id == 0xbcd51581)
-        return SignIn::read(reader);
-    else if (id == 0x5717da40)
-        return LogOut::read(reader);
-    else if (id == 0x9fab0d1a)
-        return ResetAuthorizations::read(reader);
-    else if (id == 0xe5bfffcd)
-        return ExportAuthorization::read(reader);
-    else if (id == 0xe3ef9613)
-        return ImportAuthorization::read(reader);
-    else if (id == 0xcdd42a05)
-        return BindTempAuthKey::read(reader);
-    else if (id == 0x67a3ff2c)
-        return ImportBotAuthorization::read(reader);
-    else if (id == 0xd18b4d16)
-        return CheckPassword::read(reader);
-    else if (id == 0xd897bc66)
-        return RequestPasswordRecovery::read(reader);
-    else if (id == 0x4ea56e92)
-        return RecoverPassword::read(reader);
-    else if (id == 0x3ef1a9bf)
-        return ResendCode::read(reader);
-    else if (id == 0x1f040578)
-        return CancelCode::read(reader);
-    else if (id == 0x8e48a188)
-        return DropTempAuthKeys::read(reader);
-    else if (id == 0xb1b41517)
-        return ExportLoginToken::read(reader);
-    else if (id == 0x95ac5ce4)
-        return ImportLoginToken::read(reader);
-    else if (id == 0xe894ad4d)
-        return AcceptLoginToken::read(reader);
-    else if (id == 0x68976c6f)
-        return RegisterDevice::read(reader);
-    else if (id == 0x3076c4bf)
-        return UnregisterDevice::read(reader);
-    else if (id == 0x84be5b93)
-        return UpdateNotifySettings::read(reader);
-    else if (id == 0x12b3ad31)
-        return GetNotifySettings::read(reader);
-    else if (id == 0xdb7e1747)
-        return ResetNotifySettings::read(reader);
-    else if (id == 0x78515775)
-        return UpdateProfile::read(reader);
-    else if (id == 0x6628562c)
-        return UpdateStatus::read(reader);
-    else if (id == 0xaabb1763)
-        return GetWallPapers::read(reader);
-    else if (id == 0xc5ba3d86)
-        return ReportPeer::read(reader);
-    else if (id == 0x2714d86c)
-        return CheckUsername::read(reader);
-    else if (id == 0x3e0bdd7c)
-        return UpdateUsername::read(reader);
-    else if (id == 0xdadbc950)
-        return GetPrivacy::read(reader);
-    else if (id == 0xc9f81ce8)
-        return SetPrivacy::read(reader);
-    else if (id == 0x418d4e0b)
-        return DeleteAccount::read(reader);
-    else if (id == 0x8fc711d)
-        return GetAccountTTL::read(reader);
-    else if (id == 0x2442485e)
-        return SetAccountTTL::read(reader);
-    else if (id == 0x82574ae5)
-        return SendChangePhoneCode::read(reader);
-    else if (id == 0x70c32edb)
-        return ChangePhone::read(reader);
-    else if (id == 0x38df3532)
-        return UpdateDeviceLocked::read(reader);
-    else if (id == 0xe320c158)
-        return GetAuthorizations::read(reader);
-    else if (id == 0xdf77f3bc)
-        return ResetAuthorization::read(reader);
-    else if (id == 0x548a30f5)
-        return GetPassword::read(reader);
-    else if (id == 0x9cd4eaf9)
-        return GetPasswordSettings::read(reader);
-    else if (id == 0xa59b102f)
-        return UpdatePasswordSettings::read(reader);
-    else if (id == 0x1b3faa88)
-        return SendConfirmPhoneCode::read(reader);
-    else if (id == 0x5f2178c3)
-        return ConfirmPhone::read(reader);
-    else if (id == 0x449e0b51)
-        return GetTmpPassword::read(reader);
-    else if (id == 0x182e6d6f)
-        return GetWebAuthorizations::read(reader);
-    else if (id == 0x2d01b9ef)
-        return ResetWebAuthorization::read(reader);
-    else if (id == 0x682d2594)
-        return ResetWebAuthorizations::read(reader);
-    else if (id == 0xb288bc7d)
-        return GetAllSecureValues::read(reader);
-    else if (id == 0x73665bc2)
-        return GetSecureValue::read(reader);
-    else if (id == 0x899fe31d)
-        return SaveSecureValue::read(reader);
-    else if (id == 0xb880bc4b)
-        return DeleteSecureValue::read(reader);
-    else if (id == 0xb86ba8e1)
-        return GetAuthorizationForm::read(reader);
-    else if (id == 0xe7027c94)
-        return AcceptAuthorization::read(reader);
-    else if (id == 0xa5a356f9)
-        return SendVerifyPhoneCode::read(reader);
-    else if (id == 0x4dd3a7f6)
-        return VerifyPhone::read(reader);
-    else if (id == 0x7011509f)
-        return SendVerifyEmailCode::read(reader);
-    else if (id == 0xecba39db)
-        return VerifyEmail::read(reader);
-    else if (id == 0xf05b4804)
-        return InitTakeoutSession::read(reader);
-    else if (id == 0x1d2652ee)
-        return FinishTakeoutSession::read(reader);
-    else if (id == 0x8fdf1920)
-        return ConfirmPasswordEmail::read(reader);
-    else if (id == 0x7a7f2a15)
-        return ResendPasswordEmail::read(reader);
-    else if (id == 0xc1cbd5b6)
-        return CancelPasswordEmail::read(reader);
-    else if (id == 0x9f07c728)
-        return GetContactSignUpNotification::read(reader);
-    else if (id == 0xcff43f61)
-        return SetContactSignUpNotification::read(reader);
-    else if (id == 0x53577479)
-        return GetNotifyExceptions::read(reader);
-    else if (id == 0xfc8ddbea)
-        return GetWallPaper::read(reader);
-    else if (id == 0xdd853661)
-        return UploadWallPaper::read(reader);
-    else if (id == 0x6c5a5b37)
-        return SaveWallPaper::read(reader);
-    else if (id == 0xfeed5769)
-        return InstallWallPaper::read(reader);
-    else if (id == 0xbb3b9804)
-        return ResetWallPapers::read(reader);
-    else if (id == 0x56da0b3f)
-        return GetAutoDownloadSettings::read(reader);
-    else if (id == 0x76f36233)
-        return SaveAutoDownloadSettings::read(reader);
-    else if (id == 0x1c3db333)
-        return UploadTheme::read(reader);
-    else if (id == 0x8432c21f)
-        return CreateTheme::read(reader);
-    else if (id == 0x5cb367d5)
-        return UpdateTheme::read(reader);
-    else if (id == 0xf257106c)
-        return SaveTheme::read(reader);
-    else if (id == 0x7ae43737)
-        return InstallTheme::read(reader);
-    else if (id == 0x8d9d742b)
-        return GetTheme::read(reader);
-    else if (id == 0x285946f8)
-        return GetThemes::read(reader);
-    else if (id == 0xb574b16b)
-        return SetContentSettings::read(reader);
-    else if (id == 0x8b9b4dae)
-        return GetContentSettings::read(reader);
-    else if (id == 0x65ad71dc)
-        return GetMultiWallPapers::read(reader);
-    else if (id == 0xeb2b4cf6)
-        return GetGlobalPrivacySettings::read(reader);
-    else if (id == 0x1edaaac2)
-        return SetGlobalPrivacySettings::read(reader);
-    else if (id == 0xfa8cc6f5)
-        return ReportProfilePhoto::read(reader);
-    else if (id == 0xd91a548)
-        return GetUsers::read(reader);
-    else if (id == 0xca30a5b1)
-        return GetFullUser::read(reader);
-    else if (id == 0x90c894b5)
-        return SetSecureValueErrors::read(reader);
-    else if (id == 0x2caa4a42)
-        return GetContactIDs::read(reader);
-    else if (id == 0xc4a353ee)
-        return GetStatuses::read(reader);
-    else if (id == 0xc023849f)
-        return GetContacts::read(reader);
-    else if (id == 0x2c800be5)
-        return ImportContacts::read(reader);
-    else if (id == 0x96a0e00)
-        return DeleteContacts::read(reader);
-    else if (id == 0x1013fd9e)
-        return DeleteByPhones::read(reader);
-    else if (id == 0x68cc1411)
-        return Block::read(reader);
-    else if (id == 0xbea65d50)
-        return Unblock::read(reader);
-    else if (id == 0xf57c350f)
-        return GetBlocked::read(reader);
-    else if (id == 0x11f812d8)
-        return Search::read(reader);
-    else if (id == 0xf93ccba3)
-        return ResolveUsername::read(reader);
-    else if (id == 0xd4982db5)
-        return GetTopPeers::read(reader);
-    else if (id == 0x1ae373ac)
-        return ResetTopPeerRating::read(reader);
-    else if (id == 0x879537f1)
-        return ResetSaved::read(reader);
-    else if (id == 0x82f1e39f)
-        return GetSaved::read(reader);
-    else if (id == 0x8514bdda)
-        return ToggleTopPeers::read(reader);
-    else if (id == 0xe8f463d0)
-        return AddContact::read(reader);
-    else if (id == 0xf831a20f)
-        return AcceptContact::read(reader);
-    else if (id == 0xd348bc44)
-        return GetLocated::read(reader);
-    else if (id == 0x29a8962c)
-        return BlockFromReplies::read(reader);
-    else if (id == 0x63c66506)
-        return GetMessages::read(reader);
-    else if (id == 0xa0ee3b73)
-        return GetDialogs::read(reader);
-    else if (id == 0xdcbb8260)
-        return GetHistory::read(reader);
-    else if (id == 0xc352eec)
-        return Search::read(reader);
-    else if (id == 0xe306d3a)
-        return ReadHistory::read(reader);
-    else if (id == 0x1c015b09)
-        return DeleteHistory::read(reader);
-    else if (id == 0xe58e95d2)
-        return DeleteMessages::read(reader);
-    else if (id == 0x5a954c0)
-        return ReceivedMessages::read(reader);
-    else if (id == 0x58943ee2)
-        return SetTyping::read(reader);
-    else if (id == 0x520c3870)
-        return SendMessage::read(reader);
-    else if (id == 0x3491eba9)
-        return SendMedia::read(reader);
-    else if (id == 0xd9fee60e)
-        return ForwardMessages::read(reader);
-    else if (id == 0xcf1592db)
-        return ReportSpam::read(reader);
-    else if (id == 0x3672e09c)
-        return GetPeerSettings::read(reader);
-    else if (id == 0x8953ab4e)
-        return Report::read(reader);
-    else if (id == 0x3c6aa187)
-        return GetChats::read(reader);
-    else if (id == 0x3b831c66)
-        return GetFullChat::read(reader);
-    else if (id == 0xdc452855)
-        return EditChatTitle::read(reader);
-    else if (id == 0xca4c79d8)
-        return EditChatPhoto::read(reader);
-    else if (id == 0xf9a0aa09)
-        return AddChatUser::read(reader);
-    else if (id == 0xc534459a)
-        return DeleteChatUser::read(reader);
-    else if (id == 0x9cb126e)
-        return CreateChat::read(reader);
-    else if (id == 0x26cf8950)
-        return GetDhConfig::read(reader);
-    else if (id == 0xf64daf43)
-        return RequestEncryption::read(reader);
-    else if (id == 0x3dbc0415)
-        return AcceptEncryption::read(reader);
-    else if (id == 0xf393aea0)
-        return DiscardEncryption::read(reader);
-    else if (id == 0x791451ed)
-        return SetEncryptedTyping::read(reader);
-    else if (id == 0x7f4b690a)
-        return ReadEncryptedHistory::read(reader);
-    else if (id == 0x44fa7a15)
-        return SendEncrypted::read(reader);
-    else if (id == 0x5559481d)
-        return SendEncryptedFile::read(reader);
-    else if (id == 0x32d439a4)
-        return SendEncryptedService::read(reader);
-    else if (id == 0x55a5bb66)
-        return ReceivedQueue::read(reader);
-    else if (id == 0x4b0c8c0f)
-        return ReportEncryptedSpam::read(reader);
-    else if (id == 0x36a73f77)
-        return ReadMessageContents::read(reader);
-    else if (id == 0x43d4f2c)
-        return GetStickers::read(reader);
-    else if (id == 0x1c9618b1)
-        return GetAllStickers::read(reader);
-    else if (id == 0x8b68b0cc)
-        return GetWebPagePreview::read(reader);
-    else if (id == 0x14b9bcd7)
-        return ExportChatInvite::read(reader);
-    else if (id == 0x3eadb1bb)
-        return CheckChatInvite::read(reader);
-    else if (id == 0x6c50051c)
-        return ImportChatInvite::read(reader);
-    else if (id == 0x2619a90e)
-        return GetStickerSet::read(reader);
-    else if (id == 0xc78fe460)
-        return InstallStickerSet::read(reader);
-    else if (id == 0xf96e55de)
-        return UninstallStickerSet::read(reader);
-    else if (id == 0xe6df7378)
-        return StartBot::read(reader);
-    else if (id == 0x5784d3e1)
-        return GetMessagesViews::read(reader);
-    else if (id == 0xa9e69f2e)
-        return EditChatAdmin::read(reader);
-    else if (id == 0x15a3b8e3)
-        return MigrateChat::read(reader);
-    else if (id == 0x4bc6589a)
-        return SearchGlobal::read(reader);
-    else if (id == 0x78337739)
-        return ReorderStickerSets::read(reader);
-    else if (id == 0x338e2464)
-        return GetDocumentByHash::read(reader);
-    else if (id == 0x83bf3d52)
-        return GetSavedGifs::read(reader);
-    else if (id == 0x327a30cb)
-        return SaveGif::read(reader);
-    else if (id == 0x514e999d)
-        return GetInlineBotResults::read(reader);
-    else if (id == 0xeb5ea206)
-        return SetInlineBotResults::read(reader);
-    else if (id == 0x220815b0)
-        return SendInlineBotResult::read(reader);
-    else if (id == 0xfda68d36)
-        return GetMessageEditData::read(reader);
-    else if (id == 0x48f71778)
-        return EditMessage::read(reader);
-    else if (id == 0x83557dba)
-        return EditInlineBotMessage::read(reader);
-    else if (id == 0x9342ca07)
-        return GetBotCallbackAnswer::read(reader);
-    else if (id == 0xd58f130a)
-        return SetBotCallbackAnswer::read(reader);
-    else if (id == 0xe470bcfd)
-        return GetPeerDialogs::read(reader);
-    else if (id == 0xbc39e14b)
-        return SaveDraft::read(reader);
-    else if (id == 0x6a3f8d65)
-        return GetAllDrafts::read(reader);
-    else if (id == 0x2dacca4f)
-        return GetFeaturedStickers::read(reader);
-    else if (id == 0x5b118126)
-        return ReadFeaturedStickers::read(reader);
-    else if (id == 0x5ea192c9)
-        return GetRecentStickers::read(reader);
-    else if (id == 0x392718f8)
-        return SaveRecentSticker::read(reader);
-    else if (id == 0x8999602d)
-        return ClearRecentStickers::read(reader);
-    else if (id == 0x57f17692)
-        return GetArchivedStickers::read(reader);
-    else if (id == 0x65b8c79f)
-        return GetMaskStickers::read(reader);
-    else if (id == 0xcc5b67cc)
-        return GetAttachedStickers::read(reader);
-    else if (id == 0x8ef8ecc0)
-        return SetGameScore::read(reader);
-    else if (id == 0x15ad9f64)
-        return SetInlineGameScore::read(reader);
-    else if (id == 0xe822649d)
-        return GetGameHighScores::read(reader);
-    else if (id == 0xf635e1b)
-        return GetInlineGameHighScores::read(reader);
-    else if (id == 0xd0a48c4)
-        return GetCommonChats::read(reader);
-    else if (id == 0xeba80ff0)
-        return GetAllChats::read(reader);
-    else if (id == 0x32ca8f91)
-        return GetWebPage::read(reader);
-    else if (id == 0xa731e257)
-        return ToggleDialogPin::read(reader);
-    else if (id == 0x3b1adf37)
-        return ReorderPinnedDialogs::read(reader);
-    else if (id == 0xd6b94df2)
-        return GetPinnedDialogs::read(reader);
-    else if (id == 0xe5f672fa)
-        return SetBotShippingResults::read(reader);
-    else if (id == 0x9c2dd95)
-        return SetBotPrecheckoutResults::read(reader);
-    else if (id == 0x519bc2b1)
-        return UploadMedia::read(reader);
-    else if (id == 0xc97df020)
-        return SendScreenshotNotification::read(reader);
-    else if (id == 0x21ce0b0e)
-        return GetFavedStickers::read(reader);
-    else if (id == 0xb9ffc55b)
-        return FaveSticker::read(reader);
-    else if (id == 0x46578472)
-        return GetUnreadMentions::read(reader);
-    else if (id == 0xf0189d3)
-        return ReadMentions::read(reader);
-    else if (id == 0xbbc45b09)
-        return GetRecentLocations::read(reader);
-    else if (id == 0xcc0110cb)
-        return SendMultiMedia::read(reader);
-    else if (id == 0x5057c497)
-        return UploadEncryptedFile::read(reader);
-    else if (id == 0xc2b7d08b)
-        return SearchStickerSets::read(reader);
-    else if (id == 0x1cff7e08)
-        return GetSplitRanges::read(reader);
-    else if (id == 0xc286d98f)
-        return MarkDialogUnread::read(reader);
-    else if (id == 0x22e24e22)
-        return GetDialogUnreadMarks::read(reader);
-    else if (id == 0x7e58ee9c)
-        return ClearAllDrafts::read(reader);
-    else if (id == 0xd2aaf7ec)
-        return UpdatePinnedMessage::read(reader);
-    else if (id == 0x10ea6184)
-        return SendVote::read(reader);
-    else if (id == 0x73bb643b)
-        return GetPollResults::read(reader);
-    else if (id == 0x6e2be050)
-        return GetOnlines::read(reader);
-    else if (id == 0x812c2ae6)
-        return GetStatsURL::read(reader);
-    else if (id == 0xdef60797)
-        return EditChatAbout::read(reader);
-    else if (id == 0xa5866b41)
-        return EditChatDefaultBannedRights::read(reader);
-    else if (id == 0x35a0e062)
-        return GetEmojiKeywords::read(reader);
-    else if (id == 0x1508b6af)
-        return GetEmojiKeywordsDifference::read(reader);
-    else if (id == 0x4e9963b2)
-        return GetEmojiKeywordsLanguages::read(reader);
-    else if (id == 0xd5b10c26)
-        return GetEmojiURL::read(reader);
-    else if (id == 0x732eef00)
-        return GetSearchCounters::read(reader);
-    else if (id == 0x198fb446)
-        return RequestUrlAuth::read(reader);
-    else if (id == 0xb12c7125)
-        return AcceptUrlAuth::read(reader);
-    else if (id == 0x4facb138)
-        return HidePeerSettingsBar::read(reader);
-    else if (id == 0xe2c2685b)
-        return GetScheduledHistory::read(reader);
-    else if (id == 0xbdbb0464)
-        return GetScheduledMessages::read(reader);
-    else if (id == 0xbd38850a)
-        return SendScheduledMessages::read(reader);
-    else if (id == 0x59ae2b16)
-        return DeleteScheduledMessages::read(reader);
-    else if (id == 0xb86e380e)
-        return GetPollVotes::read(reader);
-    else if (id == 0xb5052fea)
-        return ToggleStickerSets::read(reader);
-    else if (id == 0xf19ed96d)
-        return GetDialogFilters::read(reader);
-    else if (id == 0xa29cd42c)
-        return GetSuggestedDialogFilters::read(reader);
-    else if (id == 0x1ad4a04a)
-        return UpdateDialogFilter::read(reader);
-    else if (id == 0xc563c1e4)
-        return UpdateDialogFiltersOrder::read(reader);
-    else if (id == 0x5fe7025b)
-        return GetOldFeaturedStickers::read(reader);
-    else if (id == 0x24b581ba)
-        return GetReplies::read(reader);
-    else if (id == 0x446972fd)
-        return GetDiscussionMessage::read(reader);
-    else if (id == 0xf731a9f4)
-        return ReadDiscussion::read(reader);
-    else if (id == 0xf025bc8b)
-        return UnpinAllMessages::read(reader);
-    else if (id == 0x83247d11)
-        return DeleteChat::read(reader);
-    else if (id == 0xf9cbe409)
-        return DeletePhoneCallHistory::read(reader);
-    else if (id == 0x43fe19f3)
-        return CheckHistoryImport::read(reader);
-    else if (id == 0x34090c3b)
-        return InitHistoryImport::read(reader);
-    else if (id == 0x2a862092)
-        return UploadImportedMedia::read(reader);
-    else if (id == 0xb43df344)
-        return StartHistoryImport::read(reader);
-    else if (id == 0xa2b5a3f6)
-        return GetExportedChatInvites::read(reader);
-    else if (id == 0x73746f5c)
-        return GetExportedChatInvite::read(reader);
-    else if (id == 0x2e4ffbe)
-        return EditExportedChatInvite::read(reader);
-    else if (id == 0x56987bd5)
-        return DeleteRevokedExportedChatInvites::read(reader);
-    else if (id == 0xd464a42b)
-        return DeleteExportedChatInvite::read(reader);
-    else if (id == 0x3920e6ef)
-        return GetAdminsWithInvites::read(reader);
-    else if (id == 0x26fb7289)
-        return GetChatInviteImporters::read(reader);
-    else if (id == 0xb80e5fe4)
-        return SetHistoryTTL::read(reader);
-    else if (id == 0x5dc60f03)
-        return CheckHistoryImportPeer::read(reader);
-    else if (id == 0xedd4882a)
-        return GetState::read(reader);
-    else if (id == 0x25939651)
-        return GetDifference::read(reader);
-    else if (id == 0x3173d78)
-        return GetChannelDifference::read(reader);
-    else if (id == 0x72d4742c)
-        return UpdateProfilePhoto::read(reader);
-    else if (id == 0x89f30f69)
-        return UploadProfilePhoto::read(reader);
-    else if (id == 0x87cf7f2f)
-        return DeletePhotos::read(reader);
-    else if (id == 0x91cd32a8)
-        return GetUserPhotos::read(reader);
-    else if (id == 0xb304a621)
-        return SaveFilePart::read(reader);
-    else if (id == 0xb15a9afc)
-        return GetFile::read(reader);
-    else if (id == 0xde7b673d)
-        return SaveBigFilePart::read(reader);
-    else if (id == 0x24e6818d)
-        return GetWebFile::read(reader);
-    else if (id == 0x2000bcc3)
-        return GetCdnFile::read(reader);
-    else if (id == 0x9b2754a8)
-        return ReuploadCdnFile::read(reader);
-    else if (id == 0x4da54231)
-        return GetCdnFileHashes::read(reader);
-    else if (id == 0xc7025931)
-        return GetFileHashes::read(reader);
-    else if (id == 0xc4f9186b)
-        return GetConfig::read(reader);
-    else if (id == 0x1fb33026)
-        return GetNearestDc::read(reader);
-    else if (id == 0x522d5a7d)
-        return GetAppUpdate::read(reader);
-    else if (id == 0x4d392343)
-        return GetInviteText::read(reader);
-    else if (id == 0x9cdf08cd)
-        return GetSupport::read(reader);
-    else if (id == 0x9010ef6f)
-        return GetAppChangelog::read(reader);
-    else if (id == 0xec22cfcd)
-        return SetBotUpdatesStatus::read(reader);
-    else if (id == 0x52029342)
-        return GetCdnConfig::read(reader);
-    else if (id == 0x3dc0f114)
-        return GetRecentMeUrls::read(reader);
-    else if (id == 0x2ca51fd1)
-        return GetTermsOfServiceUpdate::read(reader);
-    else if (id == 0xee72f79a)
-        return AcceptTermsOfService::read(reader);
-    else if (id == 0x3fedc75f)
-        return GetDeepLinkInfo::read(reader);
-    else if (id == 0x98914110)
-        return GetAppConfig::read(reader);
-    else if (id == 0x6f02f748)
-        return SaveAppLog::read(reader);
-    else if (id == 0xc661ad08)
-        return GetPassportConfig::read(reader);
-    else if (id == 0xd360e72c)
-        return GetSupportName::read(reader);
-    else if (id == 0x38a08d3)
-        return GetUserInfo::read(reader);
-    else if (id == 0x66b91b70)
-        return EditUserInfo::read(reader);
-    else if (id == 0xc0977421)
-        return GetPromoData::read(reader);
-    else if (id == 0x1e251c95)
-        return HidePromoData::read(reader);
-    else if (id == 0xf50dbaa1)
-        return DismissSuggestion::read(reader);
-    else if (id == 0x735787a8)
-        return GetCountriesList::read(reader);
-    else if (id == 0xcc104937)
-        return ReadHistory::read(reader);
-    else if (id == 0x84c1fd4e)
-        return DeleteMessages::read(reader);
-    else if (id == 0xd10dd71b)
-        return DeleteUserHistory::read(reader);
-    else if (id == 0xfe087810)
-        return ReportSpam::read(reader);
-    else if (id == 0xad8c9a23)
-        return GetMessages::read(reader);
-    else if (id == 0x123e05e9)
-        return GetParticipants::read(reader);
-    else if (id == 0xa0ab6cc6)
-        return GetParticipant::read(reader);
-    else if (id == 0xa7f6bbb)
-        return GetChannels::read(reader);
-    else if (id == 0x8736a09)
-        return GetFullChannel::read(reader);
-    else if (id == 0x3d5fb10f)
-        return CreateChannel::read(reader);
-    else if (id == 0xd33c8902)
-        return EditAdmin::read(reader);
-    else if (id == 0x566decd0)
-        return EditTitle::read(reader);
-    else if (id == 0xf12e57c9)
-        return EditPhoto::read(reader);
-    else if (id == 0x10e6bd2c)
-        return CheckUsername::read(reader);
-    else if (id == 0x3514b3de)
-        return UpdateUsername::read(reader);
-    else if (id == 0x24b524c5)
-        return JoinChannel::read(reader);
-    else if (id == 0xf836aa95)
-        return LeaveChannel::read(reader);
-    else if (id == 0x199f3a6c)
-        return InviteToChannel::read(reader);
-    else if (id == 0xc0111fe3)
-        return DeleteChannel::read(reader);
-    else if (id == 0xe63fadeb)
-        return ExportMessageLink::read(reader);
-    else if (id == 0x1f69b606)
-        return ToggleSignatures::read(reader);
-    else if (id == 0xf8b036af)
-        return GetAdminedPublicChannels::read(reader);
-    else if (id == 0x96e6cd81)
-        return EditBanned::read(reader);
-    else if (id == 0x33ddf480)
-        return GetAdminLog::read(reader);
-    else if (id == 0xea8ca4f9)
-        return SetStickers::read(reader);
-    else if (id == 0xeab5dc38)
-        return ReadMessageContents::read(reader);
-    else if (id == 0xaf369d42)
-        return DeleteHistory::read(reader);
-    else if (id == 0xeabbb94c)
-        return TogglePreHistoryHidden::read(reader);
-    else if (id == 0x8341ecc0)
-        return GetLeftChannels::read(reader);
-    else if (id == 0xf5dad378)
-        return GetGroupsForDiscussion::read(reader);
-    else if (id == 0x40582bb2)
-        return SetDiscussionGroup::read(reader);
-    else if (id == 0x8f38cd1f)
-        return EditCreator::read(reader);
-    else if (id == 0x58e63f6d)
-        return EditLocation::read(reader);
-    else if (id == 0xedd49ef0)
-        return ToggleSlowMode::read(reader);
-    else if (id == 0x11e831ee)
-        return GetInactiveChannels::read(reader);
-    else if (id == 0xb290c69)
-        return ConvertToGigagroup::read(reader);
-    else if (id == 0xaa2769ed)
-        return SendCustomRequest::read(reader);
-    else if (id == 0xe6213f4d)
-        return AnswerWebhookJSONQuery::read(reader);
-    else if (id == 0x517165a)
-        return SetBotCommands::read(reader);
-    else if (id == 0x3d8de0f9)
-        return ResetBotCommands::read(reader);
-    else if (id == 0xe34c0dd6)
-        return GetBotCommands::read(reader);
-    else if (id == 0x8a333c8d)
-        return GetPaymentForm::read(reader);
-    else if (id == 0x2478d1cc)
-        return GetPaymentReceipt::read(reader);
-    else if (id == 0xdb103170)
-        return ValidateRequestedInfo::read(reader);
-    else if (id == 0x30c3bc9d)
-        return SendPaymentForm::read(reader);
-    else if (id == 0x227d824b)
-        return GetSavedInfo::read(reader);
-    else if (id == 0xd83d70c1)
-        return ClearSavedInfo::read(reader);
-    else if (id == 0x2e79d779)
-        return GetBankCardData::read(reader);
-    else if (id == 0x9021ab67)
-        return CreateStickerSet::read(reader);
-    else if (id == 0xf7760f51)
-        return RemoveStickerFromSet::read(reader);
-    else if (id == 0xffb6d4ca)
-        return ChangeStickerPosition::read(reader);
-    else if (id == 0x8653febe)
-        return AddStickerToSet::read(reader);
-    else if (id == 0x9a364e30)
-        return SetStickerSetThumb::read(reader);
-    else if (id == 0x284b3639)
-        return CheckShortName::read(reader);
-    else if (id == 0x4dafc503)
-        return SuggestShortName::read(reader);
-    else if (id == 0x55451fa9)
-        return GetCallConfig::read(reader);
-    else if (id == 0x42ff96ed)
-        return RequestCall::read(reader);
-    else if (id == 0x3bd2b4a0)
-        return AcceptCall::read(reader);
-    else if (id == 0x2efe1722)
-        return ConfirmCall::read(reader);
-    else if (id == 0x17d54f61)
-        return ReceivedCall::read(reader);
-    else if (id == 0xb2cbc1c0)
-        return DiscardCall::read(reader);
-    else if (id == 0x59ead627)
-        return SetCallRating::read(reader);
-    else if (id == 0x277add7e)
-        return SaveCallDebug::read(reader);
-    else if (id == 0xff7a9383)
-        return SendSignalingData::read(reader);
-    else if (id == 0x48cdc6d8)
-        return CreateGroupCall::read(reader);
-    else if (id == 0xb132ff7b)
-        return JoinGroupCall::read(reader);
-    else if (id == 0x500377f9)
-        return LeaveGroupCall::read(reader);
-    else if (id == 0x7b393160)
-        return InviteToGroupCall::read(reader);
-    else if (id == 0x7a777135)
-        return DiscardGroupCall::read(reader);
-    else if (id == 0x74bbb43d)
-        return ToggleGroupCallSettings::read(reader);
-    else if (id == 0xc7cb017)
-        return GetGroupCall::read(reader);
-    else if (id == 0xc558d8ab)
-        return GetGroupParticipants::read(reader);
-    else if (id == 0xb59cf977)
-        return CheckGroupCall::read(reader);
-    else if (id == 0xc02a66d7)
-        return ToggleGroupCallRecord::read(reader);
-    else if (id == 0xa5273abf)
-        return EditGroupCallParticipant::read(reader);
-    else if (id == 0x1ca6ac0a)
-        return EditGroupCallTitle::read(reader);
-    else if (id == 0xef7c213a)
-        return GetGroupCallJoinAs::read(reader);
-    else if (id == 0xe6aa647f)
-        return ExportGroupCallInvite::read(reader);
-    else if (id == 0x219c34e6)
-        return ToggleGroupCallStartSubscription::read(reader);
-    else if (id == 0x5680e342)
-        return StartScheduledGroupCall::read(reader);
-    else if (id == 0x575e1f8c)
-        return SaveDefaultGroupCallJoinAs::read(reader);
-    else if (id == 0xcbea6bc4)
-        return JoinGroupCallPresentation::read(reader);
-    else if (id == 0x1c50d144)
-        return LeaveGroupCallPresentation::read(reader);
-    else if (id == 0xf2f2330a)
-        return GetLangPack::read(reader);
-    else if (id == 0xefea3803)
-        return GetStrings::read(reader);
-    else if (id == 0xcd984aa5)
-        return GetDifference::read(reader);
-    else if (id == 0x42c6978f)
-        return GetLanguages::read(reader);
-    else if (id == 0x6a596502)
-        return GetLanguage::read(reader);
-    else if (id == 0x6847d0ab)
-        return EditPeerFolders::read(reader);
-    else if (id == 0x1c295881)
-        return DeleteFolder::read(reader);
-    else if (id == 0xab42441a)
-        return GetBroadcastStats::read(reader);
-    else if (id == 0x621d5fa0)
-        return LoadAsyncGraph::read(reader);
-    else if (id == 0xdcdf8607)
-        return GetMegagroupStats::read(reader);
-    else if (id == 0x5630281b)
-        return GetMessagePublicForwards::read(reader);
-    else if (id == 0xb6e0a3f5)
-        return GetMessageStats::read(reader);
+
+    default:
+        throw std::runtime_error("Unknown id received: " + std::to_string(id));
+        break;
+    }
 }

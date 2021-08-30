@@ -19,22 +19,42 @@
  * SOFTWARE.
  */
 
-#pragma once
-#include <sqlite3.h>
-#include <string>
-#include <cstring>
-#include <stdexcept>
+#include "utils/streams.h"
 
-class Storage
+Reader::Reader(std::vector<unsigned char> data) : __buffer(data) {}
+
+std::vector<unsigned char> Reader::getBuffer()
 {
-private:
-    bool __is_started = false;
-    std::string __storage_name;
-    sqlite3 *__db;
+    return __buffer;
+}
 
-public:
-    Storage(std::string storageName);
-    void start();
-    void stop();
-    ~Storage();
-};
+std::vector<unsigned char> Reader::read(const size_t length)
+{
+    if (__position + length >= __buffer.size())
+        throw std::invalid_argument("The given length is invalid");
+    return std::vector<unsigned char>(__buffer.begin() + __position, __buffer.begin() + (__position += length));
+}
+
+void Reader::seek(const size_t offset)
+{
+    if (__position + offset < 0 || __position + offset >= __buffer.size())
+        throw std::invalid_argument("The given offset is invalid");
+    __position += offset;
+}
+
+Writer::Writer(std::vector<unsigned char> data) : __buffer(data) {}
+
+std::vector<unsigned char> Writer::getBuffer()
+{
+    return __buffer;
+}
+
+void Writer::write(std::vector<unsigned char> data)
+{
+    __buffer.insert(__buffer.begin(), data.begin(), data.end());
+}
+
+void Writer::write(unsigned char data)
+{
+    __buffer.push_back(data);
+}

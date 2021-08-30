@@ -20,21 +20,30 @@
  */
 
 #pragma once
-#include <sqlite3.h>
-#include <string>
-#include <cstring>
+#include <vector>
 #include <stdexcept>
 
-class Storage
+class Reader
 {
 private:
-    bool __is_started = false;
-    std::string __storage_name;
-    sqlite3 *__db;
+    std::vector<unsigned char> __buffer;
+    int __position = 0;
 
 public:
-    Storage(std::string storageName);
-    void start();
-    void stop();
-    ~Storage();
+    Reader(std::vector<unsigned char> data);
+    std::vector<unsigned char> getBuffer();
+    std::vector<unsigned char> read(const size_t length);
+    void seek(const size_t offset);
+};
+
+class Writer
+{
+private:
+    std::vector<unsigned char> __buffer;
+
+public:
+    Writer(std::vector<unsigned char> data);
+    std::vector<unsigned char> getBuffer();
+    void write(const std::vector<unsigned char> value);
+    void write(const unsigned char value);
 };

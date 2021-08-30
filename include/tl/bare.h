@@ -1,100 +1,132 @@
-/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+/* Copyright (c) 2021 Mattia Lorenzo Chiabrando
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 #pragma once
-#include "util.h"
-#include "TLObject.h"
 #include <vector>
+#include <cstring>
+#include <string>
+#include <type_traits>
+#include "tl/TLObject.h"
+#include "utils/streams.h"
+#include "utils/packing.h"
 
 class Int : public TLObject
 {
 public:
-    Int() = default;
-    static int read(Reader reader, std::string byteorder = "little");
-    static std::string write(int value, std::string byteorder = "little");
+    static int read(Reader reader, const char *byteorder = "little");
+    static void write(Writer writer, const int value, const char *byteorder = "little");
 };
 
 class Int128 : public TLObject
 {
 public:
-    Int128() = default;
-    static uint128_t read(Reader reader, std::string byteorder = "little");
-    static std::string write(uint128_t value, std::string byteorder = "little");
+    static int128_t read(Reader reader, const char *byteorder = "little");
+    static void write(Writer writer, const int128_t value, const char *byteorder = "little");
 };
 
 class Int256 : public TLObject
 {
 public:
-    Int256() = default;
-    static uint256_t read(Reader reader, std::string byteorder = "little");
-    static std::string write(uint256_t value, std::string byteorder = "little");
+    static int256_t read(Reader reader, const char *byteorder = "little");
+    static void write(Writer writer, const int256_t value, const char *byteorder = "little");
 };
 
 class Long : public TLObject
 {
 public:
-    Long() = default;
-    static unsigned long read(Reader reader, std::string byteorder = "little");
-    static std::string write(unsigned long value, std::string byteorder = "little");
+    static long read(Reader reader, const char *byteorder = "little");
+    static void write(Writer writer, const long value, const char *byteorder = "little");
 };
 
 class Double : public TLObject
 {
 public:
-    Double() = default;
     static double read(Reader reader);
-    static std::string write(double value);
+    static void write(Writer writer, const double value);
 };
 
 class Bytes : public TLObject
 {
 public:
-    Bytes() = default;
-    static std::string read(Reader reader);
-    static std::string write(std::string value);
+    static std::vector<unsigned char> read(Reader reader);
+    static void write(Writer writer, std::vector<unsigned char> value);
 };
 
 class String : public Bytes
 {
 public:
-    String() = default;
     static std::string read(Reader reader);
-    static std::string write(std::string value);
+    static void write(Writer writer, std::string value);
 };
 
 class Bool : public TLObject
 {
 private:
-    static const int Bool::__bool_false_id = 0xbc799737;
-    static const int Bool::__bool_true_id = 0x997275b5;
+    static const int __bool_false_id = 0xbc799737;
+    static const int __bool_true_id = 0x997275b5;
 
 public:
-    Bool() = default;
     static bool read(Reader reader);
-    static std::string write(bool value);
+    static void write(Writer writer, const bool value);
 };
 
-template <class T>
+template <class T, class = typename std::enable_if_t<std::is_base_of_v<TLObject, T>, bool>>
 class Vector : public TLObject
 {
 private:
-    int __id = 0x1cb5c415;
+    static const int __id = 0x1cb5c415;
 
 public:
-    Vector() = default;
-    static std::vector<T> read(Reader reader);
-    static std::string write(std::vector<T> values);
+    static const int getId()
+    {
+        return __id;
+    }
+
+    static std::vector<typename decltype(std::function{T::read})::result_type> read(Reader reader)
+    {
+        reader.seek(4);
+        size_t length = Int::read(reader);
+        std::vector<typename decltype(std::function{T::read})::result_type> values;
+
+        for (size_t i = 0; i < length; i++)
+            values.push_back(T::read(reader));
+        return values;
+    };
+
+    static void write(Writer writer, std::vector<T> values)
+    {
+        Int::write(writer, __id);
+        Int::write(writer, values.size());
+
+        for (T value : values)
+            value.write(writer);
+    };
+
+    template <class Q = T, class = typename std::enable_if_t<!std::is_same_v<Q, TLObject>, bool>>
+    static void write(Writer writer, std::vector<typename decltype(std::function{Q::read})::result_type> values)
+    {
+        Int::write(writer, __id);
+        Int::write(writer, values.size());
+
+        for (typename decltype(std::function{Q::read})::result_type value : values)
+            Q::write(writer, value);
+    };
 };

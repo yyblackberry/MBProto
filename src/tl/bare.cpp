@@ -1,75 +1,85 @@
-/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+/* Copyright (c) 2021 Mattia Lorenzo Chiabrando
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 #include "tl/bare.h"
 
-int Int::read(Reader reader, std::string byteorder = "little")
+int Int::read(Reader reader, const char byteorder[])
 {
     return unpackInt(reader.read(4), byteorder);
 }
 
-std::string Int::write(int value, std::string byteorder = "little")
+void Int::write(Writer writer, int value, const char byteorder[])
 {
-    return packInt(value, 4, byteorder);
+    return writer.write(packInt(value, 4, byteorder));
 }
 
-uint128_t Int128::read(Reader reader, std::string byteorder = "little")
+int128_t Int128::read(Reader reader, const char byteorder[])
 {
     return unpackInt128(reader.read(16), byteorder);
 }
 
-std::string Int128::write(uint128_t value, std::string byteorder = "little")
+void Int128::write(Writer writer, int128_t value, const char byteorder[])
 {
-    return packInt128(value, byteorder);
+    return writer.write(packInt128(value, byteorder));
 }
 
-uint256_t Int256::read(Reader reader, std::string byteorder = "little")
+int256_t Int256::read(Reader reader, const char byteorder[])
 {
     return unpackInt256(reader.read(32), byteorder);
 }
 
-std::string Int256::write(uint256_t value, std::string byteorder = "little")
+void Int256::write(Writer writer, int256_t value, const char byteorder[])
 {
-    return packInt256(value, byteorder);
+    return writer.write(packInt256(value, byteorder));
 }
 
-unsigned long Long::read(Reader reader, std::string byteorder = "little")
+long Long::read(Reader reader, const char byteorder[])
 {
     return unpackLong(reader.read(8), byteorder);
 }
 
-std::string Long::write(unsigned long value, std::string byteorder = "little")
+void Long::write(Writer writer, long value, const char byteorder[])
 {
-    return packLong(value, byteorder);
+    return writer.write(packLong(value, byteorder));
 }
 
 double Double::read(Reader reader)
 {
-    return std::stod(reader.read(8));
+    double value;
+    std::vector<unsigned char> buffer = reader.read(8);
+    memcpy(&value, &buffer[0], std::min(buffer.size(), sizeof(double)));
+    return value;
 }
 
-std::string Double::write(double value)
+void Double::write(Writer writer, double value)
 {
-    return std::to_string(value);
+    std::vector<unsigned char> buffer;
+    memcpy(&buffer[0], &value, std::min(sizeof(double), buffer.size()));
+    writer.write(buffer);
 }
 
-std::string Bytes::read(Reader reader)
+std::vector<unsigned char> Bytes::read(Reader reader)
 {
     size_t length = unpackInt(reader.read(1));
-    std::string bytes;
+    std::vector<unsigned char> bytes;
 
     if (length == 254)
     {
@@ -85,39 +95,43 @@ std::string Bytes::read(Reader reader)
     return bytes;
 };
 
-std::string Bytes::write(std::string value)
+void Bytes::write(Writer writer, std::vector<unsigned char> value)
 {
-    std::string buffer;
-    size_t length = value.length();
+    std::vector<unsigned char> buffer;
+    std::vector<unsigned char> tmp;
+    size_t length = value.size();
 
     if (length >= 254)
     {
-        buffer.append("\xfe");
-        buffer.append(packInt(length, 3));
-        buffer.append(value);
+        buffer.push_back('\xfe');
+        tmp = packInt(length, 3);
+        buffer.insert(buffer.begin(), tmp.begin(), tmp.end());
+        buffer.insert(buffer.begin(), value.begin(), value.end());
 
         for (size_t i = 0; i < -length % 4; i++)
-            buffer.append("\x00");
+            buffer.push_back('\x00');
     }
     else
     {
-        buffer.append(packInt(length, 1));
-        buffer.append(value);
+        tmp = packInt(length, 1);
+        buffer.insert(buffer.begin(), tmp.begin(), tmp.end());
+        buffer.insert(buffer.begin(), value.begin(), value.end());
 
         for (size_t i = 0; i < -length % 4; i++)
-            buffer.append("\x00");
+            buffer.push_back('\x00');
     }
-    return buffer;
+    writer.write(buffer);
 }
 
 std::string String::read(Reader reader)
 {
-    return Bytes::read(reader);
+    std::vector<unsigned char> buffer = Bytes::read(reader);
+    return std::string(buffer.begin(), buffer.end());
 };
 
-std::string String::write(std::string value)
+void String::write(Writer writer, std::string value)
 {
-    return Bytes::write(value);
+    Bytes::write(writer, std::vector<unsigned char>(value.begin(), value.end()));
 }
 
 bool Bool::read(Reader reader)
@@ -125,30 +139,7 @@ bool Bool::read(Reader reader)
     return unpackInt(reader.read(4)) == __bool_true_id;
 }
 
-std::string Bool::write(bool value)
+void Bool::write(Writer writer, bool value)
 {
-    return value ? packInt(Bool::__bool_true_id, 4) : packInt(Bool::__bool_false_id, 4);
-}
-
-template <class T>
-std::vector<T> Vector<T>::read(Reader reader)
-{
-    size_t length = Int.read(reader);
-    std::vector<T> values;
-
-    for (size_t i = 0; i < length; i++)
-        values.push_back(T.read(reader));
-    return values;
-}
-
-template <class T>
-std::string Vector<T>::write(std::vector<T> values)
-{
-    std::string buffer;
-    buffer.append(Int.write(__id));
-    buffer.append(Int.write(values.size()));
-
-    for (T value : values)
-        buffer.append(value.write());
-    return buffer;
+    writer.write(value ? packInt(Bool::__bool_true_id, 4) : packInt(Bool::__bool_false_id, 4));
 }

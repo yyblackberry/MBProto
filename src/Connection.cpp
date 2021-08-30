@@ -1,17 +1,22 @@
-/* Copyright (C) 2021  Mattia  Lorenzo Chiabrando <https://github.com/mattiabrandon>
+/* Copyright (c) 2021 Mattia Lorenzo Chiabrando
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 #include "Connection.h"
@@ -40,15 +45,9 @@ int inet_pton(int af, const char *src, void *dst)
 }
 #endif
 
-std::string DC1[] = {"149.154.175.53", "2001:b28:f23d:f001::a"};
-std::string DC2[] = {"149.154.167.51", "2001:67c:4e8:f002::a"};
-std::string DC3[] = {"149.154.175.100", "2001:b28:f23d:f003::a"};
-std::string DC4[] = {"149.154.167.91", "2001:67c:4e8:f004::a"};
-std::string DC5[] = {"91.108.56.130", "2001:b28:f23f:f005::a"};
-
-Connection::Connection(std::string dc[2], int port, bool use_ipv6)
+Connection::Connection(datacenter_t dc_id, const int port, const bool use_ipv6)
 {
-    std::string address = dc[use_ipv6 ? 1 : 0];
+    const char *address = __datacenters[dc_id][use_ipv6 ? 1 : 0];
     __server_address.sin_family = use_ipv6 ? AF_INET6 : AF_INET;
     __sockfd = socket(__server_address.sin_family, SOCK_STREAM, 0);
 
@@ -56,7 +55,7 @@ Connection::Connection(std::string dc[2], int port, bool use_ipv6)
         throw std::runtime_error("Can't initialize the connection: " + std::string(strerror(errno)));
     __server_address.sin_port = htons(port);
 
-    if (inet_pton(AF_INET, address.c_str(), &__server_address.sin_addr) <= 0)
+    if (inet_pton(AF_INET, address, &__server_address.sin_addr) <= 0)
         throw std::runtime_error("Invalid address: " + std::string(address));
 }
 
@@ -70,25 +69,33 @@ void Connection::start()
     __is_started = true;
 }
 
-std::string Connection::recv(size_t length)
+std::vector<unsigned char> Connection::recv(const size_t length)
 {
-    size_t total_recv = 0;
-    std::vector<char> buffer(length);
+    size_t total = 0;
+    std::vector<unsigned char> buffer(length);
 
     do
     {
-        size_t chunk_recv = ::recv(__sockfd, buffer.data() + total_recv, length - total_recv, 0);
+#ifdef _WIN32
+        size_t chunk = ::recv(__sockfd, (char *)&buffer[total], length - total, 0);
+#else
+        size_t chunk = ::recv(__sockfd, &buffer[total], length - total, 0);
+#endif
 
-        if (chunk_recv <= 0)
-            throw std::runtime_error(strerror(errno));
-        total_recv += chunk_recv;
-    } while (length < total_recv);
-    return std::string(buffer.data());
+        if (chunk <= 0)
+            throw std::runtime_error(std::strerror(errno));
+        total += chunk;
+    } while (total < length);
+    return buffer;
 }
 
-void Connection::send(std::string buffer)
+void Connection::send(const std::vector<unsigned char> buffer)
 {
-    if (::send(__sockfd, buffer.data(), buffer.length(), 0) <= 0)
+#ifdef _WIN32
+    if (::send(__sockfd, (char *)&buffer[0], buffer.size(), 0) <= 0)
+#else
+    if (::send(__sockfd, &buffer[0], buffer.size(), 0) <= 0)
+#endif
         throw std::runtime_error(strerror(errno));
 }
 

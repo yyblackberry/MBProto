@@ -9,7 +9,11 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
-parser/mtproto_api.tl
-parser/telegram_api.tl
-parser/a.out
+build
 .vscode
+include/tl/functions.h
+include/tl/types.h
+src/tl/functions.cpp
+src/tl/TLObject.cpp
+src/tl/types.cpp
+test
