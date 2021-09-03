@@ -20,3 +20,11 @@
  */
 
 #include "AuthKey.h"
+
+AuthKey::AuthKey(/* args */)
+{
+}
+
+AuthKey::~AuthKey()
+{
+}

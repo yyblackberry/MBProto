@@ -21,12 +21,14 @@
 
 #pragma once
 #include <variant>
-#include <functional>
+#include <type_traits>
 #include "utils/streams.h"
 
 class TLObject
 {
 public:
-    static TLObject read(Reader reader);
+    static std::variant<TLObject, std::vector<TLObject>> read(Reader reader);
+    template <class T, typename U, typename = typename std::enable_if_t<std::is_base_of_v<TLObject, T>, bool>>
+    static std::vector<U> read(Reader reader);
     virtual void write(Writer writer);
 };

@@ -20,3 +20,12 @@
  */
 
 #pragma once
+
+class AuthKey
+{
+private:
+    /* data */
+public:
+    AuthKey(/* args */);
+    ~AuthKey();
+};

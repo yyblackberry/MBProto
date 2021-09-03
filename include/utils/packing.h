@@ -25,11 +25,11 @@
 
 using namespace boost::multiprecision;
 
-int unpackInt(const std::vector<unsigned char> buffer, const char *byteorder = "little");
-std::vector<unsigned char> packInt(const int n, const size_t length, const char *byteorder = "little");
-long unpackLong(const std::vector<unsigned char> buffer, const char *byteorder = "little");
-std::vector<unsigned char> packLong(const long n, const char *byteorder = "little");
-int128_t unpackInt128(const std::vector<unsigned char> buffer, const char *byteorder = "little");
-std::vector<unsigned char> packInt128(const int128_t n, const char *byteorder = "little");
-int256_t unpackInt256(const std::vector<unsigned char> buffer, const char *byteorder = "little");
-std::vector<unsigned char> packInt256(const int256_t n, const char *byteorder = "little");
+int unpackInt(const std::vector<unsigned char> buffer);
+std::vector<unsigned char> packInt(const int n, const size_t length);
+long unpackLong(const std::vector<unsigned char> buffer);
+std::vector<unsigned char> packLong(const long n);
+int128_t unpackInt128(const std::vector<unsigned char> buffer);
+std::vector<unsigned char> packInt128(const int128_t n);
+int256_t unpackInt256(const std::vector<unsigned char> buffer);
+std::vector<unsigned char> packInt256(const int256_t n);

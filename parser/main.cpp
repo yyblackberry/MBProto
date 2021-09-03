@@ -27,18 +27,19 @@
 #include <regex>
 #include <vector>
 
-const std::regex GENERAL_RE(R"(^(?:([a-z]+)\.)?(\w+)#([a-f0-9]+) .*= (?:([a-z]+)\.)?(\w+);\r?$)");
-const std::regex ARGS_RE(R"([^{](\w+):([\w?!.<>#]+))");
-const std::regex FLAG_RE(R"(flags\.(\d+)\?([\w<>.]+))");
-const std::regex VECTOR_RE(R"([vV]ector<([\w.]+)>)", std::regex_constants::icase);
-const std::regex SNAKE_CASE_RE(R"(([a-zA-Z\d]+))");
-const std::string RESERVED[] = {"long", "static", "public", "delete", "default", "private"};
-const std::string BARE[] = {"int", "int128", "int256", "long", "double", "bytes", "string", "Bool", "true"};
 const std::string COPYRIGHT = "/* Copyright (c) 2021 Mattia Lorenzo Chiabrando\n * \n * Permission is hereby granted, free of charge, to any person obtaining a copy\n * of this software and associated documentation files (the \"Software\"), to deal\n * in the Software without restriction, including without limitation the rights\n * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n * copies of the Software, and to permit persons to whom the Software is\n * furnished to do so, subject to the following conditions:\n * \n * The above copyright notice and this permission notice shall be included in all\n * copies or substantial portions of the Software.\n * \n * THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n * SOFTWARE.\n */\n\n";
+const std::regex GENERAL_RE(R"(^(?:([a-z]+)\.)?(\w+)#([a-f0-9]+) .*= (?:([a-z]+)\.)?(\w+);\r?$)");
+const std::string UNUSED[] = {"true", "boolFalse", "boolTrue"};
+const std::regex SNAKE_CASE_RE(R"(([a-zA-Z\d]+))");
+const std::regex ARGS_RE(R"([^{](\w+):([\w?!.<>#]+))");
+const std::string RESERVED[] = {"long", "static", "public", "delete", "default", "private"};
+const std::regex FLAG_RE(R"(flags\.(\d+)\?([\w<>.]+))");
+const std::string BARE[] = {"int", "int128", "int256", "long", "double", "bytes", "string", "Bool", "true"};
+const std::regex VECTOR_RE(R"([vV]ector<([\w.]+)>)", std::regex_constants::icase);
 
 struct Argument
 {
-    std::string name, type, class_, index;
+    std::string name, type, class_, read_class, write_class, index;
     bool is_flag, is_vector, is_bare;
 };
 
@@ -54,8 +55,7 @@ const Argument parse_arg(const std::string name, const std::string type)
     if (std::regex_match(arg.type, flag_match, FLAG_RE))
     {
         arg.index = flag_match.str(1);
-        arg.type = flag_match.str(2);
-        arg.class_ = flag_match.str(2);
+        arg.type = arg.class_ = flag_match.str(2);
         arg.class_[0] = toupper(arg.class_[0]);
         arg.is_flag = true;
     }
@@ -65,8 +65,12 @@ const Argument parse_arg(const std::string name, const std::string type)
     {
         Argument base_arg = parse_arg(arg.name, vector_match.str(1));
         arg.type = "std::vector<" + base_arg.type + ">";
-        arg.class_ = "Vector<" + base_arg.class_ + ">";
-        arg.is_vector = true;
+
+        if (base_arg.is_bare)
+            arg.read_class = "TLObject::read<" + base_arg.class_ + ", " + base_arg.type + ">(reader)";
+        else
+            arg.read_class = "std::get<std::vector<TLObject>>(TLObject::read(reader))";
+        arg.write_class = "Vector<" + base_arg.class_ + ", " + base_arg.type + ">::write(writer, " + arg.name + (arg.is_flag ? ".value()" : "") + ")";
         arg.is_bare = true;
     }
     else if (std::find(std::begin(BARE), std::end(BARE), arg.type) != std::end(BARE))
@@ -86,12 +90,22 @@ const Argument parse_arg(const std::string name, const std::string type)
         arg.is_bare = true;
     }
     else if (arg.type == "!X")
-        arg.type = arg.class_ = "X";
+        arg.type = "X";
     else if (arg.type != "#")
+    {
         arg.type = arg.class_ = "TLObject";
+        arg.read_class = "std::get<TLObject>(TLObject::read(reader))";
+        arg.write_class = arg.name + (arg.is_flag ? ".value()" : "") + ".write(writer)";
+    }
 
     if (arg.is_flag)
         arg.type = "std::optional<" + arg.type + ">";
+
+    if (arg.read_class.empty() || arg.write_class.empty())
+    {
+        arg.read_class = arg.class_ + "::read(reader)";
+        arg.write_class = arg.class_ + "::write(writer, " + arg.name + (arg.is_flag ? ".value()" : "") + ")";
+    }
     return arg;
 }
 
@@ -116,7 +130,7 @@ void parse_tl_object()
     assert(telegram.is_open());
     std::ofstream output("src/tl/TLObject.cpp");
     assert(output.is_open());
-    output << COPYRIGHT << "#include \"tl/types.h\"\n\nTLObject TLObject::read(Reader reader)\n{\n    int id = Int::read(reader);\n\n    switch (id)\n    {" << std::endl;
+    output << COPYRIGHT << "#include \"tl/TLObject.h\"\n#include \"tl/types.h\"\n\nstd::variant<TLObject, std::vector<TLObject>> TLObject::read(Reader reader)\n{\n    int tl_id = Int::read(reader);\n\n    switch (tl_id)\n    {" << std::endl;
     std::string line;
     bool is_type = true;
 
@@ -129,13 +143,13 @@ void parse_tl_object()
         }
         std::smatch match;
 
-        if (!is_type || line.substr(0, 2) == "//" || line == "\r" || !std::regex_match(line, match, GENERAL_RE))
+        if (!is_type || line.substr(0, 2) == "//" || line == "\r" || !std::regex_match(line, match, GENERAL_RE) || std::find(std::begin(UNUSED), std::end(UNUSED), match.str(2)) != std::end(UNUSED))
             continue;
         const std::string name = snake_to_camel_case(match.str(2));
-        output << "    case " << (match.str(1) != "" ? match.str(1) + "::" : "") << name << "::getId():\n        return " << (match.str(1) != "" ? match.str(1) + "::" : "") << name << "::read(reader);\n"
+        output << "    case " << (match.str(1) != "" ? match.str(1) + "::" : "") << name << "::tl_id:\n        return " << (match.str(1) != "" ? match.str(1) + "::" : "") << name << "::read(reader);\n"
                << std::endl;
     }
-    output << "    default:\n        throw std::runtime_error(\"Unknown id received: \" + std::to_string(id));\n        break;\n    }\n}" << std::endl;
+    output << "    case Vector<TLObject, TLObject>::tl_id:\n        return Vector<TLObject, TLObject>::read(reader);\n\n    default:\n        throw std::runtime_error(\"Unknown tl_id received: \" + std::to_string(tl_id));\n        break;\n    }\n}\n\ntemplate <class T, typename U, typename>\nstd::vector<U> TLObject::read(Reader reader)\n{\n    int tl_id = Int::read(reader);\n\n    if (tl_id == Vector<T, U>::tl_id)\n        return Vector<T, U>::read(reader);\n    else\n        throw std::runtime_error(\"Unknown tl_id received: \" + std::to_string(tl_id));\n}" << std::endl;
 }
 
 void parse(const bool types, const bool header)
@@ -164,7 +178,7 @@ void parse(const bool types, const bool header)
         }
         std::smatch match;
 
-        if ((types && !is_type) || (!types && is_type) || line.substr(0, 2) == "//" || line == "\r" || !std::regex_match(line, match, GENERAL_RE))
+        if ((types && !is_type) || (!types && is_type) || line.substr(0, 2) == "//" || line == "\r" || !std::regex_match(line, match, GENERAL_RE) || std::find(std::begin(UNUSED), std::end(UNUSED), match.str(2)) != std::end(UNUSED))
             continue;
         else if (match.str(1) != "" && match.str(1) != last_namespace)
         {
@@ -203,13 +217,8 @@ void parse(const bool types, const bool header)
                 output << "\n"
                        << tab << "class " << name << " : public TLObject\n"
                        << tab << "{\n"
-                       << tab << "private:\n"
-                       << tab << "    static const int __id = 0x" << match.str(3) << ";\n\n"
                        << tab << "public:\n"
-                       << tab << "    static constexpr int getId()\n"
-                       << tab << "    {\n"
-                       << tab << "        return __id;\n"
-                       << tab << "    }\n\n"
+                       << tab << "    static const int tl_id = 0x" << match.str(3) << ";\n\n"
                        << tab << "    static " << name << " read(Reader reader);\n"
                        << tab << "    void write(Writer writer);\n"
                        << tab << "};"
@@ -224,7 +233,7 @@ void parse(const bool types, const bool header)
                        << tab << "}\n\n"
                        << tab << "void " << name << "::write(Writer writer)\n"
                        << tab << "{\n"
-                       << tab << "    Int::write(writer, __id);\n"
+                       << tab << "    Int::write(writer, tl_id);\n"
                        << tab << "}"
                        << std::endl;
             }
@@ -244,22 +253,22 @@ void parse(const bool types, const bool header)
 
                         if (arg.is_flag)
                         {
-                            readers += "\n        " + arg.type + " " + arg.name + "_ = flags & (1 << " + arg.index + ") ? std::optional{" + (arg.type == "std::optional<bool>" ? "true" : arg.class_ + "::read(reader)") + "} : std::nullopt;";
+                            readers += "\n        " + arg.type + " " + arg.name + "_ = flags & (1 << " + arg.index + ") ? " + arg.type + "{" + (arg.type == "std::optional<bool>" ? "true" : arg.read_class) + "} : std::nullopt;";
                             flags_writers += "\n        flags |= " + arg.name + " ? 1 << " + arg.index + " : 0;";
                         }
                         else
                         {
                             constructors += ", " + arg.type + " " + arg.name + "_";
-                            readers += "\n        " + arg.type + " " + arg.name + "_ = " + arg.class_ + "::read(reader);";
+                            readers += "\n        " + arg.type + " " + arg.name + "_ = " + arg.read_class + ";";
                             returns += ", " + arg.name + "_";
                         }
 
                         if (arg.type == "std::optional<bool>")
                             continue;
                         else if (arg.is_flag)
-                            writers += "\n\n        if (" + arg.name + ")\n            " + (arg.is_bare ? arg.class_ + "::write(writer, " + arg.name + ".value())" : arg.name + ".value().write(writer)") + ";";
+                            writers += "\n\n        if (" + arg.name + ")\n            " + arg.write_class + ";";
                         else
-                            writers += "\n        " + (arg.is_bare ? arg.class_ + "::write(writer, " + arg.name + ")" : arg.name + ".write(writer)") + ";";
+                            writers += "\n        " + arg.write_class + ";";
                     }
 
                     for (Argument arg : args)
@@ -268,7 +277,7 @@ void parse(const bool types, const bool header)
                             constructors += ", " + arg.type + " " + arg.name + "_ = std::nullopt";
                             returns += ", " + arg.name + "_";
                         }
-                    output << "\ntemplate <class X>\nclass " << name << " : public TLObject\n{\nprivate:\n    static const int __id = 0x" << match.str(3) << ";\n\npublic:\n    " << declarations.substr(9) << "\n\n    " << name << "(" << constructors.substr(2) << ") : " << assigners.substr(2) << " {};\n\n    static constexpr int getId()\n    {\n        return __id;\n    };\n\n    static " << name << "<X> read(Reader reader)\n    {\n        int flags = Int::read(reader);\n        " << readers.substr(9) << "\n        return " << name << "<X>(" << returns.substr(2) << ");\n    };\n\n    void write(Writer writer)\n    {\n        Int::write(writer, __id);\n        int flags = 0;\n        " << flags_writers.substr(9) << "\n        Int::write(writer, flags);\n        " << writers.substr(9) << "\n    };\n};" << std::endl;
+                    output << "\ntemplate <class X>\nclass " << name << " : public TLObject\n{\npublic:\n    static const int tl_id = 0x" << match.str(3) << ";\n\n    " << declarations.substr(9) << "\n\n    " << name << "(" << constructors.substr(2) << ") : " << assigners.substr(2) << " {};\n\n    static " << name << "<X> read(Reader reader)\n    {\n        int flags = Int::read(reader);\n        " << readers.substr(9) << "\n        return " << name << "<X>(" << returns.substr(2) << ");\n    };\n\n    void write(Writer writer)\n    {\n        Int::write(writer, tl_id);\n        int flags = 0;\n        " << flags_writers.substr(9) << "\n        Int::write(writer, flags);\n        " << writers.substr(9) << "\n    };\n};" << std::endl;
                 }
                 else
                 {
@@ -289,15 +298,10 @@ void parse(const bool types, const bool header)
                     output << "\n"
                            << tab << "class " << name << " : public TLObject\n"
                            << tab << "{\n"
-                           << tab << "private:\n"
-                           << tab << "    static const int __id = 0x" << match.str(3) << ";\n\n"
                            << tab << "public:\n"
+                           << tab << "    static const int tl_id = 0x" << match.str(3) << ";\n\n"
                            << tab << "    " << declarations.substr(5 + tab.length()) << "\n\n"
-                           << tab << "    " << name << "(" << constructors.substr(2) << ") : " << assigners.substr(2) << " {};\n\n"
-                           << tab << "    static constexpr int getId()\n"
-                           << tab << "    {\n"
-                           << tab << "        return __id;\n"
-                           << tab << "    };\n\n"
+                           << tab << "    " << name << "(" << constructors.substr(2) << ") : " << assigners.substr(2) << " {};\n"
                            << tab << "    static " << name << " read(Reader reader);\n"
                            << tab << "    void write(Writer writer);\n"
                            << tab << "};"
@@ -312,21 +316,21 @@ void parse(const bool types, const bool header)
                 {
                     if (arg.is_flag)
                     {
-                        readers += "\n" + tab + "    " + arg.type + " " + arg.name + "_ = flags & (1 << " + arg.index + ") ? std::optional{" + (arg.type == "std::optional<bool>" ? "true" : arg.class_ + "::read(reader)") + "} : std::nullopt;";
+                        readers += "\n" + tab + "    " + arg.type + " " + arg.name + "_ = flags & (1 << " + arg.index + ") ? " + arg.type + "{" + (arg.type == "std::optional<bool>" ? "true" : arg.read_class) + "} : std::nullopt;";
                         flags_writers += "\n" + tab + "    flags |= " + arg.name + " ? 1 << " + arg.index + " : 0;";
                     }
                     else
                     {
-                        readers += "\n" + tab + "    " + arg.type + " " + arg.name + "_ = " + arg.class_ + "::read(reader);";
+                        readers += "\n" + tab + "    " + arg.type + " " + arg.name + "_ = " + arg.read_class + ";";
                         returns += ", " + arg.name + "_";
                     }
 
                     if (arg.type == "std::optional<bool>")
                         continue;
                     else if (arg.is_flag)
-                        writers += "\n\n" + tab + "    if (" + arg.name + ")\n" + tab + "        " + (arg.is_bare ? arg.class_ + "::write(writer, " + arg.name + ".value())" : arg.name + ".value().write(writer)") + ";";
+                        writers += "\n\n" + tab + "    if (" + arg.name + ")\n" + tab + "        " + arg.write_class + ";";
                     else
-                        writers += "\n" + tab + "    " + (arg.is_bare ? arg.class_ + "::write(writer, " + arg.name + ")" : arg.name + ".write(writer)") + ";";
+                        writers += "\n" + tab + "    " + arg.write_class + ";";
                 }
 
                 for (Argument arg : args)
@@ -341,7 +345,7 @@ void parse(const bool types, const bool header)
                        << tab << "}\n\n"
                        << tab << "void " << name << "::write(Writer writer)\n"
                        << tab << "{\n"
-                       << tab << "    Int::write(writer, __id);\n"
+                       << tab << "    Int::write(writer, tl_id);\n"
                        << tab << "    int flags = 0;\n"
                        << tab << "    " << flags_writers.substr(5 + tab.length()) << "\n"
                        << tab << "    Int::write(writer, flags);\n"
@@ -363,11 +367,11 @@ void parse(const bool types, const bool header)
                         declarations += "\n    " + arg.type + " " + arg.name + ";";
                         constructors += ", " + arg.type + " " + arg.name + "_";
                         assigners += ", " + arg.name + "(" + arg.name + "_)";
-                        readers += "\n        " + arg.type + " " + arg.name + "_ = " + arg.class_ + "::read(reader);";
+                        readers += "\n        " + arg.type + " " + arg.name + "_ = " + arg.read_class + ";";
                         returns += ", " + arg.name + "_";
-                        writers += "\n        " + (arg.is_bare ? arg.class_ + "::write(writer, " + arg.name + ")" : arg.name + ".write(writer)") + ";";
+                        writers += "\n        " + arg.write_class + ";";
                     }
-                    output << "\ntemplate <class X>\nclass " << name << " : public TLObject\n{\nprivate:\n    static const int __id = 0x" << match.str(3) << ";\n\npublic:\n    " << declarations.substr(5 + tab.length()) << "\n\n    " << name << "(" << constructors.substr(2) << ") : " << assigners.substr(2) << " {};\n\n    static constexpr int getId()\n    {\n        return __id;\n    };\n\n    static " << name << "<X> read(Reader reader)\n    {\n        " << readers.substr(9) << "\n        return " << name << "<X>(" << returns.substr(2) << ");\n    };\n\n    void write(Writer writer)\n    {\n        Int::write(writer, __id);\n        " << writers.substr(9) << "\n    };\n};" << std::endl;
+                    output << "\ntemplate <class X>\nclass " << name << " : public TLObject\n{\npublic:\n    static const int tl_id = 0x" << match.str(3) << ";\n\n    " << declarations.substr(5 + tab.length()) << "\n\n    " << name << "(" << constructors.substr(2) << ") : " << assigners.substr(2) << " {};\n\n    static " << name << "<X> read(Reader reader)\n    {\n        " << readers.substr(9) << "\n        return " << name << "<X>(" << returns.substr(2) << ");\n    };\n\n    void write(Writer writer)\n    {\n        Int::write(writer, tl_id);\n        " << writers.substr(9) << "\n    };\n};" << std::endl;
                 }
                 else
                 {
@@ -382,15 +386,10 @@ void parse(const bool types, const bool header)
                     output << "\n"
                            << tab << "class " << name << " : public TLObject\n"
                            << tab << "{\n"
-                           << tab << "private:\n"
-                           << tab << "    static const int __id = 0x" << match.str(3) << ";\n\n"
                            << tab << "public:\n"
+                           << tab << "    static const int tl_id = 0x" << match.str(3) << ";\n\n"
                            << tab << "    " << declarations.substr(5 + tab.length()) << "\n\n"
                            << tab << "    " << name << "(" << constructors.substr(2) << ") : " << assigners.substr(2) << " {};\n\n"
-                           << tab << "    static constexpr int getId()\n"
-                           << tab << "    {\n"
-                           << tab << "        return __id;\n"
-                           << tab << "    };\n\n"
                            << tab << "    static " << name << " read(Reader reader);\n"
                            << tab << "    void write(Writer writer);\n"
                            << tab << "};" << std::endl;
@@ -402,9 +401,9 @@ void parse(const bool types, const bool header)
 
                 for (Argument arg : args)
                 {
-                    readers += "\n" + tab + "    " + arg.type + " " + arg.name + "_ = " + arg.class_ + "::read(reader);";
+                    readers += "\n" + tab + "    " + arg.type + " " + arg.name + "_ = " + arg.read_class + ";";
                     returns += ", " + arg.name + "_";
-                    writers += "\n" + tab + "    " + (arg.is_bare ? arg.class_ + "::write(writer, " + arg.name + ")" : arg.name + ".write(writer)") + ";";
+                    writers += "\n" + tab + "    " + arg.write_class + ";";
                 }
                 output << "\n"
                        << tab << name << " " << name << "::read(Reader reader)\n"
@@ -414,7 +413,7 @@ void parse(const bool types, const bool header)
                        << tab << "}\n\n"
                        << tab << "void " << name << "::write(Writer writer)\n"
                        << tab << "{\n"
-                       << tab << "    Int::write(writer, __id);\n"
+                       << tab << "    Int::write(writer, tl_id);\n"
                        << tab << "    " << writers.substr(5 + tab.length()) << "\n"
                        << tab << "}"
                        << std::endl;

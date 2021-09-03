@@ -21,75 +21,75 @@
 
 #include "utils/packing.h"
 
-int unpackInt(const std::vector<unsigned char> buffer, const char byteorder[])
+int unpackInt(const std::vector<unsigned char> buffer)
 {
     int n = 0;
     size_t length = buffer.size();
 
     for (size_t i = 0; i < length; i++)
-        n |= buffer[i] << ((byteorder == "little" ? i : length - 1 - i) * 8);
+        n |= buffer[i] << (i * 8);
     return n;
 }
 
-std::vector<unsigned char> packInt(const int n, const size_t length, const char byteorder[])
+std::vector<unsigned char> packInt(const int n, const size_t length)
 {
     std::vector<unsigned char> buffer(length);
 
     for (size_t i = 0; i < length; i++)
-        buffer[i] = n >> ((byteorder == "little" ? i : length - 1 - i) * 8) & 0xFF;
+        buffer[i] = n >> (i * 8) & 0xFF;
     return buffer;
 }
 
-long unpackLong(const std::vector<unsigned char> buffer, const char byteorder[])
+long unpackLong(const std::vector<unsigned char> buffer)
 {
     long n = 0;
 
     for (size_t i = 0; i < 8; i++)
-        n |= buffer[i] << ((byteorder == "little" ? i : 7 - i) * 8);
+        n |= buffer[i] << (i * 8);
     return n;
 }
 
-std::vector<unsigned char> packLong(const long n, const char byteorder[])
+std::vector<unsigned char> packLong(const long n)
 {
     std::vector<unsigned char> buffer(8);
 
     for (size_t i = 0; i < 8; i++)
-        buffer[i] = n >> ((byteorder == "little" ? i : 7 - i) * 8) & 0xFF;
+        buffer[i] = n >> (i * 8) & 0xFF;
     return buffer;
 }
 
-int128_t unpackInt128(const std::vector<unsigned char> buffer, const char byteorder[])
+int128_t unpackInt128(const std::vector<unsigned char> buffer)
 {
     int128_t n = 0;
 
     for (size_t i = 0; i < 16; i++)
-        n |= buffer[i] << ((byteorder == "little" ? i : 15 - i) * 8);
+        n |= buffer[i] << (i * 8);
     return n;
 }
 
-std::vector<unsigned char> packInt128(const int128_t n, const char byteorder[])
+std::vector<unsigned char> packInt128(const int128_t n)
 {
     std::vector<unsigned char> buffer(16);
 
     for (size_t i = 0; i < 16; i++)
-        buffer[i] = (uint8_t)(n >> ((byteorder == "little" ? i : 15 - i) * 8) & 0xFF);
+        buffer[i] = (uint8_t)(n >> (i * 8) & 0xFF);
     return buffer;
 }
 
-int256_t unpackInt256(const std::vector<unsigned char> buffer, const char byteorder[])
+int256_t unpackInt256(const std::vector<unsigned char> buffer)
 {
     int256_t n = 0;
 
     for (size_t i = 0; i < 32; i++)
-        n |= buffer[i] << ((byteorder == "little" ? i : 31 - i) * 8);
+        n |= buffer[i] << (i * 8);
     return n;
 }
 
-std::vector<unsigned char> packInt256(const int256_t n, const char byteorder[])
+std::vector<unsigned char> packInt256(const int256_t n)
 {
     std::vector<unsigned char> buffer(32);
 
     for (size_t i = 0; i < 32; i++)
-        buffer[i] = (uint8_t)(n >> ((byteorder == "little" ? i : 31 - i) * 8) & 0xFF);
+        buffer[i] = (uint8_t)(n >> (i * 8) & 0xFF);
     return buffer;
 }

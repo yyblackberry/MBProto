@@ -21,44 +21,44 @@
 
 #include "tl/bare.h"
 
-int Int::read(Reader reader, const char byteorder[])
+int Int::read(Reader reader)
 {
-    return unpackInt(reader.read(4), byteorder);
+    return unpackInt(reader.read(4));
 }
 
-void Int::write(Writer writer, int value, const char byteorder[])
+void Int::write(Writer writer, int value)
 {
-    return writer.write(packInt(value, 4, byteorder));
+    return writer.write(packInt(value, 4));
 }
 
-int128_t Int128::read(Reader reader, const char byteorder[])
+int128_t Int128::read(Reader reader)
 {
-    return unpackInt128(reader.read(16), byteorder);
+    return unpackInt128(reader.read(16));
 }
 
-void Int128::write(Writer writer, int128_t value, const char byteorder[])
+void Int128::write(Writer writer, int128_t value)
 {
-    return writer.write(packInt128(value, byteorder));
+    return writer.write(packInt128(value));
 }
 
-int256_t Int256::read(Reader reader, const char byteorder[])
+int256_t Int256::read(Reader reader)
 {
-    return unpackInt256(reader.read(32), byteorder);
+    return unpackInt256(reader.read(32));
 }
 
-void Int256::write(Writer writer, int256_t value, const char byteorder[])
+void Int256::write(Writer writer, int256_t value)
 {
-    return writer.write(packInt256(value, byteorder));
+    return writer.write(packInt256(value));
 }
 
-long Long::read(Reader reader, const char byteorder[])
+long Long::read(Reader reader)
 {
-    return unpackLong(reader.read(8), byteorder);
+    return unpackLong(reader.read(8));
 }
 
-void Long::write(Writer writer, long value, const char byteorder[])
+void Long::write(Writer writer, long value)
 {
-    return writer.write(packLong(value, byteorder));
+    return writer.write(packLong(value));
 }
 
 double Double::read(Reader reader)
@@ -142,4 +142,36 @@ bool Bool::read(Reader reader)
 void Bool::write(Writer writer, bool value)
 {
     writer.write(value ? packInt(Bool::__bool_true_id, 4) : packInt(Bool::__bool_false_id, 4));
+}
+
+template <class T, typename U>
+std::vector<U> Vector<T, U>::read(Reader reader)
+{
+    size_t length = Int::read(reader);
+    std::vector<U> values;
+
+    for (size_t i = 0; i < length; i++)
+        values.push_back(T::read(reader));
+    return values;
+}
+
+template <class T, typename U>
+void Vector<T, U>::write(Writer writer, std::vector<T> values)
+{
+    Int::write(writer, tl_id);
+    Int::write(writer, values.size());
+
+    for (T value : values)
+        value.write(writer);
+}
+
+template <class T, typename U>
+template <class Q, typename>
+void Vector<T, U>::write(Writer writer, std::vector<U> values)
+{
+    Int::write(writer, tl_id);
+    Int::write(writer, values.size());
+
+    for (U value : values)
+        T::write(writer, value);
 }

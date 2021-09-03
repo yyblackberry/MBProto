@@ -20,10 +20,8 @@
  */
 
 #pragma once
-#include <vector>
 #include <cstring>
 #include <string>
-#include <type_traits>
 #include "tl/TLObject.h"
 #include "utils/streams.h"
 #include "utils/packing.h"
@@ -31,29 +29,29 @@
 class Int : public TLObject
 {
 public:
-    static int read(Reader reader, const char *byteorder = "little");
-    static void write(Writer writer, const int value, const char *byteorder = "little");
+    static int read(Reader reader);
+    static void write(Writer writer, const int value);
 };
 
 class Int128 : public TLObject
 {
 public:
-    static int128_t read(Reader reader, const char *byteorder = "little");
-    static void write(Writer writer, const int128_t value, const char *byteorder = "little");
+    static int128_t read(Reader reader);
+    static void write(Writer writer, const int128_t value);
 };
 
 class Int256 : public TLObject
 {
 public:
-    static int256_t read(Reader reader, const char *byteorder = "little");
-    static void write(Writer writer, const int256_t value, const char *byteorder = "little");
+    static int256_t read(Reader reader);
+    static void write(Writer writer, const int256_t value);
 };
 
 class Long : public TLObject
 {
 public:
-    static long read(Reader reader, const char *byteorder = "little");
-    static void write(Writer writer, const long value, const char *byteorder = "little");
+    static long read(Reader reader);
+    static void write(Writer writer, const long value);
 };
 
 class Double : public TLObject
@@ -88,45 +86,16 @@ public:
     static void write(Writer writer, const bool value);
 };
 
-template <class T, class = typename std::enable_if_t<std::is_base_of_v<TLObject, T>, bool>>
+template <class T, typename U>
 class Vector : public TLObject
 {
-private:
-    static const int __id = 0x1cb5c415;
+    static_assert(std::is_base_of_v<TLObject, T>);
 
 public:
-    static const int getId()
-    {
-        return __id;
-    }
+    static const int tl_id = 0x1cb5c415;
 
-    static std::vector<typename decltype(std::function{T::read})::result_type> read(Reader reader)
-    {
-        reader.seek(4);
-        size_t length = Int::read(reader);
-        std::vector<typename decltype(std::function{T::read})::result_type> values;
-
-        for (size_t i = 0; i < length; i++)
-            values.push_back(T::read(reader));
-        return values;
-    };
-
-    static void write(Writer writer, std::vector<T> values)
-    {
-        Int::write(writer, __id);
-        Int::write(writer, values.size());
-
-        for (T value : values)
-            value.write(writer);
-    };
-
-    template <class Q = T, class = typename std::enable_if_t<!std::is_same_v<Q, TLObject>, bool>>
-    static void write(Writer writer, std::vector<typename decltype(std::function{Q::read})::result_type> values)
-    {
-        Int::write(writer, __id);
-        Int::write(writer, values.size());
-
-        for (typename decltype(std::function{Q::read})::result_type value : values)
-            Q::write(writer, value);
-    };
+    static std::vector<U> read(Reader reader);
+    static void write(Writer writer, std::vector<T> values);
+    template <class Q = void, typename = typename std::enable_if_t<!std::is_same_v<U, T>, Q>>
+    static void write(Writer writer, std::vector<U> values);
 };
